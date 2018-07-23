@@ -73,14 +73,18 @@ DEFAULT_LOGGING = {
 
 logger_of_core = None
 logger_of_devp = None
-LOG = None
+
+Dlog = None
+Peer = None
+
 
 def configure_logging():
     global logger_of_core, logger_of_devp, LOG
     logging.config.dictConfig(DEFAULT_LOGGING)
     logger_of_core = logging.getLogger("core")
     logger_of_devp = logging.getLogger("developer")
-    LOG = logger_of_devp.info
+    Dlog = logger_of_devp.info
+    Peer = logger_of_core.info
 
 if __name__ == "__main__":
     configure_logging()
