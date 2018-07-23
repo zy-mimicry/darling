@@ -85,7 +85,3 @@ def configure_logging():
     logger_of_devp = logging.getLogger("developer")
     Dlog = logger_of_devp.info
     Peer = logger_of_core.info
-
-if __name__ == "__main__":
-    configure_logging()
-    LOG("Just Test the logger {logger_context}".format(logger_context = "Hello logging module."))
