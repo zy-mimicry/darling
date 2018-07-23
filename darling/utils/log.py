@@ -9,8 +9,13 @@ import logging.config
 import os
 
 # You can overwrite this environment argument.
-#os.makedirs("/tmp/darling/logs", 0o755)
-#os.environ["Darling_Logs_Path"] = "/tmp/darling/logs"
+if not os.getenv("Darling_Logs_Path", ""):
+    if not os.path.exists("/tmp/darling/logs"):
+        print("here??")
+        os.makedirs("/tmp/darling/logs", 0o755)
+        os.environ["Darling_Logs_Path"] = "/tmp/darling/logs/"
+    else:
+        os.environ["Darling_Logs_Path"] = "/tmp/darling/logs/"
 
 DEFAULT_LOGGING = {
     'version' : 1,
@@ -40,16 +45,14 @@ DEFAULT_LOGGING = {
         'developer_file' : {
             'level' : "INFO",
             'class' : "logging.FileHandler",
-            #'filename' : os.environ["Darling_Logs_Path"] + "/developer_debug_file.log",
-            'filename' : "developer_debug_file.log",
+            'filename' : os.environ["Darling_Logs_Path"] + "developer_debug_file.log",
             'formatter' : 'simple',
             'mode' : 'w',
         },
         'core_file' : {
             'level' : "DEBUG",
             'class' : "logging.FileHandler",
-            'filename' :  "core_debug.log",
-            #'filename' : os.environ["Darling_Logs_Path"] + "/core_debug.log",
+            'filename' : os.environ["Darling_Logs_Path"] + "core_debug.log",
             'formatter' : 'verbose',
             'mode' : 'w',
         },
