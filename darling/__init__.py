@@ -3,7 +3,6 @@
 """
 """
 
-
 def setup():
     from darling.utils import log
     log.configure_logging()

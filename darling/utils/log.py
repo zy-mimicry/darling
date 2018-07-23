@@ -21,12 +21,12 @@ DEFAULT_LOGGING = {
 
     'formatters' : {
         'verbose' : {
-            'formate' : "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            'format' : "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
             'style' : "{",
 
         },
         'simple' : {
-            'formate' : "{levelname} {asctime} {module} {message}",
+            'format' : "{levelname} {asctime} {module} {message}",
             'style' : "{",
         },
 
@@ -81,4 +81,4 @@ def configure_logging():
 
 if __name__ == "__main__":
     configure_logging()
-    LOG("???{}".format("hfuck"))
+    LOG("Just Test the logger {logger_context}".format(logger_context = "Hello logging module."))
