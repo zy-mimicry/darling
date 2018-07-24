@@ -24,7 +24,7 @@ class BadEmailFormatErr(MailException):
 
 
 
-class DarlingMail:
+class Mail:
     """
     """
     def __init__(self):
@@ -44,6 +44,19 @@ class DarlingMail:
         else:
             raise MailConfTypeErr("Please input the current type of mail-cookie, that must 'dict'")
 
+    def _check_email_format(self, email_string):
+        if len(email_string) < 7 and if re.match(r"[^@]+@[^@]+\.[^@]+", email_string) == None:
+            raise BadEmailFormatErr("Email format is unvaild. please check it.")
+        return True
+
+    def check_email_format(self):
+        """ Check the 'from_addr' and 'to_addrs' format. """
+        self._check_email_format(self.from_addr)
+        for e in self.to_addrs:
+            self._check_email_format(e)
+        return True
+
+    @property
     def construct_mail(self):
         email = MIMEText(self.message)
         email['Subject'] = self.subject
@@ -53,21 +66,15 @@ class DarlingMail:
         email['To'] = self.to_addrs # parse yourself
         return email
 
-class DarlingMailList:
+class MailingList:
     """
     """
     def __init__(self):
         self.emails_of_group = defaultdict(set)
         self.groups_of_email = defaultdict(set)
 
-    def _check_email_format(self, email):
-        if len(email) < 7 and if re.match(r"[^@]+@[^@]+\.[^@]+", email) == None:
-            raise BadEmailFormatErr("Email format is unvaild. please check it.")
-        else:
-            return True
-
     def _is_vaild_email(self, email):
-        if self._check_email_format(email):
+        if email.check_email_format():
             if email not in self.groups_of_email:
                 raise UnvaildEmailErr("Your email addr is NOT exists list-of-mails, unvaild.")
         return True
@@ -132,7 +139,10 @@ def send_email_to_special(maillist):
     print("You want to send email from me [{}]: {}".format(sys._getframe().f_code.co_name,maillist))
     pass
 
-class DarlingMailManager:
+def send_mail_default(maillist):
+    pass
+
+class MailManager:
     """
     """
     def __init__(self):
@@ -140,6 +150,9 @@ class DarlingMailManager:
         self.marked_mail_lists = defaultdict(set)
 
     def send(self, send_mail_cb_func = None):
+        if len(self.marked_mail_lists) == 0:
+            print("Marked mail lists is empty, so can't send.")
+            return
         if send_mail_cb_func != None:
             send_mail_cb_func(self.marked_mail_lists)
         else:
@@ -159,8 +172,8 @@ class DarlingMailManager:
     @property
     def registered_names(self):
         return self.registered_mail_lists.keys()
+
     @property
     def marked_names(self):
         return self.marked_mail_lists.keys()
-    pass
 
