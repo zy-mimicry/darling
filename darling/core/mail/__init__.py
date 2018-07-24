@@ -1,12 +1,11 @@
 """
 """
 
-import smtplib
+import smtplib, re, sys
 from email.mime.text import MIMEText
 
 from collections import defaultdict
 from darling.conf import mail_conf
-import re
 
 class MailException(Exception):
     pass
@@ -22,6 +21,8 @@ class UnvaildEmailErr(MailException):
 
 class BadEmailFormatErr(MailException):
     pass
+
+
 
 class DarlingMail:
     """
@@ -53,19 +54,22 @@ class DarlingMail:
         return email
 
 class DarlingMailList:
-    """\
-    \
+    """
     """
     def __init__(self):
         self.emails_of_group = defaultdict(set)
         self.groups_of_email = defaultdict(set)
 
+    def _check_email_format(self, email):
+        if len(email) < 7 and if re.match(r"[^@]+@[^@]+\.[^@]+", email) == None:
+            raise BadEmailFormatErr("Email format is unvaild. please check it.")
+        else:
+            return True
+
     def _is_vaild_email(self, email):
-        if len(email) > 7:
-            if re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", email) == None:
-                raise BadEmailFormatErr("Email format is unvaild. please check it.")
-        if email not in self.groups_of_email:
-            raise UnvaildEmailErr("Your email addr is NOT exists list-of-mails, unvaild.")
+        if self._check_email_format(email):
+            if email not in self.groups_of_email:
+                raise UnvaildEmailErr("Your email addr is NOT exists list-of-mails, unvaild.")
         return True
 
     def _is_vaild_group(self, group):
@@ -79,15 +83,12 @@ class DarlingMailList:
 
     def unmapping_email_and_group(self, email, group):
         if self._is_vaild_email(email) and self._is_vaild_group(group):
-            if self.emails_of_group[group].count == 0:
+            self.emails_of_group[group].remove(email)
+            if len(self.emails_of_group[group]) == 0:
                 del self.emails_of_group[group]
-            else:
-                self.emails_of_group[group].remove(email)
-
-            if self.groups_of_email[email].count == 0:
+            self.groups_of_email[email].remove(group)
+            if len(self.groups_of_email[email]) == 0:
                 del self.groups_of_email[email]
-            else:
-                self.groups_of_email[email].remove(group)
 
     def display_mappings(self):
         print("Mapping emails of group: {}". format(self.emails_of_group))
@@ -103,9 +104,25 @@ class DarlingMailList:
 
     def emails_in_groups(self, *groups):
         groups = set(groups)
-        return (e for (e,g) in self.groups_of_email.items() if g & groups)
+        return [e for (e,g) in self.groups_of_email.items() if g & groups]
 
-import sys
+# def send_email(self, dmail, host = "localhost", port = 1025):
+#     if not isinstance(dmail, DarlingMail):
+#         raise MailTypeErr("You must input the instance of DarlingMail.")
+#     headers = {} if dmail.headers is None else dmail.headers
+
+#     email = MIMEText(dmai.message)
+#     email['Subject'] = dmail.subject
+#     email['From'] = dmail.from_addr
+#     for header,value in dmail.headers.items():
+#         email[header] = value
+
+#     sender = smtplib.SMTP(host, port)
+#     for addr in set(dmail.to_addrs):
+#         del email['To']
+#         email['To'] = addr
+#         sender.sendmail(from_addr, addr, email.as_string())
+#     sender.quit()
 
 def send_email_to_groups(maillist):
     print("You want to send email from me [{}]: {}".format(sys._getframe().f_code.co_name,maillist))
@@ -146,31 +163,4 @@ class DarlingMailManager:
     def marked_names(self):
         return self.marked_mail_lists.keys()
     pass
-
-    # def send_email(self, dmail, host = "localhost", port = 1025):
-    #     if not isinstance(dmail, DarlingMail):
-    #         raise MailTypeErr("You must input the instance of DarlingMail.")
-    #     headers = {} if dmail.headers is None else dmail.headers
-
-    #     email = MIMEText(dmai.message)
-    #     email['Subject'] = dmail.subject
-    #     email['From'] = dmail.from_addr
-    #     for header,value in dmail.headers.items():
-    #         email[header] = value
-
-    #     sender = smtplib.SMTP(host, port)
-    #     for addr in set(dmail.to_addrs):
-    #         del email['To']
-    #         email['To'] = addr
-    #         sender.sendmail(from_addr, addr, email.as_string())
-    #     sender.quit()
-
-darling_email = None
-darling_email_list = None
-
-def configure_email_list(mail_config):
-    global darling_email_list, darling_email
-    darling_email = DarlingMail()
-    darling_email.load_mail_content(mail_config)
-    darling_email_list = DarlingMailList()
 
