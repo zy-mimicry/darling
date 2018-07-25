@@ -26,12 +26,12 @@ DEFAULT_LOGGING = {
 
     'formatters' : {
         'verbose' : {
-            'format' : "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            'format' : "[{levelname}] [{asctime}] [{module}] [{process:d}] [{thread:d}] :{message}",
             'style' : "{",
 
         },
         'simple' : {
-            'format' : "{levelname} {asctime} {module} {message}",
+            'format' : "[{asctime}] [{module}] :{message}",
             'style' : "{",
         },
 
@@ -75,15 +75,16 @@ class Peer:
     def __init__(self, logging_conf, logger_name):
         logging.config.dictConfig(DEFAULT_LOGGING)
         self._get_logger(logger_name)
+
     def _get_logger(self, name):
         self.logger = logging.getLogger(name)
+
     def __call__(self,*kargs, **kwargs):
         self.logger.error(*kargs, **kwargs)
 
 class Log(Peer):
     def __call__(self,*kargs, **kwargs):
         self.logger.info(*kargs, **kwargs)
-        pass
 
 # Provide thos entries for logging.
 peer = Peer(DEFAULT_LOGGING, "core")

@@ -5,9 +5,8 @@
 """
 
 def setup():
-    from darling.utils import log
-    log.configure_logging()
-    log.Dlog("Hooo , darling.")
-    log.Peer("No problem. Like it")
+    from darling.utils.log import log, peer
+    log("here?")
+    peer("fuck??")
 
 
