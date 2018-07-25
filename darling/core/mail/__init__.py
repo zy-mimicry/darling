@@ -1,4 +1,5 @@
 """
+mail-core
 """
 
 import smtplib, re, sys

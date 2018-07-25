@@ -1,4 +1,5 @@
 """
+Contains all exceptions about mail-core.
 """
 
 class MailException(Exception):
