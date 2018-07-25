@@ -16,3 +16,9 @@ class UnvaildEmailErr(MailException):
 
 class BadEmailFormatErr(MailException):
     pass
+
+class MailGroupConfTypeErr(MailException):
+    pass
+
+class MailMatchTypeErr(MailException):
+    pass
