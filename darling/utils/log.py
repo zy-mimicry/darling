@@ -71,17 +71,20 @@ DEFAULT_LOGGING = {
 }
 
 
-logger_of_core = None
-logger_of_devp = None
+class Peer:
+    def __init__(self, logging_conf, logger_name):
+        logging.config.dictConfig(DEFAULT_LOGGING)
+        self._get_logger(logger_name)
+    def _get_logger(self, name):
+        self.logger = logging.getLogger(name)
+    def __call__(self,*kargs, **kwargs):
+        self.logger.error(*kargs, **kwargs)
 
-Dlog = None
-Peer = None
+class Log(Peer):
+    def __call__(self,*kargs, **kwargs):
+        self.logger.info(*kargs, **kwargs)
+        pass
 
-
-def configure_logging():
-    global logger_of_core, logger_of_devp, LOG
-    logging.config.dictConfig(DEFAULT_LOGGING)
-    logger_of_core = logging.getLogger("core")
-    logger_of_devp = logging.getLogger("developer")
-    Dlog = logger_of_devp.info
-    Peer = logger_of_core.info
+# Provide thos entries for logging.
+peer = Peer(DEFAULT_LOGGING, "core")
+log  = Log(DEFAULT_LOGGING, "developer")
