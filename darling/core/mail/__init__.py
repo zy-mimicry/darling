@@ -3,26 +3,9 @@
 
 import smtplib, re, sys
 from email.mime.text import MIMEText
-
 from collections import defaultdict
 from darling.conf import mail_conf
-
-class MailException(Exception):
-    pass
-
-class MailConfTypeErr(MailException):
-    pass
-
-class MailTypeErr(MailException):
-    pass
-
-class UnvaildEmailErr(MailException):
-    pass
-
-class BadEmailFormatErr(MailException):
-    pass
-
-
+from .mail_exceptions import *
 
 class Mail:
     """
@@ -113,23 +96,6 @@ class MailingList:
         groups = set(groups)
         return [e for (e,g) in self.groups_of_email.items() if g & groups]
 
-# def send_email(self, dmail, host = "localhost", port = 1025):
-#     if not isinstance(dmail, DarlingMail):
-#         raise MailTypeErr("You must input the instance of DarlingMail.")
-#     headers = {} if dmail.headers is None else dmail.headers
-
-#     email = MIMEText(dmai.message)
-#     email['Subject'] = dmail.subject
-#     email['From'] = dmail.from_addr
-#     for header,value in dmail.headers.items():
-#         email[header] = value
-
-#     sender = smtplib.SMTP(host, port)
-#     for addr in set(dmail.to_addrs):
-#         del email['To']
-#         email['To'] = addr
-#         sender.sendmail(from_addr, addr, email.as_string())
-#     sender.quit()
 
 def send_email_to_groups(maillist):
     print("You want to send email from me [{}]: {}".format(sys._getframe().f_code.co_name,maillist))
