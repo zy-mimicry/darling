@@ -72,6 +72,7 @@ DEFAULT_LOGGING = {
 
 
 class Peer:
+    """"""
     def __init__(self, logging_conf, logger_name):
         logging.config.dictConfig(DEFAULT_LOGGING)
         self._get_logger(logger_name)
@@ -83,6 +84,7 @@ class Peer:
         self.logger.error(*kargs, **kwargs)
 
 class Log(Peer):
+    """"""
     def __call__(self,*kargs, **kwargs):
         self.logger.info(*kargs, **kwargs)
 

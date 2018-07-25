@@ -3,7 +3,7 @@ Mail Configuration
 """
 
 default_mail_conf = {
-    "Subject"      : "Darling Module Init",
+    "subject"      : "Darling Module Init",
     "from_addr"    : "rzheng@sierrawireless.com",
     "to_addrs"     : [
         "1274952282@qq.com",

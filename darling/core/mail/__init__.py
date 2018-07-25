@@ -36,8 +36,8 @@ class Mail:
 
     def load_mail_content(self, cookie_of_mail):
         if isinstance(cookie_of_mail, dict):
-            self.subject = cookie_of_mail.get("Subject", "")
-            self.message = cookie_of_mail.get("Message", "")
+            self.subject = cookie_of_mail.get("subject", "")
+            self.message = cookie_of_mail.get("message", "")
             self.from_addr = cookie_of_mail.get("from_addr", "")
             self.to_addrs = cookie_of_mail.get("to_addrs", [])
             self.headers = cookie_of_mail.get("headers", {})
@@ -45,7 +45,7 @@ class Mail:
             raise MailConfTypeErr("Please input the current type of mail-cookie, that must 'dict'")
 
     def _check_email_format(self, email_string):
-        if len(email_string) < 7 and if re.match(r"[^@]+@[^@]+\.[^@]+", email_string) == None:
+        if len(email_string) < 7 and re.match(r"[^@]+@[^@]+\.[^@]+", email_string) == None:
             raise BadEmailFormatErr("Email format is unvaild. please check it.")
         return True
 
@@ -139,8 +139,18 @@ def send_email_to_special(maillist):
     print("You want to send email from me [{}]: {}".format(sys._getframe().f_code.co_name,maillist))
     pass
 
-def send_mail_default(maillist):
-    pass
+def send_mail_default(maillist, cookie):
+    print("You want to send email from me [{}]: {}".format(sys._getframe().f_code.co_name,maillist))
+    to_be_send_mails = maillist.groups_of_email.keys()
+    sender = smtplib.SMTP("localhost", 1025)
+    for e in to_be_send_mails:
+        e.load_mail_content(cookie)
+        m = e.construct_mail
+        for addr in set(e.to_addrs):
+            del m['To']
+            m['To'] = addr
+            sender.sendmail(e.from_addr, addr, m.as_string())
+    sender.quit()
 
 class MailManager:
     """
@@ -149,14 +159,16 @@ class MailManager:
         self.registered_mail_lists = defaultdict(set)
         self.marked_mail_lists = defaultdict(set)
 
-    def send(self, send_mail_cb_func = None):
+    def send(self, email_cookie, send_mail_cb_func = None):
         if len(self.marked_mail_lists) == 0:
             print("Marked mail lists is empty, so can't send.")
             return
-        if send_mail_cb_func != None:
-            send_mail_cb_func(self.marked_mail_lists)
-        else:
-            send_mail_default(self.marked_mail_lists)
+        for list_of_maillist in self.marked_mail_lists.values():
+            for maillist in list_of_maillist:
+                if send_mail_cb_func != None:
+                    send_mail_cb_func(maillist, email_cookie)
+                else:
+                    send_mail_default(maillist, email_cookie)
 
     def register_by_name(self, name, maillist):
         self.registered_mail_lists[name].add(maillist)
