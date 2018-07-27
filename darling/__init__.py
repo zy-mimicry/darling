@@ -8,34 +8,59 @@ def setup():
     log("Hello, Logging module.")
     peer("I am super man.")
 
-    from darling.core import mail
-    from darling.conf import get_most_wanted
-    m1 = mail.Mail()
-    m2 = mail.Mail()
+    from darling.conf import mail_conf
+    from darling.core.mail.mail import (
+        Mail,
+        MailList,
+        MailServer,
+        MailGroup,
+        MailManager,
 
-    ml1 = mail.MailingList()
-    ml2 = mail.MailingList()
+        send_mail_default,
+        send_email_to_special,
+        send_email_to_groups,
+    )
 
-    ml1.mapping_email_and_group(m1, "rex")
-    ml1.mapping_email_and_group(m2, "mm")
-    ml1.mapping_email_and_group(m2, "rex")
+    MM = MailManager()
 
-    ml2.mapping_email_and_group(m1, "fuck")
-    ml2.mapping_email_and_group(m1, "tty")
-    ml2.mapping_email_and_group(m2, "mm")
+    # log(MM.registered_groups)
+    # log(MM.registered_servers)
 
-    ml1.display_mappings()
-    ml2.display_mappings()
+    # log("\n\n\n")
 
-    mm = mail.MailManager()
-    mm.register_by_name("memeda", ml1)
-    mm.register_by_name("hahaha", ml2)
+    # mail_01 = Mail(mail_conf.mail_default_conf)
+    # mail_02 = Mail(mail_conf.mail_default_conf)
 
-    log(mm.registered_names)
-    log(mm.marked_names)
+    # group_01 = MailGroup(mail_conf.mail_group_conf)
+    # group_02 = MailGroup(mail_conf.mail_group_conf)
 
-    mm.mark_mail_list_by_name("memeda")
+    # server_01 = MailServer(mail_conf.mail_server_conf)
 
-    mm.send(get_most_wanted())
+    # MM.register_named_mail(mail_01, "rex")
+    # MM.register_named_mail(mail_02, "BBB")
 
+    # MM.register_group(group_01)
+    # MM.register_group(group_02)
 
+    # MM.register_server(server_01)
+
+    # log(MM.registered_mails)
+    # log(MM.registered_groups)
+    # log(MM.registered_servers)
+
+    # log(MM.named_mail_lists)
+
+    M1 = Mail(mail_conf.mail_default_conf)
+    #G1 = MailGroup(mail_conf.mail_group_conf)
+    S1 = MailServer(mail_conf.mail_server_conf_D2)
+
+    MM.register_named_mail(M1, "awesome")
+    MM.register_server(S1)
+
+    log("registered server {} ".format(MM.registered_servers))
+
+    MM.mark_mail_by_name("awesome")
+
+    log(MM.to_be_send_ml)
+
+    MM.send()

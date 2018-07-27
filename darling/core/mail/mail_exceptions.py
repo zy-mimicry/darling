@@ -22,3 +22,9 @@ class MailGroupConfTypeErr(MailException):
 
 class MailMatchTypeErr(MailException):
     pass
+
+class UnvaildPortOfMailServer:
+    pass
+
+class MailServerConfTypeErr:
+    pass
