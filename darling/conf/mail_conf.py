@@ -3,7 +3,7 @@
 """
 Mail Configuration
 
-CMD: python3 -m smtpd -n -c DebuggingServer localhost:1025
+CMD: python3 -m smtpd -n -c DebuggingServer localhost:1025 qpmoiyqxdpuwhdbb
 """
 
 mail_server_conf = {
@@ -23,7 +23,7 @@ mail_server_conf_D2 = {
     "ip"       : "127.0.0.1", # Now don't care
     "auto-load": False,
     "mark-port": "465",
-    "password" : "qpmoiyqxdpuwhdbb", # special code
+    "password" : "xqpmoiyqxdpuwhdbbx", # special code
     "ports"    : [
         "465",
         "587",
