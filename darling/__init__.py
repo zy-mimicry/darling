@@ -23,33 +23,6 @@ def setup():
 
     MM = MailManager()
 
-    # log(MM.registered_groups)
-    # log(MM.registered_servers)
-
-    # log("\n\n\n")
-
-    # mail_01 = Mail(mail_conf.mail_default_conf)
-    # mail_02 = Mail(mail_conf.mail_default_conf)
-
-    # group_01 = MailGroup(mail_conf.mail_group_conf)
-    # group_02 = MailGroup(mail_conf.mail_group_conf)
-
-    # server_01 = MailServer(mail_conf.mail_server_conf)
-
-    # MM.register_named_mail(mail_01, "rex")
-    # MM.register_named_mail(mail_02, "BBB")
-
-    # MM.register_group(group_01)
-    # MM.register_group(group_02)
-
-    # MM.register_server(server_01)
-
-    # log(MM.registered_mails)
-    # log(MM.registered_groups)
-    # log(MM.registered_servers)
-
-    # log(MM.named_mail_lists)
-
     M1 = Mail(mail_conf.mail_default_conf)
     #G1 = MailGroup(mail_conf.mail_group_conf)
     S1 = MailServer(mail_conf.mail_server_conf_D2)
