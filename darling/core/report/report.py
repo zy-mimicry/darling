@@ -1,10 +1,10 @@
+#! /usr/bin/env python
+# coding=utf-8
+
 import allure
 import pytest
 
-class Report():
-    """
-    """
-    pass
+class Report(): pass
 
 report = Report()
 
@@ -55,3 +55,8 @@ report.usefixtures_marked = pytest.mark.usefixtures
 report.attach = allure.attach
 report.attach_file = allure.attach.file
 # help: allure.attachment_type
+
+
+def move_conf_to_right(src, dst):
+    import shutil
+    shutil.copyfile(src, dst)
