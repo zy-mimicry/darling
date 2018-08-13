@@ -1,4 +1,6 @@
 #! /usr/bin/env python
+# coding=utf-8
+
 import os
 
 def tree_from_abs_dir(rootdir):
@@ -11,13 +13,25 @@ def tree_from_abs_dir(rootdir):
         tree[os.path.basename(dirname)] = subdirname
     return tree
 
-def deal_tree_dict(tree_dict, name, string, list_of_path):
+def deal_tree_dict(tree_dict, name, string, list_path):
     if len(tree_dict[name]) == 0:
-        print(string + "/" + name)
+        list_path.append(string + "/" + name)
     string += "/" + name
-    for i in tree_dict[name]:
-        deal_tree_dict(tree_dict, i, string)
+    for _name in tree_dict[name]:
+        deal_tree_dict(tree_dict, _name, string, list_path)
+
+def makedirs_by_list(dest, list_path):
+    os.chdir(dest) # dest can't be empty.
+    for p in list_path:
+        os.makedirs(p)
+
+def darling_mimicry_dir(src, dst):
+    _list = []
+    tree = tree_from_abs_dir(src)
+    deal_tree_dict(tree, 'testcases', '.', _list)
+    makedirs_by_list(dst, _list)
 
 if __name__ == "__main__":
-    tree = tree_from_abs_dir("../test/testcases/")
+    darling_mimicry_dir('/home/yang/__mzPython__/darling/testcases/','../')
+
 
