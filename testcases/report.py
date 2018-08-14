@@ -1,6 +1,3 @@
-#! /usr/bin/env python
-# coding=utf-8
-
 import allure
 import pytest
 
@@ -14,6 +11,7 @@ Trace links.
 report.link     = allure.link # for JIRA and Confluence.
 report.issue    = allure.issue # for gerrit commit.
 report.testcase = allure.testcase # Maybe not need it.
+
 
 """
 Xfail and Skip
@@ -33,7 +31,7 @@ report.step    = allure.step
 Some Descriptions.
 """
 report.description_html = allure.description_html
-report.description = allure.description
+report.description      = allure.description
 # Maybe """""" is useful in python.
 
 
