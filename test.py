@@ -33,15 +33,13 @@ def darling_head_fall(item):
     return "./mm_darling" + item[1:]
 
 def darling_mimicry_dir(src, dst, func):
-    from pprint
+    from pprint import pprint
     _list = []
     tree = tree_from_abs_dir(src)
     deal_tree_dict(tree, 'testcases', '.', _list)
     _list = [i for i in map(darling_head_fall, _list)]
-    print(">>>",_list)
+    pprint(">>>",_list)
     makedirs_by_list(dst, _list)
 
 if __name__ == "__main__":
     darling_mimicry_dir('./testcases/','../', darling_head_fall)
-
-
