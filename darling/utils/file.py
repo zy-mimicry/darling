@@ -4,7 +4,8 @@
 """
 """
 
-import os
+import os, shutil
+from pprint import pprint
 
 def tree_from_abs_dir(rootdir):
     tree = {}
@@ -26,27 +27,21 @@ def deal_tree_dict(tree_dict, name, string, list_path):
 def makedirs_by_list(dest, list_path):
     os.chdir(dest) # dest can't be empty.
     for p in list_path:
-        os.makedirs(p)
-
-def mimicry_dir(src, dst):
-    """
-    Usage: mimicry_dir('/home/yang/__mzPython__/darling/testcases/','../')
-    """
-    _list = []
-    tree = tree_from_abs_dir(src)
-    deal_tree_dict(tree, 'testcases', '.', _list)
-    makedirs_by_list(dst, _list)
+        try:
+            os.makedirs(p)
+        except FileExistsError as e:
+            shutil.rmtree(p)
 
 def darling_head_fall(item):
-    return "./darling" + item[2:]
+    return "./mm_darling" + item[1:]
 
-def darling_mimicry_dir(src, dst):
+def darling_mimicry_dir(src, dst, func):
     _list = []
     tree = tree_from_abs_dir(src)
-    _i_tree = map(darling_head_fall, tree)
-    tree = [i for i in _i_tree]
     deal_tree_dict(tree, 'testcases', '.', _list)
+    _list = [i for i in map(darling_head_fall, _list)]
+    pprint(">>>",_list)
     makedirs_by_list(dst, _list)
 
 if __name__ == "__main__":
-    darling_mimicry_dir('/home/yang/__mzPython__/darling/testcases/','../')
+    darling_mimicry_dir('./testcases/','../', darling_head_fall)
