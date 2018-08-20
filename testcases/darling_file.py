@@ -6,6 +6,7 @@
 
 import os, shutil
 from pprint import pprint
+import time
 
 def tree_from_abs_dir(rootdir):
     tree = {}
@@ -32,8 +33,12 @@ def makedirs_by_list(dest, list_path):
         except FileExistsError as e:
             shutil.rmtree(p)
 
+part_of_timed_path = ''
 def darling_head_fall(item):
-    return "./darling_log" + item[1:]
+    global part_of_timed_path
+    time_str = time.strftime('%Y_%m_%d_%H_%M_%S')
+    part_of_timed_path = 'darling_log/' + time_str
+    return "./darling_log" + '/' + time_str + '/' + item[1:]
 
 def darling_mimicry_dir(src, dst):
     print("src: {}, dst: {}".format(src, dst))

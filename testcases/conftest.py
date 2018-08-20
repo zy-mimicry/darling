@@ -15,14 +15,18 @@ parent_path  = os.path.dirname(current_path)
 print("path : ", parent_path)
 from .darling_file import darling_mimicry_dir
 print("Construct Darling Logs Directory.")
-darling_mimicry_dir(parent_path,  # Retrieve the directory structure.
-                    parent_path,) # Can configured by yourself, that is log's out-path
+darling_mimicry_dir(current_path,  # Retrieve the directory structure.
+                    parent_path)   # Can configured by yourself, that is log's out-path
 
 print("Logger init")
-from .log_test import DarlingTestLogger
+from .log_test import DarlingMiscDealer
 @report.fixture()
 def dlog():
-    return DarlingTestLogger
+    return DarlingMiscDealer
+
+@report.fixture()
+def where_log():
+    return 
 
 """
 Darling configuration of port.
