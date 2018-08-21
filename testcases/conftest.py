@@ -12,22 +12,21 @@ current_file = os.path.abspath(__file__)
 current_path = os.path.dirname(current_file)
 parent_path  = os.path.dirname(current_path)
 
-print("path : ", parent_path)
 #from .darling_file import darling_mimicry_dir,
 from . import darling_file
-print("Construct Darling Logs Directory.")
+print("-- Construct Darling Logs Directory.")
 darling_file.darling_mimicry_dir(current_path,  # Retrieve the directory structure.
                                  parent_path)   # Can configured by yourself, that is log's out-path
 
-print("Logger init")
+print("-- Darling MiscDealer init")
 from .log_test import DarlingMiscDealer
 prefix_of_log_path = parent_path + '/' + darling_file.dynamic_of_log_path
-print("prefix: {}".format(prefix_of_log_path))
 mdarling = DarlingMiscDealer(prefix_of_log_path)
 
 @report.fixture()
 def mydarling():
     return mdarling.misc_deal
+
 
 """
 Darling configuration of port.
