@@ -54,7 +54,7 @@ from .report import report
 #     report.attach_file('/mnt/sda2/rzheng/__mzPython__/self/test/pytest.ini', attachment_type=report.attachment_type.TEXT)
 #     report.attach('<head></head><body> a page </body>', 'Attach with HTML type', report.attachment_type.HTML)
 
-def test_logger(dlog):
-    darling = dlog(__file__,
+def test_logger(mydarling):
+    darling = mydarling(__file__,
                    'rzheng@sierrawireless.com')
     darling.log("hello, darling.")

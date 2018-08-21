@@ -33,11 +33,11 @@ def makedirs_by_list(dest, list_path):
         except FileExistsError as e:
             shutil.rmtree(p)
 
-part_of_timed_path = ''
+dynamic_of_log_path = ''
 def darling_head_fall(item):
-    global part_of_timed_path
+    global dynamic_of_log_path
     time_str = time.strftime('%Y_%m_%d_%H_%M_%S')
-    part_of_timed_path = 'darling_log/' + time_str
+    dynamic_of_log_path = 'darling_log/' + time_str
     return "./darling_log" + '/' + time_str + '/' + item[1:]
 
 def darling_mimicry_dir(src, dst):
