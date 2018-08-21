@@ -17,12 +17,9 @@ class DarlingMiscDealer():
 
     def deal_log_path(self, log_file):
         path = log_file.split('/') # Must 'linux' system.
-        print("stage:[1] {}".format(path))
         path = path[path.index(self.limit_name)+1:]
-        print("stage:[2] {}".format(path))
         path[-1] = path[-1].replace('.py', '.log')
-        log_path = self.prefix + '/' + self.limit_name + '/' + '/'.join(path)
-        print(log_path)
+        log_path = self.prefix + '/' + '/'.join(path)
         return log_path
 
     def misc_deal(self, log_file, mail_from):
