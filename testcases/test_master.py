@@ -56,5 +56,6 @@ from .report import report
 
 def test_logger(mydarling):
     darling = mydarling(__file__,
-                   'rzheng@sierrawireless.com')
+                        mail_from = 'rzheng@sierrawireless.com',
+                        port_name = 'ADB')
     darling.log("hello, darling.")

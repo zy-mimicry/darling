@@ -2,6 +2,7 @@
 # coding=utf-8
 
 from .report import report
+import time
 import os,sys
 import pytest, allure
 
@@ -12,15 +13,24 @@ current_file = os.path.abspath(__file__)
 current_path = os.path.dirname(current_file)
 parent_path  = os.path.dirname(current_path)
 
-#from .darling_file import darling_mimicry_dir,
+# maybe configured
+#nfs_mounted_path = parent_path
+nfs_mounted_path = '/mnt/sda2/rzheng/__mzPython__/self/wawawa' # must exist!
+different_str = time.strftime('%Y_%m_%d_%H_%M_%S') # from environment.
+
 from . import darling_file
 print("-- Construct Darling Logs Directory.")
-darling_file.darling_mimicry_dir(current_path,  # Retrieve the directory structure.
-                                 parent_path)   # Can configured by yourself, that is log's out-path
+darling_file.different_str = different_str
+prefix_of_log_path = nfs_mounted_path + '/' + 'darling_log/' + different_str
+if not os.path.isdir(prefix_of_log_path):
+    darling_file.darling_mimicry_dir(current_path,       # Retrieve the directory structure.
+                                     nfs_mounted_path)   # Can configured by yourself, that is log's out-path
+    print("New Construct dir for report.")
+else:
+    print("exist already.")
 
 print("-- Darling MiscDealer init")
-from .log_test import DarlingMiscDealer
-prefix_of_log_path = parent_path + '/' + darling_file.dynamic_of_log_path
+from .misc import DarlingMiscDealer
 mdarling = DarlingMiscDealer(prefix_of_log_path)
 
 @report.fixture()
