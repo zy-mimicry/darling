@@ -60,3 +60,4 @@ def test_logger(mydarling):
                         port_name = 'pi-slave-01..AT')
     darling.log("hello, darling.")
     print(darling.at.whoami())
+    darling.at.show_conf()

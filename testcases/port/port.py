@@ -14,7 +14,6 @@ class Port:
         self.factory = PortFactory()
 
     def name_split(self, name):
-        """ name: 'slavename..AT' """
         return tuple(name.split('..'))
 
     def match(self, name):
