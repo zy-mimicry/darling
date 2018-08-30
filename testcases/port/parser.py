@@ -12,8 +12,9 @@ class PortConfParser():
         self.configs = {} # name unique
 
     def load(self, name, conf):
-        self.configs[name] = conf.get(name) \
-            or raise KeyError("[{name} is unvaild slave name.]".format(name = name))
+        self.configs[name] = conf.get(name)
+        if self.configs[name] == None:
+            raise KeyError("[{name} is unvaild slave name.]".format(name = name))
         return self.configs[name]
 
     def unload(self, name):
@@ -27,7 +28,7 @@ class PortConfParser():
 
     def get_conf(self, name):
         conf = self.quick_match(name)
-        if conf not is None: return conf
+        if conf is not None: return conf
         conf = self.slow_match(name)
         return conf
 

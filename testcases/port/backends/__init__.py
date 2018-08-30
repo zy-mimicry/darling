@@ -4,7 +4,8 @@
 
 """
 """
-from . import AT,ADB
+from .at  import AT
+from .adb import ADB
 
 class PortFactory():
     backends = {
@@ -15,4 +16,4 @@ class PortFactory():
         pass
 
     def which_backend(self, name, conf):
-        return backends.get(name)(conf)
+        return PortFactory.backends.get(name)(conf)

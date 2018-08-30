@@ -57,5 +57,6 @@ from .report import report
 def test_logger(mydarling):
     darling = mydarling(__file__,
                         mail_from = 'rzheng@sierrawireless.com',
-                        port_name = 'ADB')
+                        port_name = 'pi-slave-01..AT')
     darling.log("hello, darling.")
+    print(darling.at.whoami())

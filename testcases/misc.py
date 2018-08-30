@@ -4,12 +4,14 @@
 import logging
 import os
 from .dynamic_log import DynamicRecorder
+from .port.port import Port
 
 class DarlingMiscDealer():
     def __init__(self, prefix_of_log_path):
 
         self.prefix = prefix_of_log_path
         self.limit_name = 'testcases' # testcases root directory.
+        self.mPort = Port()
 
     def deal_log_path(self, log_file):
         path = log_file.split('/') # Must 'linux' system.
@@ -22,11 +24,19 @@ class DarlingMiscDealer():
     def misc_deal(self, log_file, mail_from, port_name):
         self.mDynamicRecorder = DynamicRecorder(self.deal_log_path(log_file))
         self.mMail = self.register_mail(mail_from)
-        self.mPort = self.register_port(port_name)
+        self.register_port(port_name)
+        # self.mPort = Port(port_name)
         return self
 
     def register_port(self, port_name):
         print("Register port name : {}".format(port_name))
+        backend = self.mPort.match(port_name)
+        if backend.name == 'AT':
+            self.at = backend
+        elif backend.name == "ADB":
+            self.adb = backend
+        else:
+            raise Exception("Unknow backend for port.")
 
     def register_mail(self, mail_from):
         print("From addr(mail): {}".format(mail_from))
