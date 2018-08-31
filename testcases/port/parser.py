@@ -13,7 +13,7 @@ class PortConfParser():
 
     def load(self, name, conf):
         self.configs[name] = conf.get(name)
-        if self.configs[name] == None:
+        if not self.configs[name]:
             raise KeyError("[{name} is unvaild slave name.]".format(name = name))
         return self.configs[name]
 
