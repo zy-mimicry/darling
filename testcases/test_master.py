@@ -54,7 +54,7 @@ from .report import report
 
 def test_logger(mydarling):
     darling = mydarling(__file__,
-                        mail_from  = 'rzheng@sierrawireless.com',
+                        mail_to  = 'rzheng@sierrawireless.com',
                         port_names = [
                             'pi-slave-01..AT',
                             'pi-slave-02..ADB',

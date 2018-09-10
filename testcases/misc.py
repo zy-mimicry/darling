@@ -21,9 +21,9 @@ class DarlingMiscDealer():
         print(log_path)
         return log_path
 
-    def misc_deal(self, log_file, mail_from, port_names = []):
+    def misc_deal(self, log_file, mail_to, port_names = []):
         self.mDynamicRecorder = DynamicRecorder(self.deal_log_path(log_file))
-        self.mMail = self.register_mail(mail_from)
+        self.mMail = self.register_mail(mail_to)
         self.echo_port_parser()
         self.register_port(port_names)
         self.echo_port_parser()
@@ -43,8 +43,8 @@ class DarlingMiscDealer():
             else:
                 raise Exception("Unknow backend for port.")
 
-    def register_mail(self, mail_from):
-        print("From addr(mail): {}".format(mail_from))
+    def register_mail(self, mail_to):
+        print("From addr(mail): {}".format(mail_to))
 
     def log(self, *kargs, **kwargs):
         self.mDynamicRecorder.log(*kargs, **kwargs)
