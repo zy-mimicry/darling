@@ -54,3 +54,8 @@ report.attach = allure.attach
 report.attach_file = allure.attach.file
 report.attachment_type=allure.attachment_type
 # help: allure.attachment_type
+
+"""
+Test In Order
+"""
+report.order = pytest.mark.run

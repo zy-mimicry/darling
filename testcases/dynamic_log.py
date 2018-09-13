@@ -16,6 +16,7 @@ class DynamicRecorder:
 
     def construct_logger(self, log_path, logger_name, log_level, log_format):
         self.logger = logging.getLogger(logger_name)
+        print(">>>> logger : id:{}".format(id(self.logger)))
         ch1 = logging.StreamHandler()
         ch2 = logging.FileHandler(log_path)
         formatter = logging.Formatter(log_format)
