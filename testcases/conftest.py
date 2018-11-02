@@ -33,8 +33,8 @@ print("-- Darling MiscDealer init")
 from .misc import DarlingMiscDealer
 mdarling = DarlingMiscDealer(prefix_of_log_path)
 
-@report.fixture()
-def mydarling():
+@report.fixture(scope="function")
+def darling_misc():
     return mdarling.misc_deal
 
 
