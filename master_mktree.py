@@ -6,7 +6,7 @@
 
 import os, shutil
 from pprint import pprint
-#import time
+import time
 
 def _tree_from_abs_dir(rootdir):
     tree = {}
@@ -27,7 +27,7 @@ def _deal_tree(tree_dict, name, string, list_path):
 
 def _makedirs(dest, list_path):
     mark_workspace = os.getcwd()
-    os.chdir(dest) # dest can't be empty.
+    os.chdir(dest)
     for p in list_path:
         try:
             os.makedirs(p)
