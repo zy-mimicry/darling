@@ -20,6 +20,6 @@ class Port:
         return tuple(name.split('..'))
 
     def match(self, name):
-        slave_name, backend_name = self.name_split(name)
+        obj_name, backend_name = self.name_split(name)
         conf = self.parser.get_conf(slave_name)
         return self.factory.which_backend(backend_name, conf)

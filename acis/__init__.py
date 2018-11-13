@@ -10,8 +10,8 @@ from acis.core.port import Port
 import os
 
 ports = ["master..AT",
-         "slave..AT",
          "master..ADB",
+         "slave..AT",
          "slave..ADB"]
 
 ports = ["any..AT",
