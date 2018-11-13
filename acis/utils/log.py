@@ -2,21 +2,25 @@
 # -*- coding: utf-8 -*-
 
 """
-
 """
 
 import logging
 import logging.config
-import os
+import os, time
 
 # You can overwrite this environment argument.
-if not os.getenv("Darling_Logs_Path", ""):
-    if not os.path.exists("/tmp/darling/logs"):
-        print("here??")
-        os.makedirs("/tmp/darling/logs", 0o755)
-        os.environ["Darling_Logs_Path"] = "/tmp/darling/logs/"
+if not os.getenv("ACIS_LOG_PATH", ""):
+    diff = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
+    log_path = "/tmp/acis/logs/" + diff
+    if not os.path.exists(log_path):
+        print("Hook, make dirs for logging.")
+        os.makedirs(log_path , 0o755)
+        os.environ["ACIS_LOG_PATH"] = log_path
     else:
-        os.environ["Darling_Logs_Path"] = "/tmp/darling/logs/"
+        print("diff: ", diff)
+        os.environ["ACIS_LOG_PATH"] = log_path
+
+
 
 DEFAULT_LOGGING = {
     'version' : 1,
@@ -27,12 +31,12 @@ DEFAULT_LOGGING = {
 
     'formatters' : {
         'verbose' : {
-            'format' : "[{levelname}] [{asctime}] [{module}] [{process:d}] [{thread:d}] :{message}",
+            'format' : "[{levelname}] [{asctime}] [{module}] [{process:d}] [{thread:d}] | {message}",
             'style' : "{",
 
         },
         'simple' : {
-            'format' : "[{asctime}] [{module}] :{message}",
+            'format' : "[{asctime}] [{module}] | {message}",
             'style' : "{",
         },
 
@@ -46,20 +50,23 @@ DEFAULT_LOGGING = {
         'developer_file' : {
             'level' : "INFO",
             'class' : "logging.FileHandler",
-            'filename' : os.environ["Darling_Logs_Path"] + "developer_debug_file.log",
+
+            # overwrite this var.
+            'filename' : os.environ["ACIS_LOG_PATH"] + "/debug.log",
+
             'formatter' : 'simple',
             'mode' : 'w',
         },
         'core_file' : {
             'level' : "DEBUG",
             'class' : "logging.FileHandler",
-            'filename' : os.environ["Darling_Logs_Path"] + "core_debug.log",
+            'filename' : os.environ["ACIS_LOG_PATH"] + "/admin_peer.log",
             'formatter' : 'verbose',
             'mode' : 'w',
         },
     },
     'loggers' : {
-        'core' : {
+        'admin' : {
             'handlers' : ["core_file"],
             'level' : "DEBUG",
             'propagate' : True,
@@ -74,21 +81,38 @@ DEFAULT_LOGGING = {
 
 class Peer:
     """"""
-    def __init__(self, logging_conf, logger_name):
+    def __init__(self, logger_name):
         logging.config.dictConfig(DEFAULT_LOGGING)
-        self._get_logger(logger_name)
-
-    def _get_logger(self, name):
-        self.logger = logging.getLogger(name)
+        self.logger = logging.getLogger(logger_name)
 
     def __call__(self,*kargs, **kwargs):
         self.logger.error(*kargs, **kwargs)
 
-class Log(Peer):
+class Log:
     """"""
-    def __call__(self,*kargs, **kwargs):
-        self.logger.info(*kargs, **kwargs)
+    def __init__(self,
+                 log_path,
+                 logger_name = 'darling.testcase',
+                 log_level = logging.DEBUG,
+                 log_format = "%(asctime)s - %(filename)s[line:%(lineno)d] : %(message)s"):
 
-# Provide thos entries for logging.
-peer = Peer(DEFAULT_LOGGING, "core")
-log  = Log(DEFAULT_LOGGING, "developer")
+        if not os.path.exists(os.path.dirname(log_path)):
+            os.makedirs(os.path.dirname(log_path), mode=0o775)
+        self.logger = logging.getLogger(logger_name)
+        print(">>>> logger : id:{}".format(id(self.logger)))
+        ch1 = logging.StreamHandler()
+        ch2 = logging.FileHandler(log_path)
+        formatter = logging.Formatter(log_format)
+        ch1.setLevel(log_level)
+        ch2.setLevel(log_level)
+        ch1.setFormatter(formatter)
+        ch2.setFormatter(formatter)
+        self.logger.addHandler(ch1)
+        self.logger.addHandler(ch2)
+
+    def __call__(self, *kargs, **kwargs):
+        return self.logger.error(*kargs, **kwargs)
+
+# Provide this entry for logging.
+peer = Peer("admin")
+log  = Log(log_path = '/tmp/acis/logs/fufufu/debug.log')
