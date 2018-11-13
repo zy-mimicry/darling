@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 # coding=utf-8
 
-
 """
 """
 
@@ -12,6 +11,10 @@ class Port:
     def __init__(self):
         self.parser = PortConfParser()
         self.factory = PortFactory()
+
+        self.master = None
+        self.slave = None
+        self.anyone = None
 
     def name_split(self, name):
         return tuple(name.split('..'))

@@ -13,11 +13,9 @@ if not os.getenv("ACIS_LOG_PATH", ""):
     diff = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
     log_path = "/tmp/acis/logs/" + diff
     if not os.path.exists(log_path):
-        print("Hook, make dirs for logging.")
         os.makedirs(log_path , 0o755)
         os.environ["ACIS_LOG_PATH"] = log_path
     else:
-        print("diff: ", diff)
         os.environ["ACIS_LOG_PATH"] = log_path
 
 
@@ -50,10 +48,7 @@ DEFAULT_LOGGING = {
         'developer_file' : {
             'level' : "INFO",
             'class' : "logging.FileHandler",
-
-            # overwrite this var.
-            'filename' : os.environ["ACIS_LOG_PATH"] + "/debug.log",
-
+            'filename' : os.environ["ACIS_LOG_PATH"] + "/case_debug.log",
             'formatter' : 'simple',
             'mode' : 'w',
         },
@@ -67,7 +62,8 @@ DEFAULT_LOGGING = {
     },
     'loggers' : {
         'admin' : {
-            'handlers' : ["core_file"],
+            #'handlers' : ["core_file"],
+            'handlers' : ["console", "core_file"],
             'level' : "DEBUG",
             'propagate' : True,
         },
@@ -92,14 +88,13 @@ class Log:
     """"""
     def __init__(self,
                  log_path,
-                 logger_name = 'darling.testcase',
+                 logger_name = 'acis.testcase.debug',
                  log_level = logging.DEBUG,
                  log_format = "%(asctime)s - %(filename)s[line:%(lineno)d] : %(message)s"):
 
         if not os.path.exists(os.path.dirname(log_path)):
             os.makedirs(os.path.dirname(log_path), mode=0o775)
         self.logger = logging.getLogger(logger_name)
-        print(">>>> logger : id:{}".format(id(self.logger)))
         ch1 = logging.StreamHandler()
         ch2 = logging.FileHandler(log_path)
         formatter = logging.Formatter(log_format)
@@ -115,4 +110,4 @@ class Log:
 
 # Provide this entry for logging.
 peer = Peer("admin")
-log  = Log(log_path = '/tmp/acis/logs/fufufu/debug.log')
+#log  = Log(log_path = '/tmp/acis/logs/fufufu/debug.log')

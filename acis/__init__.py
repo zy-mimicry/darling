@@ -1,39 +1,69 @@
-# -*- coding: utf-8 -*-
+#! /usr/bin/env python
+# coding=utf-8
 
 """
 """
 
-# def setup():
-#     from darling.utils.log import log, peer
-#     log("Hello, Logging module.")
-#     peer("I am super man.")
+#import logging
+from acis.utils.log import Log
+from acis.core.port import Port
+import os
 
-#     from darling.conf import mail_conf
-#     from darling.core.mail.mail import (
-#         Mail,
-#         MailList,
-#         MailServer,
-#         MailGroup,
-#         MailManager,
+ports = ["master..AT",
+         "slave..AT",
+         "master..ADB",
+         "slave..ADB"]
 
-#         send_mail_default,
-#         send_email_to_special,
-#         send_email_to_groups,
-#     )
+ports = ["any..AT",
+         "any..ADB"]
 
-#     MM = MailManager()
+class ACISMiscer():
+    """
+    This is a manager for acis package.
+    """
+    def __init__(self, prefix_of_log_path):
 
-#     M1 = Mail(mail_conf.mail_default_conf)
-#     #G1 = MailGroup(mail_conf.mail_group_conf)
-#     S1 = MailServer(mail_conf.mail_server_conf_D2)
+        self.prefix = prefix_of_log_path
+        self.limit_name = 'testcases' # testcases root directory.
+        self.mPort = Port()
 
-#     MM.register_named_mail(M1, "awesome")
-#     MM.register_server(S1)
+    def deal_log_path(self, log_file):
+        path = log_file.split('/') # Must 'linux' system.
+        print("path: {}".format(path))
+        path = path[path.index(self.limit_name)+1:]
+        print("after path: {}".format(path))
+        path[-1] = path[-1].replace('.py', '.log')
+        log_path = self.prefix + '/' + self.limit_name + '/' + '/'.join(path)
+        print("log path: ",log_path)
+        return log_path
 
-#     log("registered server {} ".format(MM.registered_servers))
+    def misc_deal(self, log_file, logger_name, mail_to, port_names = []):
+        self.mDynamicRecorder = DynamicRecorder(self.deal_log_path(log_file), logger_name = logger_name)
+        self.mMail = self.register_mail(mail_to)
+        self.echo_port_parser()
+        self.register_port(port_names)
+        self.echo_port_parser()
+        return self
 
-#     MM.mark_mail_by_name("awesome")
+    def echo_port_parser(self):
+        self.mPort.parser.display_all()
 
-#     log(MM.to_be_send_ml)
+    def register_port(self, port_names):
+        """
+        port_names: This should be a sequeue like 'list'
+        """
+        print("Register port name : {}".format(port_names))
+        for backend_name in port_names:
+            backend = self.mPort.match(backend_name)
+            if backend.name == 'AT':
+                self.at = backend
+            elif backend.name == "ADB":
+                self.adb = backend
+            else:
+                raise Exception("Unknow backend for port.")
 
-#     MM.send()
+    def register_mail(self, mail_to):
+        print("From addr(mail): {}".format(mail_to))
+
+    def log(self, *kargs, **kwargs):
+        self.mDynamicRecorder.log(*kargs, **kwargs)
