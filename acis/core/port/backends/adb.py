@@ -10,6 +10,10 @@ class ADB():
     def __init__(self, conf):
         self.conf = conf
 
+        self.master = None
+        self.slave = None
+        self.anyone = None
+
     def whoami(self):
         return "My name is: {name}".format(name = ADB.name)
 

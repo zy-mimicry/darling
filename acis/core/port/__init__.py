@@ -12,14 +12,22 @@ class Port:
         self.parser = PortConfParser()
         self.factory = PortFactory()
 
-        self.master = None
-        self.slave = None
-        self.anyone = None
+        self.at = None
+        self.adb = None
 
     def name_split(self, name):
         return tuple(name.split('..'))
 
     def match(self, name):
-        obj_name, backend_name = self.name_split(name)
+
+        backend_name, obj_name = self.name_split(name)
         conf = self.parser.get_conf(slave_name)
-        return self.factory.which_backend(backend_name, conf)
+
+        if backend_name == "AT":
+            self.at = self.factory.which_backend(backend_name, obj_name, conf)
+            return self.at
+        elif backend_name == "ADB":
+            self.adb = self.factory.which_backend(backend_name, obj_name, conf)
+            return self.adb
+
+        #return self.factory.which_backend(backend_name, obj_name, conf)
