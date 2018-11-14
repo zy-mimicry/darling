@@ -5,17 +5,38 @@
 """
 """
 
+class _ADB():
+
+    def __init__(self):
+        print("_ADB instance init.")
+    def open(self):pass
+    def cmd(self):pass
+    def info(self):
+        print("I'm _ADB")
+
 class ADB():
+
     name = 'ADB'
-    def __init__(self, conf):
+
+    def __init__(self, obj, conf):
+
         self.conf = conf
 
-        self.master = None
-        self.slave = None
-        self.anyone = None
+        if obj == "master":
+            self.master = _ADB(); return
+        elif obj == "slave":
+            self.slave = _ADB(); return
+        elif obj == "any":
+            self.any = _ADB(); return
+
+    def reinit(self, obj, conf):
+        print("re-init.")
+        self.conf.extend(conf)
+        if obj == "master":
+            self.master = _ADB()
+        else:
+            self.slave = _ADB()
+        return self
 
     def whoami(self):
-        return "My name is: {name}".format(name = ADB.name)
-
-    def show_conf(self):
-        print("I'm {name}, conf is:\n{conf}".format(name = ADB.name, conf = self.conf))
+        print("My name is : {name}".format(name = ADB.name))

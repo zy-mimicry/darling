@@ -38,8 +38,8 @@ class ACISMiscer():
         return log_path
 
     def misc_deal(self, log_file, logger_name, mail_to, port_names = []):
-        self.log   = Log(self.deal_log_path(log_file), logger_name = logger_name)
-        self.mMail = self.register_mail(mail_to)
+        #self.log   = Log(self.deal_log_path(log_file), logger_name = logger_name)
+        #self.mMail = self.register_mail(mail_to)
         self.register_port(port_names)
         return self
 
@@ -47,12 +47,14 @@ class ACISMiscer():
         print("From addr(mail): {}".format(mail_to))
 
     def register_port(self, port_names):
-        print("Register port name : {}".format(port_names))
         self.mPort = Port()
         port_names.sort()
+        print("Register port name : {}".format(port_names))
 
         for backend_cookie in port_names:
+            print("\n\n Loop is <{}>".format(backend_cookie))
             backend = self.mPort.match(backend_cookie)
+
             if backend.name == 'AT':
                 self.at = backend
             elif backend.name == "ADB":

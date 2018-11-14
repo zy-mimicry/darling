@@ -20,14 +20,19 @@ class Port:
 
     def match(self, name):
 
-        backend_name, obj_name = self.name_split(name)
-        conf = self.parser.get_conf(slave_name)
+        backend_name, type_name = self.name_split(name)
+        conf = self.parser.get_conf(backend_name, type_name)
+        # print("return conf type: ", type(conf), backend_name, type_name)
+        # print("Get conf from rules: <{}>".format(conf))
 
         if backend_name == "AT":
-            self.at = self.factory.which_backend(backend_name, obj_name, conf)
+            print("match : AT backend")
+            self.at = self.factory.which_backend(backend_name, type_name, conf)
+            print("match : AT return :{}".format(self.at))
             return self.at
-        elif backend_name == "ADB":
-            self.adb = self.factory.which_backend(backend_name, obj_name, conf)
-            return self.adb
 
-        #return self.factory.which_backend(backend_name, obj_name, conf)
+        elif backend_name == "ADB":
+            print("match : ADB backend")
+            self.adb = self.factory.which_backend(backend_name, type_name, conf)
+            print("match : ADB return :{}".format(self.adb))
+            return self.adb
