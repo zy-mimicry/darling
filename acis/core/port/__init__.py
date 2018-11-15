@@ -7,6 +7,7 @@
 from .parser import PortConfParser
 from .backends import PortFactory
 from .port_exceptions import UnsupportBackendErr
+from acis.utils.log import peer
 
 class Port:
     def __init__(self):
@@ -26,6 +27,8 @@ class Port:
         type_name = type_name.lower()
 
         conf = self.parser.get_conf(backend_name, type_name)
+
+        peer(conf)
 
         if backend_name == "AT":
             self.at = self.factory.which_backend(backend_name, type_name, conf)

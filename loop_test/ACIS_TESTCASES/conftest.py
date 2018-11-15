@@ -1,51 +1,38 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from .report import report
+#from .report import report
 import time
 import os,sys
 import pytest, allure
 
-"""
-Darling configuration of logs.
-"""
 current_file = os.path.abspath(__file__)
 current_path = os.path.dirname(current_file)
 parent_path  = os.path.dirname(current_path)
 
-# maybe configured
-#nfs_mounted_path = parent_path
-nfs_mounted_path = '/mnt/sda2/rzheng/__mzPython__/self/wawawa' # must exist!
+print("Location:\n-file:{}\n-current path:{}\n-parent path: {}".
+      format(current_file,
+             current_path,
+             parent_path))
+
+# nfs_mounted_path = '/mnt/sda2/rzheng/__mzPython__/self/wawawa' # must exist!
 different_str = time.strftime('%Y_%m_%d_%H_%M_%S') # from environment.
 
-from . import darling_file
+#from . import darling_file
+
 print("-- Construct Darling Logs Directory.")
-darling_file.different_str = different_str
-prefix_of_log_path = nfs_mounted_path + '/' + 'darling_log/' + different_str
-if not os.path.isdir(prefix_of_log_path):
-    darling_file.darling_mimicry_dir(current_path,       # Retrieve the directory structure.
-                                     nfs_mounted_path)   # Can configured by yourself, that is log's out-path
-    print("New Construct dir for report.")
-else:
-    print("exist already.")
+#darling_file.different_str = different_str
+prefix_of_log_path = parent_path + '/' + 'darling_log/' + different_str
 
-print("-- Darling MiscDealer init")
-from .misc import DarlingMiscDealer
-mdarling = DarlingMiscDealer(prefix_of_log_path)
+import acis
+from acis.core.report import  report
 
-@report.fixture(scope="function")
+#mdarling = acis.ACISMiscer(prefix_of_log_path)
+mdarling = acis.ACISMiscer()
+
+@report.fixture(scope="class")
 def darling_misc():
     return mdarling.misc_deal
-
-
-"""
-Darling configuration of port.
-"""
-
-
-"""
-pytest common configuration.
-"""
 
 @report.fixture(scope='function')
 def function_scope_fixture_with_finalizer(request):
@@ -86,27 +73,17 @@ def function_scope_fixture_with_finalizer(request):
     request.addfinalizer(function_scope_finalizer)
 
 @report.fixture(name = "darling pass")
-def darling_pass_fixture():
+def acis_pass_fixture():
     assert True
 
 @report.fixture(name = "darling skip")
-def darling_skip_fixture():
+def acis_skip_fixture():
     pytest.skip()
 
 @report.fixture(name = "darling fail")
-def darling_fail_fixture():
+def acis_fail_fixture():
     assert False
 
 @report.fixture(name = "darling broken")
-def darling_broken_fixture():
+def acis_broken_fixture():
     raise Exception("Sorry, it's broken.")
-
-
-"""
-Jenkins environment. TBD.
-"""
-
-"""
-DataBase. TBD.
-"""
-

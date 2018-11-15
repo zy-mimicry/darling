@@ -39,7 +39,7 @@ class _AT():
         #list of opened COM ports
         self.uartbuffer = {}
 
-        self.open(port = self.conf)
+        #self.open(port = self.conf)
 
         print("_AT instance init.")
 

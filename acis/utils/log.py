@@ -9,14 +9,14 @@ import logging.config
 import os, time
 
 # You can overwrite this environment argument.
-if not os.getenv("ACIS_LOG_PATH", ""):
+if not os.getenv("ACIS_SYS_LOG", ""):
     diff = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
     log_path = "/tmp/acis/logs/" + diff
     if not os.path.exists(log_path):
         os.makedirs(log_path , 0o755)
-        os.environ["ACIS_LOG_PATH"] = log_path
+        os.environ["ACIS_SYS_LOG"] = log_path
     else:
-        os.environ["ACIS_LOG_PATH"] = log_path
+        os.environ["ACIS_SYS_LOG"] = log_path
 
 
 
@@ -48,14 +48,14 @@ DEFAULT_LOGGING = {
         'developer_file' : {
             'level' : "INFO",
             'class' : "logging.FileHandler",
-            'filename' : os.environ["ACIS_LOG_PATH"] + "/case_debug.log",
+            'filename' : os.environ["ACIS_SYS_LOG"] + "/case_debug.log",
             'formatter' : 'simple',
             'mode' : 'w',
         },
         'core_file' : {
             'level' : "DEBUG",
             'class' : "logging.FileHandler",
-            'filename' : os.environ["ACIS_LOG_PATH"] + "/admin_peer.log",
+            'filename' : os.environ["ACIS_SYS_LOG"] + "/admin_peer.log",
             'formatter' : 'verbose',
             'mode' : 'w',
         },
@@ -83,6 +83,8 @@ class Peer:
 
     def __call__(self,*kargs, **kwargs):
         self.logger.error(*kargs, **kwargs)
+        from acis import hook_log
+        if hook_log: hook_log(*kargs, **kwargs)
 
 class Log:
     """"""
@@ -90,7 +92,8 @@ class Log:
                  log_path,
                  logger_name = 'acis.testcase.debug',
                  log_level = logging.DEBUG,
-                 log_format = "%(asctime)s - %(filename)s[line:%(lineno)d] : %(message)s"):
+                 log_format = "%(asctime)s |  %(message)s"):
+                 #log_format = "%(asctime)s - %(filename)s[line:%(lineno)d] : %(message)s"):
 
         if not os.path.exists(os.path.dirname(log_path)):
             os.makedirs(os.path.dirname(log_path), mode=0o775)

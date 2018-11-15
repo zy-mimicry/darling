@@ -3,7 +3,8 @@
 
 import allure
 import pytest
-from .report import report
+#from .report import report
+from acis.core.report import report
 
 # @report.epic("Driver")
 # @report.feature('hello')
@@ -52,59 +53,62 @@ from .report import report
 #     report.attach_file('/mnt/sda2/rzheng/__mzPython__/self/test/pytest.ini', attachment_type=report.attachment_type.TEXT)
 #     report.attach('<head></head><body> a page </body>', 'Attach with HTML type', report.attachment_type.HTML)
 
-def test_logger(darling_misc):
-    darling = darling_misc(__file__,
-                           logger_name = "DACIS.testcase",
-                           mail_to  = 'rzheng@sierrawireless.com',
-                           port_names = [
-                               'pi-slave-01..AT',
-                               'pi-slave-02..ADB',
-                           ])
-    darling.log("hello, darling.")
+# def test_multiple_attachmentss():
+#     report.attach_file('/mnt/sda2/rzheng/__mzPython__/self/test/pytest.ini', attachment_type=report.attachment_type.TEXT)
+#     report.attach('<head></head><body> a page </body>', 'Attach with HTML type', report.attachment_type.HTML)
 
-    darling.at.show_conf()
-    darling.adb.show_conf()
+# def test_logger(darling_misc):
+#     darling = darling_misc(__file__,
+#                            logger_name = "DACIS.testcase",
+#                            mail_to  = 'rzheng@sierrawireless.com',
+#                            port_names = [
+#                                'AT..slave',
+#                                'AT..master',
+#                            ])
+#     darling.log("hello, darling.")
+#     darling.at.show_conf()
+#     darling.adb.show_conf()
 
-@pytest.fixture(params=[True, False], ids=['param_true', 'param_false'])
-def function_scope_fixture_with_finalizer(request):
-    if request.param:
-        print('True')
-    else:
-        print('False')
-    def function_scope_finalizer():
-        function_scope_step()
-    request.addfinalizer(function_scope_finalizer)
-
-
-@pytest.fixture(scope='class')
-def class_scope_fixture_with_finalizer(request):
-    def class_finalizer_fixture():
-        class_scope_step()
-    request.addfinalizer(class_finalizer_fixture)
+# @pytest.fixture(params=[True, False], ids=['param_true', 'param_false'])
+# def function_scope_fixture_with_finalizer(request):
+#     if request.param:
+#         print('True')
+#     else:
+#         print('False')
+#     def function_scope_finalizer():
+#         function_scope_step()
+#     request.addfinalizer(function_scope_finalizer)
 
 
-@pytest.fixture(scope='module')
-def module_scope_fixture_with_finalizer(request):
-    def module_finalizer_fixture():
-        module_scope_step()
-    request.addfinalizer(module_finalizer_fixture)
+# @pytest.fixture(scope='class')
+# def class_scope_fixture_with_finalizer(request):
+#     def class_finalizer_fixture():
+#         class_scope_step()
+#     request.addfinalizer(class_finalizer_fixture)
 
 
-@pytest.fixture(scope='session')
-def session_scope_fixture_with_finalizer(request):
-    def session_finalizer_fixture():
-        session_scope_step()
-    request.addfinalizer(session_finalizer_fixture)
+# @pytest.fixture(scope='module')
+# def module_scope_fixture_with_finalizer(request):
+#     def module_finalizer_fixture():
+#         module_scope_step()
+#     request.addfinalizer(module_finalizer_fixture)
 
 
-class TestClass(object):
+# @pytest.fixture(scope='session')
+# def session_scope_fixture_with_finalizer(request):
+#     def session_finalizer_fixture():
+#         session_scope_step()
+#     request.addfinalizer(session_finalizer_fixture)
 
-    def test_with_scoped_finalizers(self,
-                                    function_scope_fixture_with_finalizer,
-                                    class_scope_fixture_with_finalizer,
-                                    module_scope_fixture_with_finalizer,
-                                    session_scope_fixture_with_finalizer):
-        step_inside_test_body()
+
+# class TestClass(object):
+
+#     def test_with_scoped_finalizers(self,
+#                                     function_scope_fixture_with_finalizer,
+#                                     class_scope_fixture_with_finalizer,
+#                                     module_scope_fixture_with_finalizer,
+#                                     session_scope_fixture_with_finalizer):
+#         step_inside_test_body()
 
 
 @allure.step

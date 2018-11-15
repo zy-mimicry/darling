@@ -1,34 +1,35 @@
-import pytest
 import allure
-from ..report import report
+import pytest
+from acis.core.report import report
 
 """
 Now, please don't care the package imported.
 Later, only import 'darling' package for test
 """
 
-@report.fixture(scope="function")
+@report.fixture(scope="class")
 def mydarling(darling_misc):
     return darling_misc(__file__,
-                        logger_name = 'DACIS.Driver.ADC',
+                        logger_name = 'ACIS.Driver.ADC',
                         mail_to     = 'rzheng@sierrawireless.com',
                         port_names  = [
-                            'pi-slave-01..AT',
-                            'pi-slave-02..ADB',
+                            'AT..master',
+                            'AT..slave',
+                            'ADB..master',
+                            'ADB..slave',
                         ])
-
 
 @report.epic("Driver")
 @report.feature("Driver Misc ADC")
 @report.link("https://issues.sierrawireless.com/browse/QTI9X28-4442", name=">JIRA: DACIS<")
-class DarlingDriverMiscADC():
+class ACISDriverMiscADC():
     """
     Something you want to descript for this test. (can't display)
     """
 
     @report.step("body step 01")
     def adc_body_deal_01(self,mydarling):
-        mydarling.log("I'm stage 02 << body")
+        mydarling.log("I'm stage 01 << body")
 
     @report.step("body step 02")
     def adc_body_deal_02(self,mydarling):
@@ -42,8 +43,8 @@ class DarlingDriverMiscADC():
     @report.link("https://issues.sierrawireless.com/browse/QTI9X28-4443", name = "=Gerrit: commit 01=")
     @report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Body<")
     @report.story("DACIS >> maybe test body, crazy...")
-    @report.order(order=2)
-    def darling_real_body(self, mydarling):
+    @pytest.mark.run(order=2)
+    def acis_real_body(self, mydarling):
         """
         This is a description
         """
@@ -54,7 +55,7 @@ class DarlingDriverMiscADC():
 
     @report.step("pre step 01")
     def adc_pre_deal_01(self, mydarling):
-        mydarling.log("I'm stage 02 << pre")
+        mydarling.log("I'm stage 01 << pre")
 
     @report.step("pre step 02")
     def adc_pre_deal_02(self, mydarling):
@@ -67,8 +68,8 @@ class DarlingDriverMiscADC():
 
     @report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Init<")
     @report.story("DACIS >> maybe pre-condition")
-    @report.order(order=1)
-    def darling_stage_entrance(self, mydarling):
+    @pytest.mark.run(order=1)
+    def acis_stage_entrance(self, mydarling):
         """
         The test entrance.
 
@@ -82,10 +83,11 @@ class DarlingDriverMiscADC():
         """
 
         mydarling.log(">> Darling! ^_^")
-        mydarling.log(mydarling.at.whoami())
 
-        mydarling.at.show_conf()
-        mydarling.adb.show_conf()
+        mydarling.at.master.info()
+        mydarling.at.slave.info()
+        mydarling.adb.master.info()
+        mydarling.adb.slave.info()
 
         self.adc_pre_deal_01(mydarling)
         self.adc_pre_deal_02(mydarling)
@@ -94,8 +96,8 @@ class DarlingDriverMiscADC():
 
     @report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Init<")
     @report.story("DACIS >> maybe dance finished")
-    @report.order(order=3)
-    def darling_stage_finish(self, mydarling):
+    @pytest.mark.run(order=3)
+    def acis_stage_finish(self, mydarling):
 
         self.adc_late_deal_01(mydarling)
         self.adc_late_deal_02(mydarling)
@@ -103,7 +105,7 @@ class DarlingDriverMiscADC():
 
     @report.step("late step 01")
     def adc_late_deal_01(self, mydarling):
-        mydarling.log("I'm stage 02 << late")
+        mydarling.log("I'm stage 01 << late")
 
     @report.step("late step 02")
     def adc_late_deal_02(self, mydarling):
