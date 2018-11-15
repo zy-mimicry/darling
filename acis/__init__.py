@@ -6,7 +6,7 @@
 
 from acis.utils.log import Log,peer
 from acis.core.port import Port
-import os
+import os, re
 
 class ACISMiscer():
     """
@@ -43,13 +43,31 @@ class ACISMiscer():
         self.register_port(port_names)
         return self
 
+
     def register_mail(self, mail_to):
         print("From addr(mail): {}".format(mail_to))
 
+
+    def order_port_list(self,port_names):
+        AT_front = []
+        other_behind = []
+        for p in port_names:
+            if re.search('AT..', p):
+                AT_front.append(p)
+            else:
+                other_behind.append(p)
+        AT_front.extend(other_behind)
+        return AT_front
+
+
     def register_port(self, port_names):
+        """
+        Note: the order of ports register is important!
+        At port should be in front.
+        """
+
         self.mPort = Port()
-        port_names.sort()
-        print("Register port name : {}".format(port_names))
+        port_names = self.order_port_list(port_names)
 
         for backend_cookie in port_names:
             print("\n\n Loop is <{}>".format(backend_cookie))
@@ -59,6 +77,5 @@ class ACISMiscer():
                 self.at = backend
             elif backend.name == "ADB":
                 self.adb = backend
-
-def setup():
-    pass
+            else:
+                pass

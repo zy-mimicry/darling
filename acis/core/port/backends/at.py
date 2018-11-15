@@ -794,10 +794,6 @@ class _AT():
 
 
         if log_msg == "debug":
-            #print ""
-            #print len(self.uartbuffer[hCom.port])
-            #print "The remaining data in uartbuffer " + str((hCom.port + 1))  + " : [", self.uartbuffer[hCom.port].replace("\r","<CR>").replace("\n","<LF>"), "]"
-            #print "The remaining data in uartbuffer " + str((hCom.port + 1))  + " : [", self.ascii2print(self.uartbuffer[hCom.port],printmode), "]"
             print("")
             print(str(len(self.uartbuffer[hCom.port])))
             LogMsg = "The remaining data in uartbuffer " + str((hCom.port + 1))  + " : [", self.ascii2print(self.uartbuffer[hCom.port],printmode), "]"
@@ -811,23 +807,26 @@ class AT():
 
     def __init__(self, obj, conf):
 
-        self.conf = conf
+        self.conf = {}
 
         if obj == "master":
-            self.master = _AT(conf[0]); return
+            self.conf["master"] = conf
+            self.master = _AT(conf['dev_link']); return
         elif obj == "slave":
-            self.slave = _AT(conf[0]); return
+            self.conf["slave"] = conf
+            self.slave = _AT(conf['dev_link']); return
         elif obj == "any":
-            self.any = _AT(conf[0]); return
+            self.conf["any"] = conf
+            self.any = _AT(conf['dev_link']); return
 
     def reinit(self, obj, conf):
         print("re-init.")
-        self.conf.extend(conf)
-
         if obj == "master":
-            self.master = _AT(conf[0])
+            self.conf["master"] = conf
+            self.master = _AT(conf['dev_link'])
         else:
-            self.slave = _AT(conf[0])
+            self.conf["slave"] = conf
+            self.slave = _AT(conf['dev_link'])
         return self
 
     def whoami(self):

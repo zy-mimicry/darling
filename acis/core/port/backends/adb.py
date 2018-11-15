@@ -20,21 +20,25 @@ class ADB():
 
     def __init__(self, obj, conf):
 
-        self.conf = conf
+        self.conf = {}
 
         if obj == "master":
+            self.conf["master"] = conf
             self.master = _ADB(); return
         elif obj == "slave":
+            self.conf["slave"] = conf
             self.slave = _ADB(); return
         elif obj == "any":
+            self.conf["any"] = conf
             self.any = _ADB(); return
 
     def reinit(self, obj, conf):
         print("re-init.")
-        self.conf.extend(conf)
         if obj == "master":
+            self.conf["master"] = conf
             self.master = _ADB()
         else:
+            self.conf["slave"] = conf
             self.slave = _ADB()
         return self
 
