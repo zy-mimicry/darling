@@ -14,11 +14,10 @@ from .encoding_format import (
     ascii2hexstring_symbol,
     ascii_symbol)
 
-import time, re, sys, datetime
-import platform, fnmatch
+import time,re,sys
+import platform,fnmatch
 import serial
-import configparser
-
+from datetime import datetime
 
 
 class _AT():
@@ -40,7 +39,7 @@ class _AT():
         #list of opened COM ports
         self.uartbuffer = {}
 
-        #self.open()
+        self.open(port = self.conf)
 
         print("_AT instance init.")
 
@@ -60,47 +59,6 @@ class _AT():
              xonxoff=False,
              interCharTimeout=None,
              write_timeout=None):
-
-        # "goal of the method : This function opens the serial port"
-        # "INPUT : port : string including the COM port (e.g. COM9), for linux system, this is usbport(e.g. 1-1.4:1.3)"
-        # "        baudrate : communication speed"
-        # "        OpenPortTimeout: Set a open port timeout value"
-        # "        timeout : Set a read timeout value."
-        # "        DTRDSR : Enable hardware (DSR/DTR) flow control."
-        # "        rtscts : enable RTS/CTS flow control"
-        # "        xonxoff : enable software flow control"
-        # "        interCharTimeout : Inter-character timeout, None to disable"
-        # "OUTPUT : COM port object"
-
-        # for linux system AT port will be changed random, so we use the usbport(this is fixed) to find the AT port every time.
-        # if os.name == 'posix':
-        #     start_time = datetime.now()
-        #     while 1:
-        #         try:
-        #             ttyusbcom = AcisGetUsbttyport(port)
-        #             #SafePrint(None, None, "ttyUSB com port : %s"%ttyusbcom)
-        #             diff_time = datetime.now() - start_time
-        #             diff_time_ms = diff_time.seconds * 1000 + diff_time.microseconds / 1000
-        #             OpenPortTimeout = OpenPortTimeout - diff_time_ms
-        #             break
-        #         except Exception as e:
-        #             #SafePrint(None, None, "Find ttyUSB com port failed : %s"%e)
-        #             time.sleep(1)
-        #             sys.stdout.write("*")
-        #             time.sleep(1)
-        #             sys.stdout.write("*")
-        #             flag_linebreak = 1
-        #             # Count timeout
-        #         diff_time = datetime.now() - start_time
-        #         diff_time_ms = diff_time.seconds * 1000 + diff_time.microseconds / 1000
-        #         if diff_time_ms > OpenPortTimeout:
-        #             if flag_linebreak:
-        #                 #acis_print("")
-        #                 #acis_print(port+" - port not found"+" <"+str(timeout)+" ms")
-        #             raise Exception(port+"-port not found"+" <"+str(timeout)+" ms")
-        #         usbport2ttycom[port] = ttyusbcom
-        #         port = ttyusbcom
-
 
         # validate parameter - rtscts
         flowcontrol = "Hardware"
@@ -132,12 +90,12 @@ class _AT():
                                  write_timeout,
                                  dsrdtr,
                                  interCharTimeout)
-            #add the new opened COM port to the list including all opened COM port
-            #list_hCom.append(hCom)
             print(hCom, "OPEN: Open the "+hCom.port+" @"+str(baudrate)+" "+str(bytesize)+str(parity)+str(stopbits)+" "+str(flowcontrol))
             time.sleep(1)
 
             self.uartbuffer[hCom.port] = ""
+
+            self.hCom = hCom
 
             return hCom
 
@@ -151,6 +109,17 @@ class _AT():
 
         except AttributeError:
             print(None, None, "OPEN: Busy for "+hCom.port+"!")
+
+    def reopen(self, hCom, cfun_delay_time=2000):
+
+        self.close(hCom)
+        self.sleep(cfun_delay_time)
+
+        return self.open(hCom.port,
+                         hCom.baudrate,
+                         hCom.bytesize,
+                         hCom.parity,
+                         hCom.stopbits)
 
     def detect_port(self, port, timeout=2000, logmsg="logmsg"):
 
@@ -243,16 +212,17 @@ class _AT():
             dt = datetime.now()
         return "(%0.2d:%0.2d:%0.2d:%0.3d)"%(dt.hour, dt.minute, dt.second, dt.microsecond/1000)
 
-    def send_cmd(hCom, cmd, printmode="symbol"):
+    #def send_cmd(self, hCom, cmd, printmode="symbol"):
+    def send_cmd(self, cmd, printmode="symbol"):
         "goal of the method : this method sends an AT command on a COM port"
         "INPUT : hCom : COM port object"
         "        cmd : AT command to send"
         "OUTPUT : none"
-        hCom.write(cmd.encode('utf-8'))
+        self.hCom.write(cmd.encode('utf-8'))
         time.sleep(0.1)
 
         timestamp = self.timeDisplay()+" "
-        LogMsg = timestamp+"Snd COM "+ hCom.port+" ["+self.ascii2print(cmd,printmode)+"]"
+        LogMsg = timestamp+"Snd COM "+ self.hCom.port+" ["+self.ascii2print(cmd,printmode)+"]"
         print(LogMsg)
 
     def ascii2print(self, inputstring, mode="symbol"):
@@ -310,7 +280,7 @@ class _AT():
                     print("CLEAR_BUFFER: Error!")
                     print(e)
 
-    def waitn_match_resp(self,hCom, waitpattern, timeout, condition="wildcard", update_result="critical", log_msg="logmsg", printmode="symbol"):
+    def waitn_match_resp(self, waitpattern, timeout, condition="wildcard", update_result="critical", log_msg="logmsg", printmode="symbol"):
         "goal of the method : combine AcisWaitResp() and AcisMatchResp()"
         "INPUT : hCom : COM port object"
         "        waitpattern : the matching pattern for the received data"
@@ -329,7 +299,7 @@ class _AT():
             print("")
             condition = "wildcard"
 
-        AcisWaitResp_response = self.wait_resp(hCom, waitpattern, timeout, log_msg, printmode)
+        AcisWaitResp_response = self.wait_resp( waitpattern, timeout, log_msg, printmode)
         match_result = self.match_resp(AcisWaitResp_response, waitpattern, condition, update_result, log_msg, printmode)
         return match_result
 
@@ -626,16 +596,16 @@ class _AT():
 
         return matched
 
-    def wait_resp(self, hCom, waitpattern, timeout=60000, log_msg="logmsg", printmode="symbol"): 
+    def wait_resp(self, waitpattern, timeout=60000, log_msg="logmsg", printmode="symbol"): 
         "goal of the method : this method waits for the data received from Com port"
-        "INPUT : hCom : COM port object"
+        "INPUT : self.hCom : COM port object"
         "        waitpattern : the matching pattern for the received data"
         "        timeout (ms) : timeout between each received packet"
         "        log_msg : option for log message"
         "OUTPUT : Received data (String)"
 
         start_time = datetime.now()
-        com_port_name = hCom.port
+        com_port_name = self.hCom.port
         if log_msg == "debug":
             print(start_time)
         flag_matchrsp = False
@@ -658,25 +628,25 @@ class _AT():
         displaypointer = 0
         while 1:
             # Read data from UART Buffer
-            if hCom.in_waiting>0:
-                self.uartbuffer[hCom.port] += hCom.read(hCom.in_waiting).decode('utf-8','ignore')
+            if self.hCom.in_waiting>0:
+                self.uartbuffer[self.hCom.port] += self.hCom.read(self.hCom.in_waiting).decode('utf-8','ignore')
                 if log_msg == "debug":
                     #myColor = colorLsit[7]
-                    #print "Read data from UART buffer:", self.uartbuffer[hCom.port].replace("\r","<CR>").replace("\n","<LF>")
-                    #print "Read data from UART buffer:", self.ascii2print(self.uartbuffer[hCom.port],printmode)
-                    LogMsg = "Read data from UART buffer: "+ self.ascii2print(self.uartbuffer[hCom.port],printmode)
+                    #print "Read data from UART buffer:", self.uartbuffer[self.hCom.port].replace("\r","<CR>").replace("\n","<LF>")
+                    #print "Read data from UART buffer:", self.ascii2print(self.uartbuffer[self.hCom.port],printmode)
+                    LogMsg = "Read data from UART buffer: "+ self.ascii2print(self.uartbuffer[self.hCom.port],printmode)
                     print(LogMsg)
             # Match response
             # Loop for each character
-            for (i,each_char) in enumerate(self.uartbuffer[hCom.port]) :
+            for (i,each_char) in enumerate(self.uartbuffer[self.hCom.port]) :
                 if log_msg == "debug":
                     #myColor = colorLsit[7]
-                    #print i, self.uartbuffer[hCom.port][:i+1].replace("\r","<CR>").replace("\n","<LF>").replace("\n","<LF>")
-                    #print i, ascii2print(self.uartbuffer[hCom.port][:i+1],printmode)
-                    LogMsg = str(i)+" "+self.ascii2print(self.uartbuffer[hCom.port][:i+1],printmode)
+                    #print i, self.uartbuffer[self.hCom.port][:i+1].replace("\r","<CR>").replace("\n","<LF>").replace("\n","<LF>")
+                    #print i, ascii2print(self.uartbuffer[self.hCom.port][:i+1],printmode)
+                    LogMsg = str(i)+" "+self.ascii2print(self.uartbuffer[self.hCom.port][:i+1],printmode)
                     print(LogMsg)
                 # display if matched with a line syntax
-                displaybuffer = self.uartbuffer[hCom.port][displaypointer:i+1]
+                displaybuffer = self.uartbuffer[self.hCom.port][displaypointer:i+1]
                 line_syntax1 = "*\r\n*\r\n"
                 line_syntax2 = "+*\r\n"
                 line_syntax3 = "\r\n> "
@@ -697,14 +667,14 @@ class _AT():
 
                 # match received response with waitpattern
                 for (each_elem) in waitpattern:
-                    receivedResp = self.uartbuffer[hCom.port][:i+1]
+                    receivedResp = self.uartbuffer[self.hCom.port][:i+1]
                     expectedResp = each_elem
                     if fnmatch.fnmatchcase(receivedResp, expectedResp):
                         flag_matchstring = True
                         break
                 if flag_matchstring:
                     # display the remaining matched response when waitpettern is found
-                    displaybuffer = self.uartbuffer[hCom.port][displaypointer:i+1]
+                    displaybuffer = self.uartbuffer[self.hCom.port][displaypointer:i+1]
                     if len(displaybuffer)>0:
                         # display timestamp
                         if self.SndRcvTimestamp:
@@ -727,7 +697,7 @@ class _AT():
                     flag_printline = True
 
                     # clear matched resposne in UART Buffer
-                    uartbuffer[hCom.port] = self.uartbuffer[hCom.port][i+1:]
+                    self.uartbuffer[self.hCom.port] = self.uartbuffer[self.hCom.port][i+1:]
                     flag_matchrsp = True
 
                     # break for Match response
@@ -743,7 +713,6 @@ class _AT():
                 if flag_matchrsp:
                     break
 
-
             # Count timeout
             diff_time = datetime.now() - start_time
             diff_time_ms = diff_time.seconds * 1000 + diff_time.microseconds / 1000
@@ -753,7 +722,7 @@ class _AT():
                     LogMsg = "Timeout: "+str(diff_time)+" diff_time_ms: "+str(diff_time_ms)
                     print(LogMsg)
                 # display the remaining response when timeout
-                displaybuffer = self.uartbuffer[hCom.port][displaypointer:]
+                displaybuffer = self.uartbuffer[self.hCom.port][displaypointer:]
                 if len(displaybuffer)>0:
                     # display timestamp
                     if self.SndRcvTimestamp:
@@ -771,7 +740,7 @@ class _AT():
 
                 # clear all resposne in UART Buffer
                 #myColor = colorLsit[8]
-                receivedResp = self.uartbuffer[hCom.port]
+                receivedResp = self.uartbuffer[self.hCom.port]
 
                 if flag_wait_until_timeout != True:
                     if log_msg == "logmsg" or log_msg == "debug":
@@ -783,23 +752,20 @@ class _AT():
                             #print "\nNo Response! "+"@COM"+com_port_name+ " <"+str(timeout)+" ms\n"
                             LogMsg = "\nNo Response! "+"@COM"+com_port_name+ " <"+str(timeout)+" ms\n"
                             print(LogMsg)
-                self.uartbuffer[hCom.port] = ""
+                self.uartbuffer[self.hCom.port] = ""
                 flag_timeout = True
-
 
             if flag_matchrsp:
                 break
             if flag_timeout:
                 break
 
-
         if log_msg == "debug":
             print("")
-            print(str(len(self.uartbuffer[hCom.port])))
-            LogMsg = "The remaining data in uartbuffer " + str((hCom.port + 1))  + " : [", self.ascii2print(self.uartbuffer[hCom.port],printmode), "]"
+            print(str(len(self.uartbuffer[self.hCom.port])))
+            LogMsg = "The remaining data in uartbuffer " + str((self.hCom.port + 1))  + " : [", self.ascii2print(self.uartbuffer[self.hCom.port],printmode), "]"
             print(LogMsg)
         return receivedResp
-
 
 class AT():
 
@@ -820,7 +786,7 @@ class AT():
             self.any = _AT(conf['dev_link']); return
 
     def reinit(self, obj, conf):
-        print("re-init.")
+
         if obj == "master":
             self.conf["master"] = conf
             self.master = _AT(conf['dev_link'])
@@ -829,5 +795,5 @@ class AT():
             self.slave = _AT(conf['dev_link'])
         return self
 
-    def whoami(self):
+    def info(self):
         print("My name is : {name}\n- conf: <{conf}>".format(name = AT.name, conf = self.conf))

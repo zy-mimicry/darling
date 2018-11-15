@@ -5,14 +5,41 @@
 """
 """
 
+import subprocess
+from datetime import datetime
+
 class _ADB():
 
-    def __init__(self):
-        print("_ADB instance init.")
-    def open(self):pass
-    def cmd(self):pass
+    def __init__(self, serial_id):
+
+        self.serial_id = serial_id
+
     def info(self):
         print("I'm _ADB")
+
+    def send_cmd(self, command, timeout=10):
+
+        try:
+            start_time = datetime.now()
+            dt = datetime.now()
+            timeDisplay =  "(%0.2d:%0.2d:%0.2d:%0.3d) Snd"%(dt.hour, dt.minute, dt.second, dt.microsecond/1000)
+
+            cmd = 'adb -s %s shell %s' % (self.serial_id, command)
+            print(timeDisplay + " ADB " + self.serial_id + " ["+ cmd + "]")
+
+            p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines = True)
+            output = p.communicate()[0]
+
+            timeDisplay =  "(%0.2d:%0.2d:%0.2d:%0.3d) Rcv"%(dt.hour, dt.minute, dt.second, dt.microsecond/1000)
+            diff_time = datetime.now() - start_time
+            diff_time_ms = diff_time.seconds * 1000 + diff_time.microseconds / 1000
+            for each_line in output.split('\n'):
+                print(timeDisplay + " ADB "+ self.serial_id + " ["+ each_line.replace("\r","<CR>").replace("\n","<CR>") +"]"+" @"+str(diff_time_ms)+" ms ")
+            return output
+        except Exception as e:
+            print(e)
+            print("----->Problem: Exception comes up when send command !!!")
+            return "\r\nERROR\r\n"
 
 class ADB():
 
@@ -24,23 +51,23 @@ class ADB():
 
         if obj == "master":
             self.conf["master"] = conf
-            self.master = _ADB(); return
+            self.master = _ADB(conf['serial_id']); return
         elif obj == "slave":
             self.conf["slave"] = conf
-            self.slave = _ADB(); return
+            self.slave = _ADB(conf['serial_id']); return
         elif obj == "any":
             self.conf["any"] = conf
-            self.any = _ADB(); return
+            self.any = _ADB(conf['serial_id']); return
 
     def reinit(self, obj, conf):
-        print("re-init.")
+
         if obj == "master":
             self.conf["master"] = conf
-            self.master = _ADB()
+            self.master = _ADB(conf['serial_id'])
         else:
             self.conf["slave"] = conf
-            self.slave = _ADB()
+            self.slave = _ADB(conf['serial_id'])
         return self
 
-    def whoami(self):
-        print("My name is : {name}".format(name = ADB.name))
+    def info(self):
+        print("My name is : {name}\n- conf:\n{conf}".format(name = ADB.name, conf = self.conf))
