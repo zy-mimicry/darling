@@ -7,7 +7,7 @@ Now, please don't care the package imported.
 Later, only import 'darling' package for test
 """
 
-@report.fixture(scope="class")
+@report.fixture(scope="module")
 def m(darling_misc):
     return darling_misc(__file__,
                         logger_name = 'ACIS.System.demo',
@@ -148,6 +148,11 @@ class ACISsystemReset():
         self.adc_pre_deal_02(m)
         self.adc_pre_deal_03(m)
 
+    @report.story("DACIS >> maybe log-condition")
+    @pytest.mark.run(order=4)
+    def acis_lstage_entrance(self, m):
+        allure.attach('/home/jenkins/hello.txt', attachment_type = allure.attachment_type.TEXT)
+        allure.attach.file(source = '/home/jenkins/hello.txt', attachment_type = allure.attachment_type.TEXT)
 
     @report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Init<")
     @report.story("DACIS >> maybe dance finished")

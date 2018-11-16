@@ -30,7 +30,7 @@ from acis.core.report import  report
 #mdarling = acis.ACISMiscer(prefix_of_log_path)
 mdarling = acis.ACISMiscer()
 
-@report.fixture(scope="class")
+@report.fixture(scope="module")
 def darling_misc():
     return mdarling.misc_deal
 

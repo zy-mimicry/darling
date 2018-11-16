@@ -43,7 +43,7 @@ class ACISMiscer():
         peer("Finily path: {}".format(log_path))
         return log_path
 
-    def misc_deal(self, log_file, logger_name, mail_to, port_names):
+    def misc_deal(self, log_file, logger_name, mail_to, port_names, conf_file = None):
         global hook_log
         hook_log = self.log = Log(self.deal_log_path(log_file), logger_name = logger_name)
         self.mMail = self.register_mail(mail_to)
