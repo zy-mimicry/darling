@@ -84,10 +84,10 @@ class ACISDriverMiscADC():
 
         mydarling.log(">> Darling! ^_^")
 
-        mydarling.at.master.info()
-        mydarling.at.slave.info()
-        mydarling.adb.master.info()
-        mydarling.adb.slave.info()
+        mydarling.log(mydarling.at.master)
+        mydarling.log(mydarling.at.slave)
+        mydarling.log(mydarling.adb.master)
+        mydarling.log(mydarling.adb.slave)
 
         self.adc_pre_deal_01(mydarling)
         self.adc_pre_deal_02(mydarling)
