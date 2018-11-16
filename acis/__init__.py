@@ -2,6 +2,8 @@
 # coding=utf-8
 
 """
+pytest version == 3.7.1
+allure version == 2.5.0
 """
 
 from acis.utils.log import Log,peer
@@ -27,18 +29,18 @@ class ACISMiscer():
 
     def deal_log_path(self, case_file):
 
-        print("Path Prefix: ", self.prefix)
-        print("Case File  : ", case_file)
+        peer("Path Prefix: {}".format(self.prefix))
+        peer("Case File  : {}".format(case_file))
 
         path = case_file.split('/')
-        print("split path: {}".format(path))
+        peer("split path: {}".format(path))
 
         path = path[path.index(self.limit_name)+1:]
-        print("file suffix path: {}".format(path))
+        peer("file suffix path: {}".format(path))
 
         path[-1] = path[-1].replace('.py', '.log')
         log_path = self.prefix + '/' + self.limit_name + '/' + '/'.join(path)
-        print("Finily path: ",log_path)
+        peer("Finily path: {}".format(log_path))
         return log_path
 
     def misc_deal(self, log_file, logger_name, mail_to, port_names):
@@ -82,8 +84,3 @@ class ACISMiscer():
                 self.adb = backend
             else:
                 pass
-
-        #log_path = self.prefix + '/' + self.limit_name + '/' + '/'.join(path)
-        # log_path = ""
-        # if not os.path.basename(os.environ["ACIS_LOG_PATH"]):
-        #     log_path = os.environ["ACIS_LOG_PATH"] + '/' + self.limit_name + '/' + '/'.join(path)

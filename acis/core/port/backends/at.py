@@ -18,9 +18,12 @@ import time,re,sys
 import platform,fnmatch
 import serial
 from datetime import datetime
+from acis.utils.log import peer
 
 
 class _AT():
+
+    name = '_AT'
 
     def __init__(self, conf):
 
@@ -39,12 +42,12 @@ class _AT():
         #list of opened COM ports
         self.uartbuffer = {}
 
-        #self.open(port = self.conf)
+        self.open(port = self.conf)
 
-        print("_AT instance init.")
+        peer("_AT instance init.")
 
-    def info(self):
-        print("I'm _AT")
+    def __repr__(self):
+       return "<Class: {name} , dev_link: {conf}>".format(name = _AT.name,conf=self.conf)
 
     def open(self,
              port=None,
@@ -64,10 +67,10 @@ class _AT():
         flowcontrol = "Hardware"
         if type(rtscts) == type("string"):
             if rtscts not in ["Hardware", "None"]:
-                print("Invalid parameter for AcisOpen() - rtscts")
-                print("Option:")
-                print("\"Hardware\"", "\"None\"")
-                print("")
+                peer("Invalid parameter for AcisOpen() - rtscts")
+                peer("Option:")
+                peer("\"Hardware\"" + "\"None\"")
+                peer("")
                 rtscts = 1
                 flowcontrol = "Hardware"
             if rtscts == "Hardware":
@@ -90,7 +93,7 @@ class _AT():
                                  write_timeout,
                                  dsrdtr,
                                  interCharTimeout)
-            print(hCom, "OPEN: Open the "+hCom.port+" @"+str(baudrate)+" "+str(bytesize)+str(parity)+str(stopbits)+" "+str(flowcontrol))
+            peer("{} OPEN: Open the ".format(hCom) + hCom.port + " @"+str(baudrate)+" "+str(bytesize)+str(parity)+str(stopbits)+" "+str(flowcontrol))
             time.sleep(1)
 
             self.uartbuffer[hCom.port] = ""
@@ -100,15 +103,15 @@ class _AT():
             return hCom
 
         except serial.SerialException as val:
-            print(val)
+            peer(val)
             if ("%s"%val).startswith("could not open port "):
-                print(None, None, "ERROR Could not open COM%d !"%(port))
-                print("hCom" + str(hCom))
+                peer("ERROR Could not open COM%d !"%(port))
+                peer("hCom" + str(hCom))
             else:
-                print(None, None, "ERROR : %s"%val)
+                peer("ERROR : %s"%val)
 
         except AttributeError:
-            print(None, None, "OPEN: Busy for "+hCom.port+"!")
+            peer("OPEN: Busy for "+hCom.port+"!")
 
     def reopen(self, hCom, cfun_delay_time=2000):
 
@@ -139,13 +142,13 @@ class _AT():
                                   dsrdtr=False)
                 if logmsg=="logmsg":
                     if flag_linebreak:
-                        print("")
-                    print(port+" - port found")
+                        peer("")
+                    peer(port+" - port found")
                 # display time spent in receive
                 diff_time = datetime.now() - start_time
                 diff_time_ms = diff_time.seconds * 1000 + diff_time.microseconds / 1000
                 if logmsg=="logmsg":
-                    print(" <"+str(timeout)+" @"+str(diff_time_ms)+"ms")
+                    peer(" <"+str(timeout)+" @"+str(diff_time_ms)+"ms")
                 s.close()
                 break
             except serial.SerialException:
@@ -159,8 +162,8 @@ class _AT():
             if diff_time_ms > timeout:
                 if logmsg=="logmsg":
                     if flag_linebreak:
-                        print("")
-                    print(port+" - port not found"+" <"+str(timeout)+" ms")
+                        peer("")
+                    peer(port+" - port not found"+" <"+str(timeout)+" ms")
                 break
 
     def sleep(self, millisecond, silent=False):
@@ -170,21 +173,21 @@ class _AT():
         "OUTPUT : none"
         try:
             if not(silent):
-                print(None, None, "SLEEP: Start sleep for %d milliseconds" % millisecond)
+                peer("SLEEP: Start sleep for %d milliseconds" % millisecond)
             time.sleep(millisecond/1000.0)
             if not(silent):
-                print(None, None, "SLEEP: End sleep")
+                peer("SLEEP: End sleep")
         except SystemExit:
             raise SystemExit
         except Exception as e:
-            print(e)
+            peer(e)
 
     def close(self, hCom):
         "goal of the method : This method closes a COM port"
         "INPUT : hCom : COM port object"
         "OUTPUT : none"
         try:
-        #print "close com port ", hCom.port
+        #peer "close com port ", hCom.port
             #hCom.setDTR(0)
             #hCom.setDTR(1)
             #ComPort = hCom.port
@@ -199,10 +202,10 @@ class _AT():
             #             break
             #     usbport2ttycom.pop(find_usbport)
 
-            print(None, hCom, "CLOSE: Close the "+hCom.port)
+            peer("CLOSE: Close the "+hCom.port)
         except Exception as e:
-            print(e)
-            print(None, hCom, "CLOSE: Error for "+hCom.port)
+            peer(e)
+            peer("CLOSE: Error for "+hCom.port)
 
     def timeDisplay(self, dt = None):
         "Display the time ; if dt is empty retrun actual date time under format, otherless return dt under format"
@@ -223,7 +226,7 @@ class _AT():
 
         timestamp = self.timeDisplay()+" "
         LogMsg = timestamp+"Snd COM "+ self.hCom.port+" ["+self.ascii2print(cmd,printmode)+"]"
-        print(LogMsg)
+        peer(LogMsg)
 
     def ascii2print(self, inputstring, mode="symbol"):
 
@@ -277,8 +280,8 @@ class _AT():
 
             except Exception as e:
                     hCom.close()
-                    print("CLEAR_BUFFER: Error!")
-                    print(e)
+                    peer("CLEAR_BUFFER: Error!")
+                    peer(e)
 
     def waitn_match_resp(self, waitpattern, timeout, condition="wildcard", update_result="critical", log_msg="logmsg", printmode="symbol"):
         "goal of the method : combine AcisWaitResp() and AcisMatchResp()"
@@ -291,12 +294,12 @@ class _AT():
 
         # validate parameter - condition
         if condition not in ["wildcard"]:
-            print("Invalid parameter for AcisWaitnMatchResp() - condition")
-            print("Option:")
-            print("\"wildcard\"")
-            print("")
-            print("AcisWaitnMatchResp() only support \"wildcard\" in \"condition\"")
-            print("")
+            peer("Invalid parameter for AcisWaitnMatchResp() - condition")
+            peer("Option:")
+            peer("\"wildcard\"")
+            peer("")
+            peer("AcisWaitnMatchResp() only support \"wildcard\" in \"condition\"")
+            peer("")
             condition = "wildcard"
 
         AcisWaitResp_response = self.wait_resp( waitpattern, timeout, log_msg, printmode)
@@ -316,16 +319,16 @@ class _AT():
         "                                        7.not_contain_anyone"
         "         update_result : 1. critical, update result to global variable statOfItem"
         "                         2. not_critical, do nothing for the result"
-        "         log_msg : 1. logmsg, print with log message"
-        "                   2. debug, print with log and debug message"
-        "                   3. nologmsg, print without any message"
+        "         log_msg : 1. logmsg, peer with log message"
+        "                   2. debug, peer with log and debug message"
+        "                   3. nologmsg, peer without any message"
         "OUTPUT : Boolean >> True:response matched, False:repsonse mis-matched"
 
         #myColor = colorLsit[8]
 
         # If resp is Response() >> assign .tabData to resp
         if type(resp) != type("string"):
-            #print "This is not a string"
+            #peer "This is not a string"
             resp = resp.tabData
 
         # If keywords is None >> assign empty string
@@ -334,26 +337,26 @@ class _AT():
 
         # validate parameter - condition
         if condition not in ["wildcard", "match_all_order", "match_all_disorder", "contain_all_order", "contain_all_disorder", "contain_anyone", "not_contain_anyone"]:
-            print( "Invalid parameter for AcisMatchResp() - condition")
-            print( "Option:" )
-            print( "\"wildcard\"", "\"match_all_order\"", "\"match_all_disorder\"", "\"contain_all_order\"", "\"contain_all_disorder\"", "\"contain_anyone\"", "\"not_contain_anyone\"" )
-            print( "" )
+            peer( "Invalid parameter for AcisMatchResp() - condition")
+            peer( "Option:" )
+            peer( "\"wildcard\"" + "\"match_all_order\"" + "\"match_all_disorder\"" + "\"contain_all_order\"" + "\"contain_all_disorder\"" + "\"contain_anyone\"" + "\"not_contain_anyone\"" )
+            peer( "" )
             condition = "wildcard"
 
         # validate parameter - update_result
         if update_result not in ["critical", "not_critical"]:
-            print("Invalid parameter for AcisMatchResp() - update_result")
-            print("Option:")
-            print("\"critical\"", "\"not_critical\"")
-            print("")
+            peer("Invalid parameter for AcisMatchResp() - update_result")
+            peer("Option:")
+            peer("\"critical\"" + "\"not_critical\"")
+            peer("")
             update_result = "critical"
 
         # validate parameter - log_msg
         if log_msg not in ["logmsg", "nologmsg", "debug"]:
-            print("Invalid parameter for AcisMatchResp() - log_msg")
-            print("Option:")
-            print("\"logmsg\"", "\"nologmsg\"", "\"debug\"")
-            print("")
+            peer("Invalid parameter for AcisMatchResp() - log_msg")
+            peer("Option:")
+            peer("\"logmsg\"" + "\"nologmsg\"" + "\"debug\"")
+            peer("")
             log_msg = "logmsg"
 
         # 1
@@ -372,13 +375,13 @@ class _AT():
             if matched == 0 :
                 if log_msg == "logmsg" or log_msg == "debug":
                     if len(keywords)==1:
-                        print("")
-                        print("Expected Response: %s" % self.ascii2print(expectedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
-                        print("Received Response: %s" % self.ascii2print(receivedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
-                        print("")
+                        peer("")
+                        peer("Expected Response: %s" % self.ascii2print(expectedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
+                        peer("Received Response: %s" % self.ascii2print(receivedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
+                        peer("")
                     if len(keywords)>1:
-                        print("")
-                        print("Expected Response: %s" % self.ascii2print(keywords[0],printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
+                        peer("")
+                        peer("Expected Response: %s" % self.ascii2print(keywords[0],printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
                         for (i,each_elem) in enumerate(keywords):
                             if i == 0:
                                 pass
@@ -389,7 +392,7 @@ class _AT():
         # 2
         if condition=="match_all_order":
             if log_msg == "debug":
-                print("Check if response match all keywords in order: ( match without extra char. )")
+                peer("Check if response match all keywords in order: ( match without extra char. )")
             receivedResp = resp
             expectedResp = ""
             for (i,each_keyword) in enumerate(keywords) :
@@ -397,12 +400,12 @@ class _AT():
             matched = fnmatch.fnmatchcase(receivedResp, expectedResp)
             if matched == 0 :
                 if log_msg == "logmsg" or log_msg == "debug":
-                    print("")
-                    print("No Match!! (match_all_order)")
-                    print("")
-                    print("Expected Response: %s" % self.ascii2print(expectedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
-                    print("Received Response: %s" % self.ascii2print(receivedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
-                    print("")
+                    peer("")
+                    peer("No Match!! (match_all_order)")
+                    peer("")
+                    peer("Expected Response: %s" % self.ascii2print(expectedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
+                    peer("Received Response: %s" % self.ascii2print(receivedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
+                    peer("")
 
         # 3
         if condition=="match_all_disorder":
@@ -423,7 +426,7 @@ class _AT():
             debug_msg += "\nConbination of keywords: \n"
 
             for (i,each_conbination) in enumerate(permutation_concat_list) :
-                # print i+1, ascii2print(each_conbination,printmode).replace("<CR>","\\r").replace("<LF>","\\n")
+                # peer i+1, ascii2print(each_conbination,printmode).replace("<CR>","\\r").replace("<LF>","\\n")
 
                 receivedResp = resp
                 expectedResp = each_conbination
@@ -444,13 +447,13 @@ class _AT():
             # display "No Match" when matching failed
             if matched == 1 :
                 if log_msg == "debug":
-                    print( debug_msg)
+                    peer( debug_msg)
             else:
                 if log_msg == "logmsg" or log_msg == "debug":
-                    print("")
-                    print("No Match!! (match_all_disorder)")
-                    print("")
-                    print( debug_msg)
+                    peer("")
+                    peer("No Match!! (match_all_disorder)")
+                    peer("")
+                    peer( debug_msg)
 
         # 4
         if condition=="contain_all_order":
@@ -467,25 +470,25 @@ class _AT():
             matched = fnmatch.fnmatchcase(receivedResp, expectedResp)
             if matched == 1 :
                 if log_msg == "debug":
-                    print("")
-                    print( debug_msg)
-                    print( "Expected Response: %s" % self.ascii2print(expectedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
-                    print("")
+                    peer("")
+                    peer( debug_msg)
+                    peer( "Expected Response: %s" % self.ascii2print(expectedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
+                    peer("")
             else:
                 if log_msg == "logmsg" or log_msg == "debug":
-                    print("")
-                    print("No Match!! (contain_all_order)")
-                    print("")
-                    print("Expected Response: %s" % self.ascii2print(expectedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
-                    print("Received Response: %s" % self.ascii2print(receivedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
-                    print("")
+                    peer("")
+                    peer("No Match!! (contain_all_order)")
+                    peer("")
+                    peer("Expected Response: %s" % self.ascii2print(expectedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
+                    peer("Received Response: %s" % self.ascii2print(receivedResp,printmode).replace("<CR>","\\r").replace("<LF>","\\n"))
+                    peer("")
 
         # 5
         if condition=="contain_all_disorder":
             debug_msg = ""
             debug_msg += "\nCheck if response contains all keywords without order:\n\n"
             #for (i,each_keyword) in enumerate(keywords) :
-            #    print ascii2print(keywords[i],printmode).replace("<CR>","\\r").replace("<LF>","\\n")
+            #    peer ascii2print(keywords[i],printmode).replace("<CR>","\\r").replace("<LF>","\\n")
             receivedResp = resp
             expectedResp = ""
 
@@ -505,22 +508,22 @@ class _AT():
             if flag_notfound == 0:
                 matched = 1
                 if log_msg == "debug":
-                    print( debug_msg)
+                    peer( debug_msg)
 
             if flag_notfound == 1:
                 matched = 0
                 if log_msg == "logmsg" or log_msg == "debug":
-                    print("")
-                    print( "No Match!! (contain_all_disorder)")
-                    print("")
-                    print(debug_msg)
+                    peer("")
+                    peer( "No Match!! (contain_all_disorder)")
+                    peer("")
+                    peer(debug_msg)
 
         # 6
         if condition=="contain_anyone":
             debug_msg = ""
             debug_msg += "\nCheck if response contains anyone of keywords: \n\n"
             #for (i,each_keyword) in enumerate(keywords) :
-            #    print ascii2print(keywords[i],printmode).replace("<CR>","\\r").replace("<LF>","\\n")
+            #    peer ascii2print(keywords[i],printmode).replace("<CR>","\\r").replace("<LF>","\\n")
             receivedResp = resp
             expectedResp = ""
 
@@ -538,22 +541,22 @@ class _AT():
             if flag_found == 1:
                 matched = 1
                 if log_msg == "debug":
-                    print(debug_msg)
+                    peer(debug_msg)
 
             if flag_found == 0:
                 matched = 0
                 if log_msg == "logmsg" or log_msg == "debug":
-                    print("")
-                    print("No Match!! (contain_anyone)")
-                    print("")
-                    print( debug_msg)
+                    peer("")
+                    peer("No Match!! (contain_anyone)")
+                    peer("")
+                    peer( debug_msg)
 
         # 7
         if condition=="not_contain_anyone":
             debug_msg = ""
             debug_msg += "\nCheck that response do not contains anyone of keywords: \n\n"
             #for (i,each_keyword) in enumerate(keywords) :
-            #    print ascii2print(keywords[i],printmode).replace("<CR>","\\r").replace("<LF>","\\n")
+            #    peer ascii2print(keywords[i],printmode).replace("<CR>","\\r").replace("<LF>","\\n")
             receivedResp = resp
             expectedResp = ""
 
@@ -573,15 +576,15 @@ class _AT():
             if flag_found == 0:
                 matched = 1
                 if log_msg == "debug":
-                    print( debug_msg)
+                    peer( debug_msg)
 
             if flag_found == 1:
                 matched = 0
                 if log_msg == "logmsg" or log_msg == "debug":
-                    print("")
-                    print("No Match!! (not_contain_anyone)")
-                    print("")
-                    print( debug_msg)
+                    peer("")
+                    peer("No Match!! (not_contain_anyone)")
+                    peer("")
+                    peer( debug_msg)
 
         # udpate result to statOfItem
         if update_result == "critical":
@@ -592,7 +595,7 @@ class _AT():
                 pass
         else:
             if log_msg == "logmsg":
-                print("\nNot Critical command\n")
+                peer("\nNot Critical command\n")
 
         return matched
 
@@ -607,7 +610,7 @@ class _AT():
         start_time = datetime.now()
         com_port_name = self.hCom.port
         if log_msg == "debug":
-            print(start_time)
+            peer(start_time)
         flag_matchrsp = False
         flag_matchstring = False
         flag_timeout = False
@@ -620,9 +623,9 @@ class _AT():
         if waitpattern == None or waitpattern[0] == "":
             flag_wait_until_timeout = True
             waitpattern = [""]
-            print("")
-            print("Wait responses in %s ms" % str(timeout))
-            print("")
+            peer("")
+            peer("Wait responses in %s ms" % str(timeout))
+            peer("")
 
         displaybuffer = ""
         displaypointer = 0
@@ -632,19 +635,19 @@ class _AT():
                 self.uartbuffer[self.hCom.port] += self.hCom.read(self.hCom.in_waiting).decode('utf-8','ignore')
                 if log_msg == "debug":
                     #myColor = colorLsit[7]
-                    #print "Read data from UART buffer:", self.uartbuffer[self.hCom.port].replace("\r","<CR>").replace("\n","<LF>")
-                    #print "Read data from UART buffer:", self.ascii2print(self.uartbuffer[self.hCom.port],printmode)
+                    #peer "Read data from UART buffer:", self.uartbuffer[self.hCom.port].replace("\r","<CR>").replace("\n","<LF>")
+                    #peer "Read data from UART buffer:", self.ascii2print(self.uartbuffer[self.hCom.port],printmode)
                     LogMsg = "Read data from UART buffer: "+ self.ascii2print(self.uartbuffer[self.hCom.port],printmode)
-                    print(LogMsg)
+                    peer(LogMsg)
             # Match response
             # Loop for each character
             for (i,each_char) in enumerate(self.uartbuffer[self.hCom.port]) :
                 if log_msg == "debug":
                     #myColor = colorLsit[7]
-                    #print i, self.uartbuffer[self.hCom.port][:i+1].replace("\r","<CR>").replace("\n","<LF>").replace("\n","<LF>")
-                    #print i, ascii2print(self.uartbuffer[self.hCom.port][:i+1],printmode)
+                    #peer i, self.uartbuffer[self.hCom.port][:i+1].replace("\r","<CR>").replace("\n","<LF>").replace("\n","<LF>")
+                    #peer i, ascii2print(self.uartbuffer[self.hCom.port][:i+1],printmode)
                     LogMsg = str(i)+" "+self.ascii2print(self.uartbuffer[self.hCom.port][:i+1],printmode)
-                    print(LogMsg)
+                    peer(LogMsg)
                 # display if matched with a line syntax
                 displaybuffer = self.uartbuffer[self.hCom.port][displaypointer:i+1]
                 line_syntax1 = "*\r\n*\r\n"
@@ -660,7 +663,7 @@ class _AT():
                     #myColor = colorLsit[7]
                     #received_data = displaybuffer.replace("\r","<CR>").replace("\n","<LF>").replace("\x15","<NAK>").replace("\x06","<ACK>").replace("\x00","<NULL>")
                     received_data = self.ascii2print(displaybuffer,printmode)
-                    #print timestamp+"Rcv COM", com_port_name, "["+received_data+"]",
+                    #peer timestamp+"Rcv COM", com_port_name, "["+received_data+"]",
                     LogMsg = timestamp+"Rcv COM "+com_port_name+" ["+received_data+"] "
                     displaypointer = i+1
                     flag_printline = True
@@ -683,7 +686,7 @@ class _AT():
                         #myColor = colorLsit[7]
                         #received_data = displaybuffer.replace("\r","<CR>").replace("\n","<LF>").replace("\x15","<NAK>").replace("\x06","<ACK>").replace("\x00","<NULL>")
                         received_data = self.ascii2print(displaybuffer,printmode)
-                        #print "Rcv COM", com_port_name, "["+received_data+"]",
+                        #peer "Rcv COM", com_port_name, "["+received_data+"]",
                         LogMsg = timestamp+"Rcv COM "+str(com_port_name)+" ["+received_data+"] "
                         pass
 
@@ -691,7 +694,7 @@ class _AT():
                     if self.RcvTimespent:
                         diff_time = datetime.now() - start_time
                         diff_time_ms = diff_time.seconds * 1000 + diff_time.microseconds / 1000
-                        #print " <"+str(timeout), " @"+str(diff_time_ms), "ms",
+                        #peer " <"+str(timeout), " @"+str(diff_time_ms), "ms",
                         LogMsg += " <"+str(timeout)+" @"+str(diff_time_ms)+" ms "
 
                     flag_printline = True
@@ -703,11 +706,11 @@ class _AT():
                     # break for Match response
                     flag_matchrsp = True
 
-                # print linebreak for EOL
+                # peer linebreak for EOL
                 if flag_printline:
                     flag_printline = False
-                    #print ""
-                    print(LogMsg)
+                    #peer ""
+                    peer(LogMsg)
 
                 # break for Match response
                 if flag_matchrsp:
@@ -718,24 +721,24 @@ class _AT():
             diff_time_ms = diff_time.seconds * 1000 + diff_time.microseconds / 1000
             if diff_time_ms > timeout:
                 if log_msg == "debug":
-                    #print "Timeout: ", diff_time, "diff_time_ms:", diff_time_ms
+                    #peer "Timeout: ", diff_time, "diff_time_ms:", diff_time_ms
                     LogMsg = "Timeout: "+str(diff_time)+" diff_time_ms: "+str(diff_time_ms)
-                    print(LogMsg)
+                    peer(LogMsg)
                 # display the remaining response when timeout
                 displaybuffer = self.uartbuffer[self.hCom.port][displaypointer:]
                 if len(displaybuffer)>0:
                     # display timestamp
                     if self.SndRcvTimestamp:
                         #myColor = colorLsit[7]
-                        #print TimeDisplay(),
+                        #peer TimeDisplay(),
                         timestamp = self.timeDisplay() + " "
                     # display data
                     #myColor = colorLsit[7]
                     #received_data = receivedResp.replace("\r","<CR>").replace("\n","<LF>").replace("\x15","<NAK>").replace("\x06","<ACK>").replace("\x00","<NULL>")
                     received_data = self.ascii2print(receivedResp,printmode)
-                    #print "Rcv COM", com_port_name, " ["+received_data+"]"
+                    #peer "Rcv COM", com_port_name, " ["+received_data+"]"
                     LogMsg = "Rcv COM "+str(com_port_name)+" ["+received_data+"]"
-                    print(LogMsg)
+                    peer(LogMsg)
                     pass
 
                 # clear all resposne in UART Buffer
@@ -745,13 +748,13 @@ class _AT():
                 if flag_wait_until_timeout != True:
                     if log_msg == "logmsg" or log_msg == "debug":
                         if len(receivedResp) > 0:
-                            #print "\nNo Match! "+"@COM"+com_port_name+ " <"+str(timeout)+" ms\n"
+                            #peer "\nNo Match! "+"@COM"+com_port_name+ " <"+str(timeout)+" ms\n"
                             LogMsg = "\nNo Match! "+"@COM"+com_port_name+" <"+str(timeout)+" ms\n"
-                            print(LogMsg)
+                            peer(LogMsg)
                         if len(receivedResp) == 0:
-                            #print "\nNo Response! "+"@COM"+com_port_name+ " <"+str(timeout)+" ms\n"
+                            #peer "\nNo Response! "+"@COM"+com_port_name+ " <"+str(timeout)+" ms\n"
                             LogMsg = "\nNo Response! "+"@COM"+com_port_name+ " <"+str(timeout)+" ms\n"
-                            print(LogMsg)
+                            peer(LogMsg)
                 self.uartbuffer[self.hCom.port] = ""
                 flag_timeout = True
 
@@ -761,10 +764,10 @@ class _AT():
                 break
 
         if log_msg == "debug":
-            print("")
-            print(str(len(self.uartbuffer[self.hCom.port])))
+            peer("")
+            peer(str(len(self.uartbuffer[self.hCom.port])))
             LogMsg = "The remaining data in uartbuffer " + str((self.hCom.port + 1))  + " : [", self.ascii2print(self.uartbuffer[self.hCom.port],printmode), "]"
-            print(LogMsg)
+            peer(LogMsg)
         return receivedResp
 
 class AT():
@@ -796,4 +799,4 @@ class AT():
         return self
 
     def info(self):
-        print("My name is : {name}\n- conf: <{conf}>".format(name = AT.name, conf = self.conf))
+        peer("My name is : {name}\n- conf: <{conf}>".format(name = AT.name, conf = self.conf))

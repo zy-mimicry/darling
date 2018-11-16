@@ -62,8 +62,8 @@ DEFAULT_LOGGING = {
     },
     'loggers' : {
         'admin' : {
-            #'handlers' : ["core_file"],
-            'handlers' : ["console", "core_file"],
+            'handlers' : ["core_file"],
+            #'handlers' : ["console", "core_file"],
             'level' : "DEBUG",
             'propagate' : True,
         },
@@ -95,6 +95,7 @@ class Log:
                  log_format = "%(asctime)s |  %(message)s"):
                  #log_format = "%(asctime)s - %(filename)s[line:%(lineno)d] : %(message)s"):
 
+        print("<logger name :{}>".format(logger_name))
         if not os.path.exists(os.path.dirname(log_path)):
             os.makedirs(os.path.dirname(log_path), mode=0o775)
         self.logger = logging.getLogger(logger_name)

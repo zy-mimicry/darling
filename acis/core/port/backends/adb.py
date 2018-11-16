@@ -10,12 +10,14 @@ from datetime import datetime
 
 class _ADB():
 
+    name = '_ADB'
+
     def __init__(self, serial_id):
 
         self.serial_id = serial_id
 
-    def info(self):
-        print("I'm _ADB")
+    def __repr__(self):
+       return "<Class: {name} , serial id: {conf}>".format(name = _ADB.name,conf=self.serial_id)
 
     def send_cmd(self, command, timeout=10):
 
