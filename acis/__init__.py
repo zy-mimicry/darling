@@ -39,7 +39,7 @@ class ACISMiscer():
         peer("file suffix path: {}".format(path))
 
         path[-1] = path[-1].replace('.py', '.log')
-        log_path = self.prefix + '/' + self.limit_name + '/' + '/'.join(path)
+        self.which_log = log_path = self.prefix + '/' + self.limit_name + '/' + '/'.join(path)
         peer("Finily path: {}".format(log_path))
         return log_path
 

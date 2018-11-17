@@ -7,6 +7,7 @@
 
 import subprocess
 from datetime import datetime
+from .at import _AT
 
 class _ADB():
 
@@ -31,6 +32,10 @@ class _ADB():
 
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines = True)
             output = p.communicate()[0]
+
+            if command.strip() in ("init 6", "init 0", "reset", "\"poweroff\"", "reboot"):
+                print("hook here reset.....")
+                _AT.objs[self.serial_id].close()
 
             timeDisplay =  "(%0.2d:%0.2d:%0.2d:%0.3d) Rcv"%(dt.hour, dt.minute, dt.second, dt.microsecond/1000)
             diff_time = datetime.now() - start_time

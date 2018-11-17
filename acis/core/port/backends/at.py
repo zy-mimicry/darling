@@ -25,9 +25,12 @@ class _AT():
 
     name = '_AT'
 
+    objs = {}
+
     def __init__(self, conf):
 
         self.conf = conf
+        self.port_link = conf["dev_link"]
 
         # AT Send receive time stamp
         self.SndRcvTimestamp = True
@@ -42,7 +45,7 @@ class _AT():
         #list of opened COM ports
         self.uartbuffer = {}
 
-        self.port = self.open(port = self.conf)
+        self.open(port = self.port_link)
 
         peer("_AT instance init.")
 
@@ -99,6 +102,8 @@ class _AT():
             self.uartbuffer[hCom.port] = ""
 
             self.hCom = hCom
+
+            _AT.objs[self.conf["serial_id"]] = self.hCom
 
             return hCom
 
@@ -167,10 +172,6 @@ class _AT():
                 break
 
     def sleep(self, millisecond, silent=False):
-        "goal of the method : this method sleep during x milliseconds"
-        "INPUT : milliseconds (ms), sleep duration"
-        "                silent, flag to know if a comment shall be displayed or not"
-        "OUTPUT : none"
         try:
             if not(silent):
                 peer("SLEEP: Start sleep for %d milliseconds" % millisecond)
@@ -183,24 +184,8 @@ class _AT():
             peer(e)
 
     def close(self):
-        "goal of the method : This method closes a COM port"
-        "INPUT : hCom : COM port object"
-        "OUTPUT : none"
         try:
-        #peer "close com port ", hCom.port
-            #hCom.setDTR(0)
-            #hCom.setDTR(1)
-            #ComPort = hCom.port
             self.hCom.close()
-            #list_hCom.remove(hCom)
-
-            # for linux system, delete the usbport in dict usbport2ttycom.
-            # if os.name == 'posix':
-            #     for key, value in usbport2ttycom.items():
-            #         if value == ComPort:
-            #             find_usbport = key
-            #             break
-            #     usbport2ttycom.pop(find_usbport)
 
             peer("CLOSE: Close the "+self.hCom.port)
         except Exception as e:
@@ -221,7 +206,13 @@ class _AT():
         "INPUT : hCom : COM port object"
         "        cmd : AT command to send"
         "OUTPUT : none"
+
+        if not self.hCom.is_open:
+            self.hCom.open()
         self.hCom.write(cmd.encode('utf-8'))
+        if re.search('AT!RESET', cmd):
+            self.hCom.close()
+
         time.sleep(0.1)
 
         timestamp = self.timeDisplay()+" "
@@ -781,22 +772,25 @@ class AT():
 
         if obj == "master":
             self.conf["master"] = conf
-            self.master = _AT(conf['dev_link']); return
+            #self.master = _AT(conf['dev_link']); return
+            self.master = _AT(conf); return
         elif obj == "slave":
             self.conf["slave"] = conf
-            self.slave = _AT(conf['dev_link']); return
+            #self.slave = _AT(conf['dev_link']); return
+            self.slave = _AT(conf); return
         elif obj == "any":
             self.conf["any"] = conf
-            self.any = _AT(conf['dev_link']); return
+            #self.any = _AT(conf['dev_link']); return
+            self.any = _AT(conf); return
 
     def reinit(self, obj, conf):
 
         if obj == "master":
             self.conf["master"] = conf
-            self.master = _AT(conf['dev_link'])
+            self.master = _AT(conf)
         else:
             self.conf["slave"] = conf
-            self.slave = _AT(conf['dev_link'])
+            self.slave = _AT(conf)
         return self
 
     def info(self):

@@ -6,8 +6,8 @@ from acis.core.report import report
 """
 
 @report.fixture(scope="module")
-def m(misc):
-    mm =  misc(__file__,
+def m(request, misc):
+    mz =  misc(__file__,
                logger_name = 'ACIS.System.demo',
                mail_to     = 'rzheng@sierrawireless.com',
                port_names  = [
@@ -16,43 +16,23 @@ def m(misc):
                    'ADB..master',
                    'ADB..slave',
                ])
-    mm.test_ID = "ACIS_System_DEMO_HERE"
-    mm.errors = {}
-    mm.flags  = []
-    return mm
+    mz.test_ID = "ACIS_System_DEMO_HERE"
+
+    mz.errors = {}
+    mz.flags  = []
+    def module_upload_log():
+        allure.attach.file(source = mz.which_log,
+                           attachment_type = allure.attachment_type.TEXT)
+    request.addfinalizer(module_upload_log)
+    return mz
+
 
 @report.epic("System")
-@report.feature("Reset Poweroff")
+@report.feature("Reset")
 class ACISsystemReset():
     """
     Something you want to descript for this test. (can't display)
     """
-
-    # @report.step("body step 01")
-    # def adc_body_deal_01(self,m):
-    #     m.log("I'm stage 01 << body")
-
-    # @report.step("body step 02")
-    # def adc_body_deal_02(self,m):
-    #     m.log("I'm stage 02 << body")
-
-    # @report.step("body step 03")
-    # def adc_body_deal_03(self,m):
-    #     m.log("I'm stage 03 << body")
-
-    # @report.story("DACIS >> maybe test body, crazy...")
-    # @pytest.mark.run(order=2)
-    # def acis_mreal_body(self, m):
-        # """
-        # This is a description
-        # """
-        # self.adc_body_deal_01(m)
-        # self.adc_body_deal_02(m)
-        # self.adc_body_deal_03(m)
-
-
-        # = SagOpen(UART1_COM)
-
 
     @report.step("[Stage] <Pre-Condition>")
     def pre(self, m):
@@ -147,7 +127,6 @@ class ACISsystemReset():
             if m.at.master.statOfItem != "OK":
                 raise Exception("Reboot failed...")
             m.at.master.sleep(30000)
-            m.at.master.reopen()
 
             m.log( "\nAT!gstatus? to check whether module reboot truely" )
             m.log("hCom obj {}".format(m.at.master.hCom))
@@ -176,7 +155,7 @@ class ACISsystemReset():
         m.log("Nothing to do in this stage.....")
 
 
-    @report.story("ACIS >> Main Entracne")
+    @report.story("Power Off")
     @pytest.mark.run(order=1)
     def acis_mstage_entrance(self, m):
         """
@@ -219,15 +198,16 @@ class ACISsystemReset():
             m.log("\n\n  <ACIS Exception Stack Information>\n")
             for f in m.flags:
                 m.log("--- {} stack info ---\n{}\n".format(f, m.errors[f]))
-            m.log("TESTCASE:[{}] Result:[{}]".format(m.test_ID, m.at.master.statOfItem))
+            m.log("TESTCASE:[{}] Result:[{}]".format(m.test_ID, "FAIL"))
             raise Exception("\n\n <ACIS Test Exception, Please check stack information.>\n")
         else:
-            m.log("TESTCASE:[{}] Result:[{}]".format(m.test_ID, m.at.master.statOfItem))
+            m.log("TESTCASE:[{}] Result:[{}]".format(m.test_ID, "PASS"))
 
-    @report.story("ACIS >> Output log to report")
-    @pytest.mark.run(order=2)
-    def acis_output_log(self, m):
-        allure.attach.file(source = '/home/jenkins/hello.txt', attachment_type = allure.attachment_type.TEXT)
+
+    # @report.story("ACIS >> Output log to report")
+    # @pytest.mark.run(order=2)
+    # def acis_output_log(self, m):
+    #     allure.attach.file(source = '/home/jenkins/hello.txt', attachment_type = allure.attachment_type.TEXT)
 
     # @report.story("DACIS >> maybe dance finished")
     # @pytest.mark.run(order=3)
@@ -292,3 +272,28 @@ class ACISsystemReset():
 
 #@report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Init<")
 #@report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Init<")
+
+    # @report.step("body step 01")
+    # def adc_body_deal_01(self,m):
+    #     m.log("I'm stage 01 << body")
+
+    # @report.step("body step 02")
+    # def adc_body_deal_02(self,m):
+    #     m.log("I'm stage 02 << body")
+
+    # @report.step("body step 03")
+    # def adc_body_deal_03(self,m):
+    #     m.log("I'm stage 03 << body")
+
+    # @report.story("DACIS >> maybe test body, crazy...")
+    # @pytest.mark.run(order=2)
+    # def acis_mreal_body(self, m):
+        # """
+        # This is a description
+        # """
+        # self.adc_body_deal_01(m)
+        # self.adc_body_deal_02(m)
+        # self.adc_body_deal_03(m)
+
+
+        # = SagOpen(UART1_COM)
