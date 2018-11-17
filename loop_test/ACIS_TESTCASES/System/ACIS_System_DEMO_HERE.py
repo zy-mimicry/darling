@@ -1,6 +1,7 @@
 import pytest
 import allure
 from acis.core.report import report
+import os
 
 """
 """
@@ -16,8 +17,8 @@ def m(request, misc):
                    'ADB..master',
                    'ADB..slave',
                ])
-    mz.test_ID = "ACIS_System_DEMO_HERE"
 
+    mz.test_ID = os.path.basename(__file__.split('.')[0])
     mz.errors = {}
     mz.flags  = []
     def module_upload_log():
@@ -26,9 +27,9 @@ def m(request, misc):
     request.addfinalizer(module_upload_log)
     return mz
 
-
 @report.epic("System")
 @report.feature("Reset")
+@report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Body<")
 class ACISsystemReset():
     """
     Something you want to descript for this test. (can't display)
@@ -97,7 +98,6 @@ class ACISsystemReset():
     @report.step("[Stage] <Real-Test-Body>")
     def body(self, m):
 
-
         m.log("I'm stage 02 << pre")
         m.log( "%s: Test Start" % m.test_ID)
         m.log( "**************************************************************")
@@ -157,6 +157,7 @@ class ACISsystemReset():
 
     @report.story("Power Off")
     @pytest.mark.run(order=1)
+    @report.link("https://issues.sierrawireless.com/browse/QTI9X28-4443", name = "=Gerrit: commit 01=")
     def acis_mstage_entrance(self, m):
         """
         The test entrance.
@@ -202,98 +203,3 @@ class ACISsystemReset():
             raise Exception("\n\n <ACIS Test Exception, Please check stack information.>\n")
         else:
             m.log("TESTCASE:[{}] Result:[{}]".format(m.test_ID, "PASS"))
-
-
-    # @report.story("ACIS >> Output log to report")
-    # @pytest.mark.run(order=2)
-    # def acis_output_log(self, m):
-    #     allure.attach.file(source = '/home/jenkins/hello.txt', attachment_type = allure.attachment_type.TEXT)
-
-    # @report.story("DACIS >> maybe dance finished")
-    # @pytest.mark.run(order=3)
-    # def acis_mstage_finish(self, m):
-
-    #     self.adc_late_deal_01(m)
-    #     self.adc_late_deal_02(m)
-    #     self.adc_late_deal_03(m)
-
-    # @report.step("late step 01")
-    # def adc_late_deal_01(self, m):
-    #     m.log("I'm stage 01 << late")
-
-    # @report.step("late step 02")
-    # def adc_late_deal_02(self, m):
-    #     m.log("I'm stage 02 << late")
-
-    # @report.step("late step 03")
-    # def adc_late_deal_03(self, m):
-    #     m.log("I'm stage 03 << late")
-
-
-# @pytest.mark.xfail(condition=lambda: True, reason='this test is expecting failure')
-# def test_xfail_expected_failure():
-#     """this test is an xfail that will be marked as expected failure"""
-#     assert False
-
-# @pytest.mark.xfail(condition=lambda: True, reason='this test is expecting failure')
-# def test_xfail_unexpected_pass():
-#     """this test is an xfail that will be marked as unexpected success"""
-#     assert True
-
-
-# def test_success():
-#     """this test succeeds"""
-#     assert True
-
-
-# def test_failure():
-#     """this test fails"""
-#     assert False
-
-
-# def test_skip():
-#     """this test is skipped"""
-#     pytest.skip('for a reason!')
-
-
-# def test_broken():
-#     raise Exception('oops')
-
-
-# @pytest.mark.skipif('2 + 2 != 5', reason='This test is skipped by a triggered condition in @pytest.mark.skipif')
-# def test_skip_by_triggered_condition():
-#     pass
-
-
-# @report.link("https://issues.sierrawireless.com/browse/QTI9X28-4440", name = "=Gerrit: commit 02=")
-# @report.link("https://issues.sierrawireless.com/browse/QTI9X28-4443", name = "=Gerrit: commit 01=")
-# @report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Body<")
-#@report.link("https://issues.sierrawireless.com/browse/QTI9X28-4442", name=">JIRA: DACIS<")
-
-#@report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Init<")
-#@report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Init<")
-
-    # @report.step("body step 01")
-    # def adc_body_deal_01(self,m):
-    #     m.log("I'm stage 01 << body")
-
-    # @report.step("body step 02")
-    # def adc_body_deal_02(self,m):
-    #     m.log("I'm stage 02 << body")
-
-    # @report.step("body step 03")
-    # def adc_body_deal_03(self,m):
-    #     m.log("I'm stage 03 << body")
-
-    # @report.story("DACIS >> maybe test body, crazy...")
-    # @pytest.mark.run(order=2)
-    # def acis_mreal_body(self, m):
-        # """
-        # This is a description
-        # """
-        # self.adc_body_deal_01(m)
-        # self.adc_body_deal_02(m)
-        # self.adc_body_deal_03(m)
-
-
-        # = SagOpen(UART1_COM)
