@@ -34,7 +34,7 @@ class _AT():
         self.RcvTimespent = True
 
         #Variable for status
-        self.statOfItem = ''
+        self.statOfItem = 'OK'
 
         # Variable for log
         self.numOfSuccessfulResponse = 0.0
@@ -42,7 +42,7 @@ class _AT():
         #list of opened COM ports
         self.uartbuffer = {}
 
-        self.open(port = self.conf)
+        self.port = self.open(port = self.conf)
 
         peer("_AT instance init.")
 
@@ -113,16 +113,16 @@ class _AT():
         except AttributeError:
             peer("OPEN: Busy for "+hCom.port+"!")
 
-    def reopen(self, hCom, cfun_delay_time=2000):
+    def reopen(self, cfun_delay_time=2000):
 
-        self.close(hCom)
+        self.close()
         self.sleep(cfun_delay_time)
 
-        return self.open(hCom.port,
-                         hCom.baudrate,
-                         hCom.bytesize,
-                         hCom.parity,
-                         hCom.stopbits)
+        return self.open(self.hCom.port,
+                         self.hCom.baudrate,
+                         self.hCom.bytesize,
+                         self.hCom.parity,
+                         self.hCom.stopbits)
 
     def detect_port(self, port, timeout=2000, logmsg="logmsg"):
 
@@ -182,7 +182,7 @@ class _AT():
         except Exception as e:
             peer(e)
 
-    def close(self, hCom):
+    def close(self):
         "goal of the method : This method closes a COM port"
         "INPUT : hCom : COM port object"
         "OUTPUT : none"
@@ -191,7 +191,7 @@ class _AT():
             #hCom.setDTR(0)
             #hCom.setDTR(1)
             #ComPort = hCom.port
-            hCom.close()
+            self.hCom.close()
             #list_hCom.remove(hCom)
 
             # for linux system, delete the usbport in dict usbport2ttycom.
@@ -202,10 +202,10 @@ class _AT():
             #             break
             #     usbport2ttycom.pop(find_usbport)
 
-            peer("CLOSE: Close the "+hCom.port)
+            peer("CLOSE: Close the "+self.hCom.port)
         except Exception as e:
             peer(e)
-            peer("CLOSE: Error for "+hCom.port)
+            peer("CLOSE: Error for "+self.hCom.port)
 
     def timeDisplay(self, dt = None):
         "Display the time ; if dt is empty retrun actual date time under format, otherless return dt under format"
@@ -268,18 +268,18 @@ class _AT():
 
         return outputstring
 
-    def clean_buffer(self,hCom):
+    def clean_buffer(self):
             "goal of the method : this method clears the input buffer of hCom COM port instance"
             "INPUT : hCom, COM port instance"
             "OUTPUT : none"
             try:
-                    hCom.flushInput()
+                    self.hCom.flushInput()
 
             except SystemExit:
                     raise SystemExit
 
             except Exception as e:
-                    hCom.close()
+                    self.hCom.close()
                     peer("CLEAR_BUFFER: Error!")
                     peer(e)
 
@@ -590,6 +590,7 @@ class _AT():
         if update_result == "critical":
             if matched == 0:
                 self.statOfItem = 'NOK'
+                raise Exception("<Critical> Exception: reason is NOT match Response.")
             else:
                 self.numOfSuccessfulResponse += 1.0
                 pass

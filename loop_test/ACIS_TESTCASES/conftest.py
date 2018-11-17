@@ -5,34 +5,23 @@
 import time
 import os,sys
 import pytest, allure
+import acis
+from acis.core.report import  report
 
 current_file = os.path.abspath(__file__)
 current_path = os.path.dirname(current_file)
 parent_path  = os.path.dirname(current_path)
 
-print("Location:\n-file:{}\n-current path:{}\n-parent path: {}".
-      format(current_file,
-             current_path,
-             parent_path))
+acis.utils.log.peer("Location:\n-file:{}\n-current path:{}\n-parent path: {}".
+                     format(current_file,
+                            current_path,
+                            parent_path))
 
-# nfs_mounted_path = '/mnt/sda2/rzheng/__mzPython__/self/wawawa' # must exist!
-different_str = time.strftime('%Y_%m_%d_%H_%M_%S') # from environment.
-
-#from . import darling_file
-
-print("-- Construct Darling Logs Directory.")
-#darling_file.different_str = different_str
-prefix_of_log_path = parent_path + '/' + 'darling_log/' + different_str
-
-import acis
-from acis.core.report import  report
-
-#mdarling = acis.ACISMiscer(prefix_of_log_path)
-mdarling = acis.ACISMiscer()
-
+miscer = acis.ACISMiscer()
 @report.fixture(scope="module")
-def darling_misc():
-    return mdarling.misc_deal
+def misc():
+    return miscer.misc_deal
+
 
 @report.fixture(scope='function')
 def function_scope_fixture_with_finalizer(request):
