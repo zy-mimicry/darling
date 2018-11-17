@@ -27,6 +27,10 @@ def m(request, misc):
     request.addfinalizer(module_upload_log)
     return mz
 
+@report.step("[Stage] < out of class functions>")
+def out_of_class_function(m):
+    print("Out of class, get 'm' is :{}".format(m))
+
 @report.epic("System")
 @report.feature("Reset")
 @report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Body<")
@@ -153,6 +157,7 @@ class ACISsystemReset():
     def restore(self, m):
         m.log("I'm stage 03 << pre")
         m.log("Nothing to do in this stage.....")
+        hello(m)
 
 
     @report.story("Power Off")
@@ -199,7 +204,7 @@ class ACISsystemReset():
             m.log("\n\n  <ACIS Exception Stack Information>\n")
             for f in m.flags:
                 m.log("--- {} stack info ---\n{}\n".format(f, m.errors[f]))
-            m.log("TESTCASE:[{}] Result:[{}]".format(m.test_ID, "FAIL"))
+            m.log("\nTESTCASE:[{}] Result:[{}]\n".format(m.test_ID, "FAIL"))
             raise Exception("\n\n <ACIS Test Exception, Please check stack information.>\n")
         else:
-            m.log("TESTCASE:[{}] Result:[{}]".format(m.test_ID, "PASS"))
+            m.log("\nTESTCASE:[{}] Result:[{}]\n".format(m.test_ID, "PASS"))
