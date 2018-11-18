@@ -46,7 +46,6 @@ SUBSYSTEMS=="usb", DRIVERS=="GobiSerial", SYMLINK+="acis/slave/DM", ATTRS{bInter
 GOTO="acis_end"\
 """
 
-
 def get_devices():
     try:
         output = subprocess.check_output('adb devices',
@@ -65,7 +64,8 @@ def get_devices():
         print(devices)
         return devices
 
-def guide(devices):
+
+def interactions(devices):
 
     total_nums = 0
     picks = {}
@@ -107,9 +107,6 @@ def guide(devices):
             break
     return picks
 
-# m = guide(get_devices())
-# print(m)
-
 
 def make_rules(_file, devices):
 
@@ -125,8 +122,7 @@ def make_rules(_file, devices):
                                          rule_master_part_02 = rule_master_part_02,
                                          rule_slave_part_01  = "",
                                          rule_slave_part_02  = "")
-    print("=================================")
-    print(template)
+    #print("======== output template ========\n",template)
     with open(_file, 'w') as f:
         f.write(template)
         f.flush()
@@ -136,10 +132,10 @@ def make_rules(_file, devices):
 def check_rules(_file, devices):
 
     if os.path.exists(_file):
-        print("\n\n===== show file contents =====")
-        for l in open(_file, 'r'):
-            print(l)
-        print("===== end of show =====")
+        # print("\n\n=============== [show file contents ]===============")
+        # for l in open(_file, 'r'):
+        #     print(l)
+        # print("=============== [ end of show ]===============")
         while True:
             choice = str(input("Do you want to overwrite it? (y/n)")).lower()
             if choice not in ("y", "n"):
@@ -155,7 +151,9 @@ def check_rules(_file, devices):
         print("File:<{}> not exists, Now new a file to make a rule.".format(_file))
         make_rules(_file, devices)
 
+def main():
+    check_rules('/etc/udev/rules.d/11-acis.rules', interactions(get_devices()))
 
-check_rules('/etc/udev/rules.d/11-acis.rules', guide(get_devices()))
-
+if __name__ == "__main__":
+    main()
 
