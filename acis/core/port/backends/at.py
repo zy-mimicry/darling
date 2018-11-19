@@ -32,6 +32,8 @@ class _AT():
         self.conf = conf
         self.port_link = conf["dev_link"]
 
+        self.reset_mark = False
+
         # AT Send receive time stamp
         self.SndRcvTimestamp = True
         self.RcvTimespent = True
@@ -209,9 +211,12 @@ class _AT():
 
         if not self.hCom.is_open:
             self.hCom.open()
+
         self.hCom.write(cmd.encode('utf-8'))
+
         if re.search('AT!RESET', cmd):
-            self.hCom.close()
+            #self.hCom.close()
+            self.reset_mark = True
 
         time.sleep(0.1)
 
@@ -295,6 +300,9 @@ class _AT():
 
         AcisWaitResp_response = self.wait_resp( waitpattern, timeout, log_msg, printmode)
         match_result = self.match_resp(AcisWaitResp_response, waitpattern, condition, update_result, log_msg, printmode)
+        if self.reset_mark:
+            self.hCom.close()
+            self.reset_mark = False
         return match_result
 
     def match_resp(self, resp, keywords, condition="wildcard", update_result="critical", log_msg="logmsg", printmode="symbol"):
@@ -316,6 +324,8 @@ class _AT():
         "OUTPUT : Boolean >> True:response matched, False:repsonse mis-matched"
 
         #myColor = colorLsit[8]
+        if not self.hCom.is_open:
+            self.hCom.open()
 
         # If resp is Response() >> assign .tabData to resp
         if type(resp) != type("string"):
@@ -599,6 +609,8 @@ class _AT():
         "        log_msg : option for log message"
         "OUTPUT : Received data (String)"
 
+        if not self.hCom.is_open:
+            self.hCom.open()
         start_time = datetime.now()
         com_port_name = self.hCom.port
         if log_msg == "debug":
@@ -623,7 +635,7 @@ class _AT():
         displaypointer = 0
         while 1:
             # Read data from UART Buffer
-            if self.hCom.in_waiting>0:
+            if int(self.hCom.in_waiting) > 0:
                 self.uartbuffer[self.hCom.port] += self.hCom.read(self.hCom.in_waiting).decode('utf-8','ignore')
                 if log_msg == "debug":
                     #myColor = colorLsit[7]
@@ -770,6 +782,8 @@ class AT():
 
         self.conf = {}
 
+        self.master = self.slave = self.any = None
+
         if obj == "master":
             self.conf["master"] = conf
             #self.master = _AT(conf['dev_link']); return
@@ -792,6 +806,15 @@ class AT():
             self.conf["slave"] = conf
             self.slave = _AT(conf)
         return self
+
+    def closeall(self):
+
+        if self.master:
+            self.master.close()
+        if self.slave:
+            self.slave.close()
+        if self.any:
+            self.any.close()
 
     def info(self):
         peer("My name is : {name}\n- conf: <{conf}>".format(name = AT.name, conf = self.conf))

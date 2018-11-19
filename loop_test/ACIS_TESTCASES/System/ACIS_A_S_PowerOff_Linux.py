@@ -24,6 +24,7 @@ def m(request, misc):
     def module_upload_log():
         allure.attach.file(source = mz.which_log,
                            attachment_type = allure.attachment_type.TEXT)
+        mz.at.closeall()
     request.addfinalizer(module_upload_log)
     return mz
 
@@ -32,7 +33,7 @@ def out_of_class_function(m):
     print("Out of class, get 'm' is :{}".format(m))
 
 @report.epic("System")
-@report.feature("Reset")
+@report.feature("Poweroff")
 @report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Body<")
 class ACISsystemReset():
     """
@@ -157,10 +158,10 @@ class ACISsystemReset():
     def restore(self, m):
         m.log("I'm stage 03 << pre")
         m.log("Nothing to do in this stage.....")
-        hello(m)
+        out_of_class_function(m)
 
 
-    @report.story("Power Off")
+    @report.story("Power Off AT")
     @pytest.mark.run(order=1)
     @report.link("https://issues.sierrawireless.com/browse/QTI9X28-4443", name = "=Gerrit: commit 01=")
     def acis_mstage_entrance(self, m):
