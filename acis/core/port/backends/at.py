@@ -49,7 +49,7 @@ class _AT():
 
         self.open(port = self.port_link)
 
-        peer("_AT instance init.")
+        peer(self)
 
     def __repr__(self):
        return "<Class: {name} , dev_link: {conf}>".format(name = _AT.name,conf=self.conf)
@@ -786,16 +786,15 @@ class AT():
 
         if obj == "master":
             self.conf["master"] = conf
-            #self.master = _AT(conf['dev_link']); return
             self.master = _AT(conf); return
         elif obj == "slave":
             self.conf["slave"] = conf
-            #self.slave = _AT(conf['dev_link']); return
             self.slave = _AT(conf); return
         elif obj == "any":
             self.conf["any"] = conf
-            #self.any = _AT(conf['dev_link']); return
             self.any = _AT(conf); return
+
+        self.info()
 
     def reinit(self, obj, conf):
 
@@ -817,4 +816,4 @@ class AT():
             self.any.close()
 
     def info(self):
-        peer("My name is : {name}\n- conf: <{conf}>".format(name = AT.name, conf = self.conf))
+        peer("My name is : {name}\n- conf:\n<{conf}>".format(name = AT.name, conf = self.conf))

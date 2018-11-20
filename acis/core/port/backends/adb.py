@@ -5,6 +5,7 @@
 """
 """
 
+from acis.utils.log import peer
 import subprocess
 from datetime import datetime
 from .at import _AT
@@ -17,6 +18,8 @@ class _ADB():
 
         self.serial_id = serial_id
 
+        peer(self)
+
     def __repr__(self):
        return "<Class: {name} , serial id: {conf}>".format(name = _ADB.name,conf=self.serial_id)
 
@@ -28,24 +31,24 @@ class _ADB():
             timeDisplay =  "(%0.2d:%0.2d:%0.2d:%0.3d) Snd"%(dt.hour, dt.minute, dt.second, dt.microsecond/1000)
 
             cmd = 'adb -s %s shell %s' % (self.serial_id, command)
-            print(timeDisplay + " ADB " + self.serial_id + " ["+ cmd + "]")
+            peer(timeDisplay + " ADB " + self.serial_id + " ["+ cmd + "]")
 
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines = True)
             output = p.communicate()[0]
 
             if command.strip() in ("init 6", "init 0", "reset", "\"poweroff\"", "reboot"):
-                print("hook here reset.....")
+                peer("hook here reset.....")
                 _AT.objs[self.serial_id].close()
 
             timeDisplay =  "(%0.2d:%0.2d:%0.2d:%0.3d) Rcv"%(dt.hour, dt.minute, dt.second, dt.microsecond/1000)
             diff_time = datetime.now() - start_time
             diff_time_ms = diff_time.seconds * 1000 + diff_time.microseconds / 1000
             for each_line in output.split('\n'):
-                print(timeDisplay + " ADB "+ self.serial_id + " ["+ each_line.replace("\r","<CR>").replace("\n","<CR>") +"]"+" @"+str(diff_time_ms)+" ms ")
+                peer(timeDisplay + " ADB "+ self.serial_id + " ["+ each_line.replace("\r","<CR>").replace("\n","<CR>") +"]"+" @"+str(diff_time_ms)+" ms ")
             return output
         except Exception as e:
-            print(e)
-            print("----->Problem: Exception comes up when send command !!!")
+            peer(e)
+            peer("----->Problem: Exception comes up when send command !!!")
             return "\r\nERROR\r\n"
 
 class ADB():
@@ -66,6 +69,8 @@ class ADB():
             self.conf["any"] = conf
             self.any = _ADB(conf['serial_id']); return
 
+        self.info()
+
     def reinit(self, obj, conf):
 
         if obj == "master":
@@ -77,4 +82,4 @@ class ADB():
         return self
 
     def info(self):
-        print("My name is : {name}\n- conf:\n{conf}".format(name = ADB.name, conf = self.conf))
+        peer("My name is : {name}\n- conf:\n{conf}".format(name = ADB.name, conf = self.conf))
