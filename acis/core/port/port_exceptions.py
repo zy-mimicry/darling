@@ -6,6 +6,11 @@
 """
 
 class AcisRuleFileNotExist(Exception): pass
+
 class UnsupportTypeErr(Exception): pass
+
 class ATportBusyErr(Exception): pass
+
 class UnsupportBackendErr(Exception): pass
+
+class NotFindTypeNameInRule(Exception): pass

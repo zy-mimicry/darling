@@ -4,27 +4,28 @@
 """
 """
 
+from acis.utils.log import peer
 from .parser import PortConfParser
 from .backends import PortFactory
-from .port_exceptions import UnsupportBackendErr
-from acis.utils.log import peer
 
 class Port:
+
     def __init__(self):
-        self.parser = PortConfParser()
+
+        self.parser  = PortConfParser()
         self.factory = PortFactory()
 
-        self.at = None
+        self.at  = None
         self.adb = None
 
-    def name_split(self, name):
-        return tuple([n.strip() for n in name.split('..')])
+    def name_split(self, aka_name):
+        return tuple([n.strip() for n in aka_name.split('..')])
 
-    def match(self, name):
-        backend_name, type_name = self.name_split(name)
+    def match(self, aka_name):
+        backend_name, type_name = self.name_split(aka_name)
 
         backend_name = backend_name.upper()
-        type_name = type_name.lower()
+        type_name    = type_name.lower()
 
         conf = self.parser.get_conf(backend_name, type_name)
 
@@ -37,5 +38,6 @@ class Port:
         elif backend_name == "ADB":
             self.adb = self.factory.which_backend(backend_name, type_name, conf)
             return self.adb
-        else:
-            raise UnsupportBackendErr("NOT support backend <{backend}>.".format(backend = backend_name))
+        # else:
+        #     from .port_exceptions import (UnsupportBackendErr)
+        #     raise UnsupportBackendErr("NOT support backend <{backend}>.".format(backend = backend_name))

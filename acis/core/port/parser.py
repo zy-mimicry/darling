@@ -6,18 +6,22 @@
 """
 
 from .conf import PI_SLAVE_CONF
-from .port_exceptions import *
+from acis.utils.log import peer
+from .port_exceptions import (UnsupportBackendErr)
 import os, re, subprocess
 from random import choice
 
-class AcisRuleFileNotExist: pass
 
 class PortConfParser():
+
     def __init__(self):
 
         self.configs = {}
 
+        # any_conf = { "any" : 'master' or 'slave' }
         self.any_conf = {}
+
+        # ACIS udev-configuration Location
         self.udev_conf_file = '/etc/udev/rules.d/11-acis.rules'
 
         self._pick_info(self.udev_conf_file)
@@ -42,6 +46,7 @@ class PortConfParser():
         """
 
         if not os.path.exists(_file): raise AcisRuleFileNotExist()
+
         with open(_file, mode = 'r') as f:
             for line in f:
                 g = re.match(r'\s*ATTRS{serial}=="(.*)",\s*GOTO="(.*)\s*"', line)
@@ -67,7 +72,9 @@ class PortConfParser():
 
     def get_conf(self, backend_name, type_name):
         """
-        Note: Register 'AT' first, then register 'ADB'.
+        Note: Register 'AT' first, then register 'ADB',
+        BTW:  MUST register AT port every testcase, if not, ADB can NOT work.
+
         return   'type_name' : >> 'master' or 'slave' or 'any'
                  'mapto'     : >> only 'any' has this prop.
                  'backend'   : >> 'AT' or 'ADB'
@@ -76,6 +83,10 @@ class PortConfParser():
         """
 
         if type_name == "master":
+
+            if "master" not in self.configs:
+                raise NotFindTypeNameInRule("Can NOT find type name <{}> in udev-rules file.".format(type_name))
+
             if backend_name == "AT":
                 if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[type_name][backend_name]), shell=True):
                     raise ATportBusyErr("AT port is using.")
@@ -85,15 +96,18 @@ class PortConfParser():
                          'dev_link'  : '/dev/' + self.configs[type_name][backend_name],
                          'serial_id' : self.configs[type_name]["serial"]}
             elif backend_name == "DM":
-                print("DM backend, NOT support now")
+                raise UnsupportBackendErr("NOT support backend <{backend}>.".format(backend = backend_name))
             elif backend_name == "ADB":
-                print("ADB backend, don't care use-status, this can be opened by mutile-user.")
                 return { 'type_name' : type_name,
                          'mapto'     : type_name,
                          'backend'   : backend_name,
                          'serial_id' : self.configs[type_name]["serial"]}
 
         elif type_name == "slave":
+
+            if "slave" not in self.configs:
+                raise NotFindTypeNameInRule("Can NOT find type name <{}> in udev-rules file.".format(type_name))
+
             if backend_name == "AT":
                 if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[type_name][backend_name]), shell=True):
                     raise ATportBusyErr("AT port is using.")
@@ -103,45 +117,98 @@ class PortConfParser():
                          'dev_link'  : '/dev/' + self.configs[type_name][backend_name],
                          'serial_id' : self.configs[type_name]["serial"]}
             elif backend_name == "DM":
-                print("DM backend, NOT support now")
+                raise UnsupportBackendErr("NOT support backend <{backend}>.".format(backend = backend_name))
             elif backend_name == "ADB":
-                print("ADB backend, don't care use-status, this can be opened by mutile-user.")
                 return { 'type_name' : type_name,
                          'mapto'     : type_name,
                          'backend'   : backend_name,
                          'serial_id' : self.configs[type_name]["serial"]}
 
         elif type_name == "any":
-            if backend_name == "AT":
-                sel = choice(["master", "slave"])
-                print("get sel is <<<", sel)
-                if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[sel][backend_name]), shell=True):
-                    print("port using... try another...")
-                    for another in ["master", "slave"]:
-                        if sel != another:
-                            if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[another][backend_name]), shell=True):
-                                raise ATportBusyErr("Another AT port also is using.")
-                            else:
-                                self.any_conf[type_name] = another
-                                return { 'type_name' : type_name,
-                                        'mapto'      : self.any_conf[type_name],
-                                        'backend'    : backend_name,
-                                        'dev_link'   : '/dev/' + self.configs[self.any_conf[type_name]][backend_name],
-                                        'serial_id'  : self.configs[self.any_conf[type_name]]["serial"]}
-                else:
-                    self.any_conf[type_name] = sel
+
+            if not self.configs:
+                raise NotFindTypeNameInRule("Can NOT find any type names <slave or master> in udev-rules file.")
+
+            if len(self.configs) == 2:
+
+                if backend_name == "AT":
+                    sel = choice(["master", "slave"])
+                    peer("First get type is {name}".format(name = sel))
+                    if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[sel][backend_name]), shell=True):
+                        peer("Port Busy! Try another...")
+                        for another in ["master", "slave"]:
+                            if sel != another:
+                                if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[another][backend_name]), shell=True):
+                                    raise ATportBusyErr("Double AT ports had been using.")
+                                else:
+                                    self.any_conf[type_name] = another
+                                    return { 'type_name' : type_name,
+                                            'mapto'      : self.any_conf[type_name],
+                                            'backend'    : backend_name,
+                                            'dev_link'   : '/dev/' + self.configs[self.any_conf[type_name]][backend_name],
+                                            'serial_id'  : self.configs[self.any_conf[type_name]]["serial"]}
+                    else:
+                        self.any_conf[type_name] = sel
+                        return {'type_name' : type_name,
+                                'mapto'     : self.any_conf[type_name],
+                                'backend'   : backend_name,
+                                'dev_link'  : '/dev/' + self.configs[self.any_conf[type_name]][backend_name],
+                                'serial_id' : self.configs[self.any_conf[type_name]]["serial"]}
+
+                elif backend_name == "DM":
+                    raise UnsupportBackendErr("NOT support backend <{backend}>.".format(backend = backend_name))
+
+                elif backend_name == "ADB":
                     return {'type_name' : type_name,
                             'mapto'     : self.any_conf[type_name],
                             'backend'   : backend_name,
-                            'dev_link'  : '/dev/' + self.configs[self.any_conf[type_name]][backend_name],
                             'serial_id' : self.configs[self.any_conf[type_name]]["serial"]}
-            elif backend_name == "DM":
-                print("DM backend, NOT support now")
-            elif backend_name == "ADB":
-                print("ADB backend, nothing do this, this can be opened by mutile-user.")
-                return { 'type_name' : type_name,
-                         'mapto'     : self.any_conf[type_name],
-                         'backend'   : backend_name,
-                         'serial_id' : self.configs[self.any_conf[type_name]]["serial"]}
+
+            elif len(self.configs) == 1:
+                if 'master' in self.configs:
+                    if backend_name == "AT":
+                        sel = 'master'
+                        if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[sel][backend_name]), shell=True):
+                            raise ATportBusyErr("Only one module register to udev-rules: <{name}>, but this port is using.".format(name = sel))
+                        else:
+                            self.any_conf[type_name] = sel
+                            return { 'type_name'  : type_name,
+                                     'mapto'      : self.any_conf[type_name],
+                                     'backend'    : backend_name,
+                                     'dev_link'   : '/dev/' + self.configs[self.any_conf[type_name]][backend_name],
+                                     'serial_id'  : self.configs[self.any_conf[type_name]]["serial"]}
+
+                    elif backend_name == "DM":
+                        raise UnsupportBackendErr("NOT support backend <{backend}>.".format(backend = backend_name))
+
+                    elif backend_name == "ADB":
+                        return {'type_name' : type_name,
+                                'mapto'     : self.any_conf[type_name],
+                                'backend'   : backend_name,
+                                'serial_id' : self.configs[self.any_conf[type_name]]["serial"]}
+
+                elif 'slave' in self.configs:
+
+                    if backend_name == "AT":
+                        sel = 'slave'
+                        if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[sel][backend_name]), shell=True):
+                            raise ATportBusyErr("Only one module register to udev-rules: <{name}>, but this port is using.".format(name = sel))
+                        else:
+                            self.any_conf[type_name] = sel
+                            return { 'type_name'  : type_name,
+                                     'mapto'      : self.any_conf[type_name],
+                                     'backend'    : backend_name,
+                                     'dev_link'   : '/dev/' + self.configs[self.any_conf[type_name]][backend_name],
+                                     'serial_id'  : self.configs[self.any_conf[type_name]]["serial"]}
+
+                    elif backend_name == "DM":
+                        raise UnsupportBackendErr("NOT support backend <{backend}>.".format(backend = backend_name))
+
+                    elif backend_name == "ADB":
+                        return {'type_name' : type_name,
+                                'mapto'     : self.any_conf[type_name],
+                                'backend'   : backend_name,
+                                'serial_id' : self.configs[self.any_conf[type_name]]["serial"]}
+
         else:
             raise UnsupportTypeErr("This type that your input [{}] is NOT support now.".format(type_name))

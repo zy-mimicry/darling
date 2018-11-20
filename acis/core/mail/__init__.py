@@ -9,7 +9,7 @@ from darling.conf.mail_conf import get_autoload_conf
 from .mail_exceptions import *
 
 def check_mailaddr_format(email_string):
-    print(email_string)
+    print("Input mail content: <{}>".format(email_string))
     if len(email_string) < 7 and re.match(r"[^@]+@[^@]+\.[^@]+", email_string) == None:
         raise BadEmailFormatErr("Email format is unvaild. please check it.")
 

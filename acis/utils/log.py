@@ -18,13 +18,11 @@ if not os.getenv("ACIS_SYS_LOG", ""):
     else:
         os.environ["ACIS_SYS_LOG"] = log_path
 
-
-
 DEFAULT_LOGGING = {
     'version' : 1,
     'disable_existing_loggers' : False,
 
-    # TBD... Maybe useful
+    # TBD. Maybe useful
     # 'filters' : {},
 
     'formatters' : {
@@ -112,6 +110,4 @@ class Log:
     def __call__(self, *kargs, **kwargs):
         return self.logger.error(*kargs, **kwargs)
 
-# Provide this entry for logging.
 peer = Peer("admin")
-#log  = Log(log_path = '/tmp/acis/logs/fufufu/debug.log')

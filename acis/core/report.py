@@ -11,8 +11,8 @@ report = Report()
 """
 Trace links.
 """
-report.link     = allure.link # for JIRA and Confluence.
-report.issue    = allure.issue # for gerrit commit.
+report.link     = allure.link # For JIRA and Confluence.
+report.issue    = allure.issue # Maybe gerrit commit, but not need it.
 report.testcase = allure.testcase # Maybe not need it.
 
 """
