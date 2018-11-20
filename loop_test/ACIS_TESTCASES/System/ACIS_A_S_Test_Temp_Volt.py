@@ -26,7 +26,7 @@ def m(request, misc):
     def module_upload_log():
         allure.attach.file(source = mz.which_log,
                            attachment_type = allure.attachment_type.TEXT)
-        mz.at.closeall()
+        if mz.at: mz.at.closeall()
     request.addfinalizer(module_upload_log)
     return mz
 

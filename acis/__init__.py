@@ -64,7 +64,6 @@ class ACISMiscer():
         AT_front.extend(other_behind)
         return AT_front
 
-
     def register_port(self, port_names):
         """
         Note: the order of ports register is important!
