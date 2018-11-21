@@ -13,6 +13,7 @@ rule_template = """\
 # Now, support 'TWO' DUT : master and slave
 {rule_master_part_01}
 {rule_slave_part_01}
+GOTO="acis_end"
 
 {rule_master_part_02}
 
