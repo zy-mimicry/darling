@@ -7,7 +7,12 @@
 
 from .conf import PI_SLAVE_CONF
 from acis.utils.log import peer
-from .port_exceptions import (UnsupportBackendErr)
+from .port_exceptions import (UnsupportBackendErr,
+                              ATdevLinkNotExist,
+                              NotFindTypeNameInRule,
+                              ATportBusyErr,
+                              UnsupportTypeErr,
+                              AcisRuleFileNotExist)
 import os, re, subprocess
 from random import choice
 
@@ -90,6 +95,8 @@ class PortConfParser():
             if backend_name == "AT":
                 if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[type_name][backend_name]), shell=True):
                     raise ATportBusyErr("AT port is using.")
+                if subprocess.call('ls {where}'.format(where = '/dev/' + self.configs[type_name][backend_name]), shell=True):
+                    raise ATdevLinkNotExist("Can NOT find dev-link [{}] for test.".format('/dev/'+self.configs[type_name][backend_name]))
                 return { 'type_name' : type_name,
                          'mapto'     : type_name,
                          'backend'   : backend_name,
@@ -111,6 +118,8 @@ class PortConfParser():
             if backend_name == "AT":
                 if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[type_name][backend_name]), shell=True):
                     raise ATportBusyErr("AT port is using.")
+                if subprocess.call('ls {where}'.format(where = '/dev/' + self.configs[type_name][backend_name]), shell=True):
+                    raise ATdevLinkNotExist("Can NOT find dev-link [{}] for test.".format('/dev/'+self.configs[type_name][backend_name]))
                 return { 'type_name' : type_name,
                          'mapto'     : type_name,
                          'backend'   : backend_name,
@@ -141,6 +150,8 @@ class PortConfParser():
                                 if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[another][backend_name]), shell=True):
                                     raise ATportBusyErr("Double AT ports had been using.")
                                 else:
+                                    if subprocess.call('ls {where}'.format(where = '/dev/' + self.configs[sel][backend_name]), shell=True):
+                                        raise ATdevLinkNotExist("Can NOT find dev-link [{}] for test.".format('/dev/'+self.configs[sel][backend_name]))
                                     self.any_conf[type_name] = another
                                     return { 'type_name' : type_name,
                                             'mapto'      : self.any_conf[type_name],
@@ -148,6 +159,8 @@ class PortConfParser():
                                             'dev_link'   : '/dev/' + self.configs[self.any_conf[type_name]][backend_name],
                                             'serial_id'  : self.configs[self.any_conf[type_name]]["serial"]}
                     else:
+                        if subprocess.call('ls {where}'.format(where = '/dev/' + self.configs[sel][backend_name]), shell=True):
+                            raise ATdevLinkNotExist("Can NOT find dev-link [{}] for test.".format('/dev/'+self.configs[sel][backend_name]))
                         self.any_conf[type_name] = sel
                         return {'type_name' : type_name,
                                 'mapto'     : self.any_conf[type_name],
@@ -171,6 +184,8 @@ class PortConfParser():
                         if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[sel][backend_name]), shell=True):
                             raise ATportBusyErr("Only one module register to udev-rules: <{name}>, but this port is using.".format(name = sel))
                         else:
+                            if subprocess.call('ls {where}'.format(where = '/dev/' + self.configs[sel][backend_name]), shell=True):
+                                raise ATdevLinkNotExist("Can NOT find dev-link [{}] for test.".format('/dev/'+self.configs[sel][backend_name]))
                             self.any_conf[type_name] = sel
                             return { 'type_name'  : type_name,
                                      'mapto'      : self.any_conf[type_name],
@@ -194,6 +209,8 @@ class PortConfParser():
                         if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[sel][backend_name]), shell=True):
                             raise ATportBusyErr("Only one module register to udev-rules: <{name}>, but this port is using.".format(name = sel))
                         else:
+                            if subprocess.call('ls {where}'.format(where = '/dev/' + self.configs[sel][backend_name]), shell=True):
+                                raise ATdevLinkNotExist("Can NOT find dev-link [{}] for test.".format('/dev/'+self.configs[sel][backend_name]))
                             self.any_conf[type_name] = sel
                             return { 'type_name'  : type_name,
                                      'mapto'      : self.any_conf[type_name],

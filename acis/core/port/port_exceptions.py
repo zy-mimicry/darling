@@ -14,3 +14,5 @@ class ATportBusyErr(Exception): pass
 class UnsupportBackendErr(Exception): pass
 
 class NotFindTypeNameInRule(Exception): pass
+
+class ATdevLinkNotExist(Exception): pass

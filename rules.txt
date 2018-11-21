@@ -3,6 +3,7 @@
 # Now, support 'TWO' DUT : master and slave
 ATTRS{serial}=="fdf5a6b3", GOTO="acis_master"
 ATTRS{serial}=="9d95b04f", GOTO="acis_slave"
+GOTO="acis_end"
 
 # Jenkins Slave -- {acis master DUT}
 LABEL=="acis_master"
