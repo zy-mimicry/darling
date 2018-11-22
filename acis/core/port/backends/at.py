@@ -19,6 +19,7 @@ import platform,fnmatch
 import serial
 from datetime import datetime
 from acis.utils.log import peer
+import allure,pytest
 
 
 class _AT():
@@ -54,6 +55,7 @@ class _AT():
     def __repr__(self):
        return "<Class: {name} , dev_link: {conf}>".format(name = _AT.name,conf=self.conf)
 
+    @allure.step
     def open(self,
              port=None,
              baudrate=115200,
@@ -120,6 +122,7 @@ class _AT():
         except AttributeError:
             peer("OPEN: Busy for "+hCom.port+"!")
 
+    @allure.step
     def reopen(self, cfun_delay_time=2000):
 
         self.close()
@@ -131,6 +134,7 @@ class _AT():
                          self.hCom.parity,
                          self.hCom.stopbits)
 
+    @allure.step
     def detect_port(self, port, timeout=2000, logmsg="logmsg"):
 
         start_time = datetime.now()
@@ -173,6 +177,7 @@ class _AT():
                     peer(port+" - port not found"+" <"+str(timeout)+" ms")
                 break
 
+    @allure.step
     def sleep(self, millisecond, silent=False):
         try:
             if not(silent):
@@ -185,6 +190,7 @@ class _AT():
         except Exception as e:
             peer(e)
 
+    @allure.step
     def close(self):
         try:
             self.hCom.close()
@@ -202,7 +208,7 @@ class _AT():
             dt = datetime.now()
         return "(%0.2d:%0.2d:%0.2d:%0.3d)"%(dt.hour, dt.minute, dt.second, dt.microsecond/1000)
 
-    #def send_cmd(self, hCom, cmd, printmode="symbol"):
+    @allure.step
     def send_cmd(self, cmd, printmode="symbol"):
         "goal of the method : this method sends an AT command on a COM port"
         "INPUT : hCom : COM port object"
@@ -264,6 +270,7 @@ class _AT():
 
         return outputstring
 
+    @allure.step
     def clean_buffer(self):
             "goal of the method : this method clears the input buffer of hCom COM port instance"
             "INPUT : hCom, COM port instance"
@@ -279,6 +286,7 @@ class _AT():
                     peer("CLEAR_BUFFER: Error!")
                     peer(e)
 
+    @allure.step
     def waitn_match_resp(self, waitpattern, timeout, condition="wildcard", update_result="critical", log_msg="logmsg", printmode="symbol"):
         "goal of the method : combine AcisWaitResp() and AcisMatchResp()"
         "INPUT : hCom : COM port object"
@@ -305,6 +313,7 @@ class _AT():
             self.reset_mark = False
         return match_result
 
+    @allure.step
     def match_resp(self, resp, keywords, condition="wildcard", update_result="critical", log_msg="logmsg", printmode="symbol"):
         "goal of the method : this method compares the received command to the expected command and Display the comparison result"
         "INPUT :  resp : Response object or a string"
@@ -601,6 +610,7 @@ class _AT():
 
         return matched
 
+    @allure.step
     def wait_resp(self, waitpattern, timeout=60000, log_msg="logmsg", printmode="symbol"): 
         "goal of the method : this method waits for the data received from Com port"
         "INPUT : self.hCom : COM port object"
@@ -806,6 +816,7 @@ class AT():
             self.slave = _AT(conf)
         return self
 
+    @allure.step
     def closeall(self):
 
         if self.master:

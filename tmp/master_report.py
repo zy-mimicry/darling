@@ -74,13 +74,13 @@ def deal_cmdline(argv):
         if opt == '-h':
             print("""\
 Usage:
-    python master_report.py -s [test_log_dir] -d [test_log_root] -z [where_zip] -L [result_link] -R [report_spec]
+    python demo.py -s [test_log_dir] -d [test_log_root] -z [where_zip] -L [result_link] -R [report_spec]
 
-    - python master_report.py -s ./demo
-                              -d ./out_new
-                              -z ./out_new.zip
-                              -L ./out.link
-                              -R ./report.new
+    - python demo.py -s [test_log_dir]
+                     -d [test_log_root]
+                     -z [where_zip]
+                     -L [result_link]
+                     -R [report_spec]
             """)
             sys.exit(0)
         elif opt in ("-s", "--sfile"):
