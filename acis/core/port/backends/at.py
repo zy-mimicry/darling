@@ -36,8 +36,8 @@ class _AT():
         self.reset_mark = False
 
         # AT Send receive time stamp
-        self.SndRcvTimestamp = True
-        self.RcvTimespent = True
+        self.SndRcvTimestamp = False
+        self.RcvTimespent = False
 
         #Variable for status
         self.statOfItem = 'OK'

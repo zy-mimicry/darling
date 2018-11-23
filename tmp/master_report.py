@@ -19,17 +19,18 @@ def iter_report_tree(dest, out):
         raise Exception("Report Directry NOT exists.")
 
     if not os.path.exists(out):
-        raise Exception("Report output-dir NOT exists.")
-
-    if os.path.exists(out):
+        os.makedirs(out, mode = 0o775)
+    else:
         shutil.rmtree(out)
         os.makedirs(out, mode = 0o775)
 
     for dirname, subdir, filelist in os.walk(dest):
-        if '_report' in dirname:
+        if '_report' in os.path.basename(dirname):
+            print("_report name :", dirname)
             for f in filelist:
                 shutil.copy(dirname + '/' + f, out +'/' + f )
             for s in subdir:
+                print("dir name :",s)
                 shutil.copytree(dirname + '/' + s , out + '/' + s)
 
 def make_zip(source_dir, output_filename):
@@ -74,13 +75,13 @@ def deal_cmdline(argv):
         if opt == '-h':
             print("""\
 Usage:
-    python demo.py -s [test_log_dir] -d [test_log_root] -z [where_zip] -L [result_link] -R [report_spec]
+    python master_report.py -s [test_log_dir] -d [test_log_root] -z [where_zip] -L [result_link] -R [report_spec]
 
-    - python demo.py -s [test_log_dir]
-                     -d [test_log_root]
-                     -z [where_zip]
-                     -L [result_link]
-                     -R [report_spec]
+    - python master_report.py -s ./demo
+                              -d ./out_new
+                              -z ./out_new.zip
+                              -L ./out.link
+                              -R ./report.new
             """)
             sys.exit(0)
         elif opt in ("-s", "--sfile"):

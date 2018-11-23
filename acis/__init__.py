@@ -18,11 +18,17 @@ class ACISMiscer():
 
     def __init__(self):
 
-        self.limit_name = 'ACIS_TESTCASES' # Maybe get this var from environment better.
+        self.limit_name = 'acis_testcases' # Maybe get this var from environment better.
 
-        self.prefix = os.environ["REPORT_PATH"] + '/' \
-            + os.environ["PLATFORM"] + '/' \
-            + os.environ["ACIS_DIFF"]
+        try:
+            self.prefix = os.environ["REPORT_PATH"] + '/' \
+                + os.environ["PLATFORM"] + '/' \
+                + os.environ["ACIS_DIFF"]
+        except KeyError as e:
+            peer("Can't get vaild environments from master. \nStack info: \n<{}>.\nSo switch to default branch.".format(e))
+            if not os.path.exists('/tmp/acis/testlog/' + self.limit_name):
+                os.makedirs('/tmp/acis/testlog/' + self.limit_name, mode = 0o744)
+            self.prefix = '/tmp/acis/testlog'
 
         self.at  = None
         self.adb = None
