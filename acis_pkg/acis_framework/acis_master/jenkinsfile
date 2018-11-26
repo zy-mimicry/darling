@@ -9,12 +9,12 @@ def real_body(platform){
         def workspace = pwd()
 
         println "${workspace}"
-        sh "ifconfig"
 
         stage("master_envs_parser"){
 
             println "workspace: ${workspace}"
             sh 'hostname'
+            sh "ifconfig"
 
             def m = load "${workspace}/master_envs_parser.groovy"
             m.strip_and_export()
@@ -51,6 +51,7 @@ def real_body(platform){
                           wait: true)
                 }
             }
+
             try{
                 parallel(builders)
             }

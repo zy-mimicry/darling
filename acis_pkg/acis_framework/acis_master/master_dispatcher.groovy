@@ -21,7 +21,6 @@ def toUpper(list){
     return tmp
 }
 
-/* ACIS Exceptions*/
 class FilterTypeError extends Exception{
     public FilterTypeError (String msg){
         super("\n\n" + msg + "\n\n")
@@ -50,11 +49,18 @@ def pick_line_types(item, list){
             }
         }
     }else{
-        throw new MapsItemParseException("In ACIS_MAPS file, 'types' needed, but your configure [" +  types + "]")
+        throw new MapsItemParseException("In ACIS_MAPS file, 'types' is needed, but your configure [" +  types + "]")
     }
 }
 
 def make_types_list(lines, list){
+    /* input :                                                                                    */
+    /*       - lines [] > file.text from ACIS_MAPS.txt                                            */
+    /*       - eg. list = [ 'casename: BBB ! labels: spi,mm ! types: system,mmd ! times: 2;',     */
+    /*                      'casename: AAA ! labels: spi,dd ! types: system,ssd ! times: 3;' ]    */
+    /* output:                                                                                    */
+    /*       - list [] > for types                                                                */
+    /*       - eg. list = [ 'system', 'mmd', 'ssd' ]',                                            */
 
     def i
     for (i = 0 ; i < lines.size(); i++){
@@ -63,6 +69,12 @@ def make_types_list(lines, list){
 }
 
 def deal_line_item(item, maps){
+    /* input :                                                                                          */
+    /*       - item(line) > eg. casename: BBB ! labels: spi,mm ! types: system,mmd ! times: 2;          */
+
+    /* output:                                                                                          */
+    /*       - maps [:] > dict                                                                          */
+    /*       - eg. maps = {'BBB' : {'labels' : ['spi', 'mm'], 'types' : ['system', 'mmd'], 'times' : 2}}*/
 
     groups = item.trim().split("!")
 
@@ -101,10 +113,25 @@ def deal_line_item(item, maps){
 
 
 def MAPS_to_list(maps){
+    /* A list separated by semicolons(;) */
+    /* eg...  A;B;C >> ["A", "B", "C"]   */
+
     return maps.trim().split(";")
 }
 
 def make_curser_maps(list, curser, maps){
+    /* input :                                                                                           */
+    /*       - list [] < list                                                                            */
+    /*       - eg. list = [ 'casename: BBB ! labels: spi,mm ! types: system,mmd ! times: 2;',            */
+    /*                      'casename: AAA ! labels: spi,dd ! types: system,ssd ! times: 3;' ]           */
+
+    /* output:                                                                                           */
+    /*       - curser [] > list                                                                          */
+    /*       - eg. curser = ['BBB', 'AAA'] (unique)                                                      */
+
+    /*       - maps [:]  > dict                                                                          */
+    /*       - eg. maps = {'BBB' : {'labels' : ['spi', 'mm'], 'types' : ['system', 'mmd'], 'times' : 2}, */
+    /*                     'AAA' : {'labels' : ['spi', 'dd'], 'types' : ['system', 'ssd'], 'times' : 3}} */
 
     def i
     for (i = 0; i < list.size(); i++){
@@ -116,22 +143,34 @@ def make_curser_maps(list, curser, maps){
     println curser
 }
 
-def make_filter_maps(filter, /*env.FILTER*/
-                     file,   /*Git file -- ACIS_MAPS.txt*/
-                     maps,   /*ACIS_MAPS.txt to dict*/
-                     maps_curser, /*The dict's curser list*/
-                     new_maps,    /*Fill a new dict*/
-                     new_maps_curser){ /*a new dict curser list*/
+def make_filter_maps(filter,
+                     file,
+                     maps,
+                     maps_curser,
+                     new_maps,
+                     new_maps_curser){
+    /* input:                                                                                           */
+    /*      - filter "" < env.FILTER < eg. system,qmi                                                   */
+    /*      - file ""   < ACIS_MAPS.txt text                                                            */
+    /*      - maps [:]  <  ACIS_MAPS.txt to dict                                                        */
+    /*      - eg. maps = {'BBB' : {'labels' : ['spi', 'mm'], 'types' : ['system', 'mmd'], 'times' : 2}, */
+    /*                    'AAA' : {'labels' : ['spi', 'dd'], 'types' : ['system', 'ssd'], 'times' : 3}} */
+    /*      - curser [] < list                                                                          */
+    /*      - eg. curser = ['BBB', 'AAA'] (unique)                                                      */
+    /* output:                                                                                          */
+    /*       - new_maps >  just like other maps                                                         */
+    /*       - new_maps_curser >  just like other curser                                                */
 
     ArrayList filter_types = filter.trim().split(",")
     filter_types = toLower(filter_types)
     ArrayList types_list = []
-    def i,c
     make_types_list(MAPS_to_list(file), types_list)
-    types_list = toLower(types_list) /* Maybe superfluous, but temporarily reserved*/
-    println types_list
-    println filter_types
+    types_list = toLower(types_list)  /* Maybe superfluous, but temporarily reserved*/
 
+    println "[env.FILTER] : " + filter_types
+    println "[ACIS_MAPS ALL TYPS]: " + types_list
+
+    def i,c
     for(i = 0 ; i < filter_types.size(); i++){
         if (types_list.grep(filter_types[i])){
             for (c = 0 ; c < maps_curser.size(); c++){
@@ -156,6 +195,7 @@ def merge_maps(maps,
                maps_filter_curser,
                maps_merged,
                maps_merged_curser){
+    /* env.MAPS will overwrite items in env.FILTER */
 
     remove_dup_self(maps_curser)
     remove_dup_self(maps_filter_curser)
@@ -171,7 +211,7 @@ def merge_maps(maps,
         }
     }
 
-    println overwrite
+    println "[OverWrite item] : " + overwrite
 
     for (c = 0; c < maps_filter_curser.size(); c++){
         for (d = 0; d < overwrite.size(); d++){
@@ -189,16 +229,16 @@ def merge_maps(maps,
 }
 
 /* If you add some envs, please modify here
- * For 'Linux', environments should be Upper, Just like 'LABEL'
- */
+ * For 'Linux', environments should be Upper, Just like 'PLATFORM'*/
 def make_testplan(maps, curser, testplan){
+    /**/
 
     def list = []
     def i
 
     for(i = 0; i < curser.size(); i++){
 
-        maps[curser[i]]["labels"].add(env.PLATFORM) /* PLATFORM different 9x or 9x platform */
+        maps[curser[i]]["labels"].add(env.PLATFORM) /* PLATFORM different 9x or 8x platform */
 
         /* MAPS and FILTER range */
         list.add([$class : "StringParameterValue", "name": "CASENAME", "value": curser[i]])
@@ -213,10 +253,8 @@ def make_testplan(maps, curser, testplan){
         list.add([$class : "StringParameterValue", "name": "PLATFORM", "value": env.PLATFORM])
         list.add([$class : "StringParameterValue", "name": "FW_UPDATE", "value": env.FW_UPDATE])
         list.add([$class : "StringParameterValue", "name": "ACIS_DIFF", "value": env.ACIS_DIFF])
-        //list.add([$class : "StringParameterValue", "name": "TESTCASE_PATH", "value": env.TESTCASE_PATH + '/' + env.PLATFORM])
         list.add([$class : "StringParameterValue", "name": "TESTCASE_PATH", "value": env.TESTCASE_PATH])
         list.add([$class : "StringParameterValue", "name": "REPORT_PATH", "value": env.REPORT_PATH])
-        //list.add([$class : "StringParameterValue", "name": "LOOP_TEST", "value": env.LOOP_TEST + '/' + env.PLATFORM])
         list.add([$class : "StringParameterValue", "name": "LOOP_TEST", "value": env.LOOP_TEST])
 
         /* Cookie for parallel */
@@ -239,15 +277,12 @@ def get_cookie(){
     def maps_merged = [:]
     def maps_merged_curser = []
 
-    make_curser_maps(MAPS_to_list(env.MAPS),   /*env.MAPS to list*/
-                     maps_curser,         /*make a curser list for maps dict*/
-                     maps)                /*maps dic*/
+    make_curser_maps(MAPS_to_list(env.MAPS),
+                     maps_curser,
+                     maps)
 
-    //def file = new File("${workspace}/ACIS_MAPS.txt")
-    
     def file = readFile("${workspace}/ACIS_MAPS.txt");
-    
-    
+
     make_curser_maps(MAPS_to_list(file),
                      maps_file_curser,
                      maps_file)
