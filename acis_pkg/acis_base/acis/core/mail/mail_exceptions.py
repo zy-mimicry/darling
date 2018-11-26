@@ -12,5 +12,5 @@ class BadEmailFormatErr(MailException): pass
 
 class MailMatchTypeErr(MailException): pass
 
-class UnvaildPortOfMailServer: pass
+class UnvaildPortOfMailServer(MailException): pass
 
