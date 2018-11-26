@@ -49,16 +49,22 @@ sleep 2
 
 sudo umount /media
 sudo mount -t ext4 $partRoot /media/
-sleep 2
+sleep 4
 cd /media
-sudo dump -0uaf - / | sudo restore -rf -
-sleep 3
+# sudo dump -0uaf - / | restore -rf -
+#sudo dump -0 -u -f - /dev/mmcblk0p2 | sudo restore -r -f -
+sudo dump -0 -u -f /home/jenkins/nfs_acis/Rasp-Img/m.dump /dev/mmcblk0p2
+sudo restore -r -v -f /home/jenkins/nfs_acis/Rasp-Img/m.dump
+#sudo dump -0uaf /home/jenkins/nfs_acis/Rasp-Img/m.img.bak /
+#restore -rf /home/jenkins/nfs_acis/Rasp-Img/m.img.bak /media
+
+sleep 4
 
 # modify fstab
 sudo sed -i "s/$pick_old_p_id_boot/$boot_p_id/g" /media/etc/fstab
 sudo sed -i "s/$pick_old_p_id_root/$root_p_id/g" /media/etc/fstab
-cat /media/etc/fstab
 sleep 2
+cat /media/etc/fstab
 
 cd
 sudo umount /media
