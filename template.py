@@ -1,33 +1,38 @@
-import pytest
-import allure
 from acis.core.report import report
-#import os
 
 """
 """
 
 @report.fixture(scope="module")
 def m(request, misc):
+    """
+    __file__    : logging module record log file.
+    logger_name : logger namespace of logging module.
+    mail_to     : where the mail to be send.
+    port_names  : testcase registers ports [AT or ADB ...] from framework.
+                : ? master << map to '/etc/udev/rules.d/11-acis.rules' - 'master'
+                : ? slave  << map to '/etc/udev/rules.d/11-acis.rules' - 'slave'
+                : ? any    << map to '/etc/udev/rules.d/11-acis.rules' - 'master' or 'slave'
+                : eg. port_names  = [
+                                    'AT..master',
+                                    'AT..slave',
+                                    'ADB..master',
+                                    'ADB..slave',
+                                    ]
+    """
     mz =  misc(__file__,
                logger_name = 'ACIS.SYSTEM.RESET.LINUX',
                mail_to     = 'swi@sierrawireless.com',
                port_names  = [
-                   # 'AT..master',
-                   # 'AT..slave',
-                   # 'ADB..master',
-                   # 'ADB..slave',
                    'AT..any',
                    'ADB..any',
                ])
 
-    #mz.test_ID = os.path.basename(__file__.split('.')[0])
     mz.test_ID = __name__
     mz.errors = {}
     mz.flags  = []
     def module_close_AT():
         if mz.at: mz.at.closeall()
-        # allure.attach.file(source = mz.which_log,
-        #                    attachment_type = allure.attachment_type.TEXT)
     request.addfinalizer(module_close_AT)
     return mz
 
@@ -57,23 +62,17 @@ class ACISsystemReset(): # << should modify
         out_of_class_function(m)
 
 
-    @report.story("Volt")
-    @pytest.mark.run(order=1)
     @report.link("https://issues.sierrawireless.com/browse/QTI9X28-4443", name = "=Gerrit: commit 01=")
+    @report.story("Volt")
+    @report.mark.run(order=1)
     def acis_mstage_entrance(self, m):
         """
-        The test entrance.
-
-        Please descript more information for this testcase.
-
-        balabala....
-
-        For example:
-        ADC test information should be here.
-
+        TODO:
+        1. The test entrance.
+        2. A functional description of testcase should be added here.
         """
 
-        m.log("\n>> Welcome to use ACIS ! ^_^")
+        m.log("\n>> Welcome to use ACIS ! ^_^\n")
         try:
             try:
                 self.pre(m)                    # << Stage | pre
@@ -90,7 +89,7 @@ class ACISsystemReset(): # << should modify
 
         finally:
             try:
-                self.restore(m)                    # << Stage | restore
+                self.restore(m)                # << Stage | restore
             except Exception as e:
                 m.log("<Restore> The restore process should not have an exception.\nBut now NOT,reason:\n{}".format(e))
                 m.flags.append('restore')
@@ -102,9 +101,10 @@ class ACISsystemReset(): # << should modify
                     m.log("--- {} stack info ---\n{}\n\n".format(f, m.errors[f]))
 
                 m.log("\nTESTCASE:[{}] Result:[{}]\n".format(m.test_ID, "FAIL"))
-                allure.attach.file(source = m.which_log, name = __name__ + '.log'
-                                   attachment_type = allure.attachment_type.TEXT)
+                report.attach_file(source = m.which_log, name = __name__ + '.log',
+                                   attachment_type = report.attachment_type.TEXT)
+
             else:
                 m.log("\nTESTCASE:[{}] Result:[{}]\n".format(m.test_ID, "PASS"))
-                allure.attach.file(source = m.which_log, name = __name__ + '.log'
-                                   attachment_type = allure.attachment_type.TEXT)
+                report.attach_file(source = m.which_log, name = __name__ + '.log',
+                                   attachment_type = report.attachment_type.TEXT)
