@@ -73,7 +73,7 @@ class ACISsystemReset(): # << should modify
 
         """
 
-        m.log("\n>> Welcome use ACIS ! ^_^")
+        m.log("\n>> Welcome to use ACIS ! ^_^")
         try:
             try:
                 self.pre(m)                    # << Stage | pre
@@ -102,9 +102,9 @@ class ACISsystemReset(): # << should modify
                     m.log("--- {} stack info ---\n{}\n\n".format(f, m.errors[f]))
 
                 m.log("\nTESTCASE:[{}] Result:[{}]\n".format(m.test_ID, "FAIL"))
-                allure.attach.file(source = m.which_log,
+                allure.attach.file(source = m.which_log, name = __name__ + '.log'
                                    attachment_type = allure.attachment_type.TEXT)
             else:
                 m.log("\nTESTCASE:[{}] Result:[{}]\n".format(m.test_ID, "PASS"))
-                allure.attach.file(source = m.which_log,
+                allure.attach.file(source = m.which_log, name = __name__ + '.log'
                                    attachment_type = allure.attachment_type.TEXT)
