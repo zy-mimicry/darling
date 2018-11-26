@@ -44,9 +44,6 @@ def out_of_class_function(m):
 @report.feature("ATcommand") # << should modify
 @report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Body<")
 class ACISsystemReset(): # << should modify
-    """
-    Something you want to descript for this test. (can't display)
-    """
 
     @report.step("[Stage] <Pre-Condition>")
     def pre(self, m):
@@ -63,7 +60,7 @@ class ACISsystemReset(): # << should modify
 
 
     @report.link("https://issues.sierrawireless.com/browse/QTI9X28-4443", name = "=Gerrit: commit 01=")
-    @report.story("Volt")
+    @report.story("Volt") # << should modify
     @report.mark.run(order=1)
     def acis_mstage_entrance(self, m):
         """
@@ -72,7 +69,7 @@ class ACISsystemReset(): # << should modify
         2. A functional description of testcase should be added here.
         """
 
-        m.log("\n>> Welcome to use ACIS ! ^_^\n")
+        m.log(">> Welcome to use ACIS ! ^_^\n")
         try:
             try:
                 self.pre(m)                    # << Stage | pre
