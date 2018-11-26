@@ -1,51 +1,47 @@
 #! /usr/bin/env groovy
 
 // ACIS Pipeline
-// Different Platform, Different Branch.
 
-/*------------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------------*/
-/*-----------------------------PLATFORM: 9X28-----------------------------------*/
-/*------------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------------*/
+def real_body(platform){
 
-if (env.PLATFORM == "9X28") {
-        node('rasp-bsp-9x28'){
-        
+    node(platform){
+
         def workspace = pwd()
-        
+
+        println "${workspace}"
+        sh "ifconfig"
+
         stage("master_envs_parser"){
 
             println "workspace: ${workspace}"
             sh 'hostname'
-            
+
             def m = load "${workspace}/master_envs_parser.groovy"
             m.strip_and_export()
             m.show()
         }
-        
+
         stage('master_job_monitor'){
             //sh "python3 ${workspace}/master_job_monitor.py"
             println "--- Jenkins Master monitor stage. Hook"
         }
-        
+
         stage('master_dispatcher'){
             def testcases_root = "\$HOME/nfs_acis/Integration_Test/acis_testcases"
             def log_and_report = "\$HOME/nfs_acis/Integration_Test/log_and_report/${env.PLATFORM}"
             def loop_test = "\$HOME/nfs_acis/Integration_Test/loop_test/${env.PLATFORM}"
-            
+
             sh "python3 ${workspace}/master_mktree.py -s  ${testcases_root} -d ${log_and_report} -D ${env.ACIS_DIFF}"
             sh "python3 ${workspace}/master_mktree.py -s  ${testcases_root} -d ${loop_test} -D ${env.ACIS_DIFF}"
-            
+
             def dispatcher = load "${workspace}/master_dispatcher.groovy"
-            
             def cookie = dispatcher.get_cookie()
             testplan = cookie[0]
             testplan_curser = cookie[1]
-            
+
             println testplan[testplan_curser[0]]["job"]
             println testplan[testplan_curser[0]]["parameters"]
-            
+
             def builders = [:]
             for(i = 0; i < testplan_curser.size(); i++){
                 def item = testplan[testplan_curser[i]]
@@ -63,11 +59,11 @@ if (env.PLATFORM == "9X28") {
             }
             finally{
                 println "Although Exception, but hope to goto next step."
-            }   
+            }
         }
-        
+
         stage('master_report'){
-            
+
             println " > record args."
             println "\$HOME/nfs_acis/Integration_Test/log_and_report/${PLATFORM}/${ACIS_DIFF}/acis_testcases"
             def src = "\$HOME/nfs_acis/Integration_Test/log_and_report/${PLATFORM}/${ACIS_DIFF}/acis_testcases"
@@ -81,33 +77,32 @@ if (env.PLATFORM == "9X28") {
             def report = "\$HOME/platform_${PLATFORM}/workspace/${env.JOB_NAME}/${ACIS_DIFF}_report"
             println " < end record."
             sh "python3 ${workspace}/master_report.py -s ${src} -d ${dst} -z ${zip} -L ${link} -R ${report}"
-           
+
             allure includeProperties: false, jdk: '', report: "${ACIS_DIFF}_report", results: [[path: "${ACIS_DIFF}_results"]]
         }
-        
+
         stage('master_db'){
             println "--- Jenkins Master Database stage. Hook"
         }
-        
+
         stage('master_web'){
             println "--- Jenkins Master Website stage. Hook"
-        }
-    }  
-}
-
-/*------------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------------*/
-/*-----------------------------PLATFORM: 9X40-----------------------------------*/
-/*------------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------------*/
-
-else if (env.PLATFORM == "9X40") {
-    node("rasp-bsp-9x40"){
-        stage("test-9x40"){
-            println "I am 9x40"
-            sh "hostname"
-            sh 'echo \$HOME'
         }
     }
 }
 
+/*------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*---------------Different Platform, Different RaspberryPi Node-----------------*/
+/*------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+
+if (env.PLATFORM == "9X28") {
+    real_body("rasp-bsp-9x28")
+}
+else if (env.PLATFORM == "9X40") {
+    real_body("rasp-bsp-9x40")
+}
+else{
+    println "Now, we can't support platform [${env.PLATFORM}]"
+}
