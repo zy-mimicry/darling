@@ -127,7 +127,7 @@ def make_filter_maps(filter, /*env.FILTER*/
     filter_types = toLower(filter_types)
     ArrayList types_list = []
     def i,c
-    make_types_list(MAPS_to_list(file.text), types_list)
+    make_types_list(MAPS_to_list(file), types_list)
     types_list = toLower(types_list) /* Maybe superfluous, but temporarily reserved*/
     println types_list
     println filter_types
@@ -243,8 +243,12 @@ def get_cookie(){
                      maps_curser,         /*make a curser list for maps dict*/
                      maps)                /*maps dic*/
 
-    def file = new File("${workspace}/ACIS_MAPS.txt")
-    make_curser_maps(MAPS_to_list(file.text),
+    //def file = new File("${workspace}/ACIS_MAPS.txt")
+    
+    def file = readFile("${workspace}/ACIS_MAPS.txt");
+    
+    
+    make_curser_maps(MAPS_to_list(file),
                      maps_file_curser,
                      maps_file)
 
