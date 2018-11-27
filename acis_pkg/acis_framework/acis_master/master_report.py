@@ -65,9 +65,10 @@ def deal_cmdline(argv):
     out_zip = ''
     link = ''
     report = ''
+    report_link = ''
 
     try:
-        opts, args = getopt.getopt(argv,"hs:d:z:L:R:",["sfile=","dfile=","zip=","Link=","Report="])
+        opts, args = getopt.getopt(argv,"hs:d:z:L:R:l:",["sfile=","dfile=","zip=","Link=","Report=","reportlink="])
     except getopt.GetoptError:
         sys.exit(2)
 
@@ -75,13 +76,14 @@ def deal_cmdline(argv):
         if opt == '-h':
             print("""\
 Usage:
-    python master_report.py -s [test_log_dir] -d [test_log_root] -z [where_zip] -L [result_link] -R [report_spec]
+    python master_report.py -s [test_log_dir] -d [test_log_root] -z [where_zip] -L [result_link] -R [report_spec] -l [report_link]
 
     - python master_report.py -s ./demo
                               -d ./out_new
                               -z ./out_new.zip
                               -L ./out.link
                               -R ./report.new
+                              -l ./report.new.link
             """)
             sys.exit(0)
         elif opt in ("-s", "--sfile"):
@@ -94,6 +96,8 @@ Usage:
             link = arg
         elif opt in ("-R", "--Report"):
             report = arg
+        elif opt in ("-l", "--reportlink"):
+            report_link = arg
 
     print("All args:", src, dest, out_zip, link, report)
 
@@ -108,6 +112,9 @@ Usage:
 
     print("make report dir")
     make_workspace_report(report)
+
+    #print("make report dir link")
+    #result_link(report, report_link)
 
 if __name__ == "__main__":
     deal_cmdline(sys.argv[1:])

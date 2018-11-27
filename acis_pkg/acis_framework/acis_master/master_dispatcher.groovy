@@ -21,6 +21,13 @@ def toUpper(list){
     return tmp
 }
 
+def trim_list(list){
+    def i
+    for (i = 0; i < list.size(); i++){
+        list[i] = list[i].trim()
+    }
+}
+
 class FilterTypeError extends Exception{
     public FilterTypeError (String msg){
         super("\n\n" + msg + "\n\n")
@@ -161,8 +168,41 @@ def make_filter_maps(filter,
     /*       - new_maps >  just like other maps                                                         */
     /*       - new_maps_curser >  just like other curser                                                */
 
-    ArrayList filter_types = filter.trim().split(",")
+    def key_words = ['none', 'all', 'default']
+
+    ArrayList filter_types
+
+    if (filter.trim() == ""){
+        filter_types = []
+    }else{
+        filter_types = filter.trim().split(',')
+        trim_list(filter_types)
+    }
     filter_types = toLower(filter_types)
+
+    if ( filter_types.size() > 1 ){
+        def i
+        for (i = 0; i < key_words.size(); i++){
+            if (filter_types.grep(key_words[i])){
+                println "grep:" + key_words[i]
+                throw new FilterTypeError("type: [" + key_words[i] + "] can't be used with other types.")
+            }
+        }
+    }
+
+    if (filter_types.size() == 0 || (filter_types.size() == 1 && filter_types[0] == "none")){
+        println "Hook >> filter [none] or [empty]"
+        new_maps = [:]
+        new_maps_curser = []
+        return
+    }
+    else if (filter_types.size() == 1 && (filter_types[0] == "default" || filter_types[0] == "all")){
+        println "hook :" + filter_types[0]
+        new_maps = maps
+        new_maps_curser = maps_curser
+        return
+    }
+
     ArrayList types_list = []
     make_types_list(MAPS_to_list(file), types_list)
     types_list = toLower(types_list)  /* Maybe superfluous, but temporarily reserved*/
