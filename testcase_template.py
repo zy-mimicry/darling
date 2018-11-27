@@ -62,7 +62,7 @@ class ACISsystemReset(): # << should modify
     @report.link("https://issues.sierrawireless.com/browse/QTI9X28-4443", name = "=Gerrit: commit 01=")
     @report.story("Volt") # << should modify
     @report.mark.run(order=1)
-    def acis_mstage_entrance(self, m):
+    def acis_mstage_entrance(self, m): # << should modify. MUST: testcase ID(file name)
         """
         TODO:
         1. The test entrance.
