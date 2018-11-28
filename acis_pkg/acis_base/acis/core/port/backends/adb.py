@@ -39,6 +39,7 @@ class _ADB():
             if command.strip() in ("shell init 6",
                                    "shell init 0",
                                    "shell \"poweroff\"",
+                                   "reboot-bootloader",
                                    "reboot"):
                 peer("hook here reset.....")
                 _AT.objs[self.serial_id].close()
