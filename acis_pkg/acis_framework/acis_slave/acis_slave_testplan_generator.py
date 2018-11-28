@@ -138,7 +138,7 @@ def image_update(at, adb, image_file, image_version, platform):
     else:
 
         print("ADB > fastboot update FW doing...")
-        adb.send_cmd("reboot-bootloader & fastboot flash serial-dual-system {FW_File} & fastboot rebootf".format(FW_File = image_file))
+        adb.send_cmd("shell reboot-bootloader && fastboot flash serial-dual-system {FW_File} && fastboot reboot".format(FW_File = image_file))
 
     at.sleep(90000)
 
