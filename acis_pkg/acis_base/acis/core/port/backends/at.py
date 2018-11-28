@@ -226,7 +226,9 @@ class _AT():
 
         time.sleep(0.1)
 
-        timestamp = self.timeDisplay()+" "
+        timestamp = ""
+        if self.SndRcvTimestamp:
+            timestamp = self.timeDisplay() + " "
         LogMsg = timestamp+"Snd COM "+ self.hCom.port+" ["+self.ascii2print(cmd,printmode)+"]"
         peer(LogMsg)
 
