@@ -30,13 +30,16 @@ class _ADB():
             dt = datetime.now()
             timeDisplay =  "(%0.2d:%0.2d:%0.2d:%0.3d) Snd"%(dt.hour, dt.minute, dt.second, dt.microsecond/1000)
 
-            cmd = 'adb -s %s shell %s' % (self.serial_id, command)
+            cmd = 'adb -s %s %s' % (self.serial_id, command)
             peer(timeDisplay + " ADB " + self.serial_id + " ["+ cmd + "]")
 
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines = True)
             output = p.communicate()[0]
 
-            if command.strip() in ("init 6", "init 0", "reset", "\"poweroff\"", "reboot"):
+            if command.strip() in ("shell init 6",
+                                   "shell init 0",
+                                   "shell \"poweroff\"",
+                                   "reboot"):
                 peer("hook here reset.....")
                 _AT.objs[self.serial_id].close()
 

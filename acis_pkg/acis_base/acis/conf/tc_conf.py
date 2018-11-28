@@ -17,11 +17,11 @@ import os
 if os.getenv('TESTCASE_CFG', None) == None:
     os.environ['TESTCASE_CFG'] = '/home/jenkins/nfs_acis/Integration_Test/acis_testcases/acis_testcase.cfg'
 
-cfile = open(os.environ['TEST_CFG_PATH'], 'r')
+cfile = open(os.environ['TESTCASE_CFG'], 'r')
 strings = cfile.read().replace('\\', '/')
 cfile.close()
 
-strings = strings.format(INI_PATH = os.path.dirname(os.environ['TEST_CFG_PATH']))
+strings = strings.format(INI_PATH = os.path.dirname(os.environ['TESTCASE_CFG']))
 
 exec(compile(strings, 'tc_conf', 'exec'))
 

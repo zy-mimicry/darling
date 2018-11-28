@@ -47,6 +47,8 @@ class ACISMiscer():
         hook_log = self.log = Log(self.deal_log_path(log_file), logger_name = logger_name)
         self.mMail = self.register_mail(mail_to)
         self.register_port(port_names)
+        import acis.conf.tc_conf as tc
+        self.conf = tc
         return self
 
     def register_mail(self, mail_to):
