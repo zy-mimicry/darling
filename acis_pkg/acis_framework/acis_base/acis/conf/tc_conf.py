@@ -15,7 +15,11 @@ Note: If you want to know what contains in this module, please check the 'acis_t
 import os
 
 if os.getenv('TESTCASE_CFG', None) == None:
-    os.environ['TESTCASE_CFG'] = '/home/jenkins/nfs_acis/Integration_Test/acis_testcases/acis_testcases.cfg'
+    if os.getenv('JOB_NAME',None) is not None:
+        # Now, we hope default.
+        os.environ['TESTCASE_CFG'] = '/home/jenkins/nfs_acis/Integration_Test/acis_testcases/acis_testcases.cfg'
+    else:
+        os.environ['TESTCASE_CFG'] = '/home/jenkins/nfs_acis/' + os.environ['JOB_NAME'] + '/acis_testcases/acis_testcases.cfg'
 
 cfile = open(os.environ['TESTCASE_CFG'], 'r')
 strings = cfile.read().replace('\\', '/')
