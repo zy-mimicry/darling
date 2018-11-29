@@ -292,10 +292,12 @@ def make_testplan(maps, curser, testplan){
         list.add([$class : "StringParameterValue", "name": "FW_IMAGE_PATH", "value": env.FW_IMAGE_PATH])
         list.add([$class : "StringParameterValue", "name": "PLATFORM", "value": env.PLATFORM])
         list.add([$class : "StringParameterValue", "name": "FW_UPDATE", "value": env.FW_UPDATE])
-        list.add([$class : "StringParameterValue", "name": "ACIS_DIFF", "value": env.ACIS_DIFF])
         list.add([$class : "StringParameterValue", "name": "TESTCASE_PATH", "value": env.TESTCASE_PATH])
         list.add([$class : "StringParameterValue", "name": "REPORT_PATH", "value": env.REPORT_PATH])
         list.add([$class : "StringParameterValue", "name": "LOOP_TEST", "value": env.LOOP_TEST])
+
+        list.add([$class : "StringParameterValue", "name": "ACIS_DIFF", "value": env.ACIS_DIFF])
+        list.add([$class : "StringParameterValue", "name": "JOB_NAME", "value": env.JOB_NAME])
 
         /* Cookie for parallel */
         testplan[curser[i]] = [ "job": "common_job" ,"parameters": list, "flags" : ""]
