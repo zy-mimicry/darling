@@ -11,26 +11,25 @@ import os
 
 # parse the string like UART1_COM=r'/dev/ttyUSB1'
 # for UART1_COM=r'/dev/ttyUSB1', key is UART1_COM, value is r'/dev/ttyUSB1'
-def parse_key_and_value(key_value_string):
-    key_value_dict = {}
+# def parse_key_and_value(key_value_string):
+#     key_value_dict = {}
     
-    if key_value_string:
-        for i in range(len(key_value_string)):
-            index = key_value_string[i].find("=")
-            string_len = len(key_value_string[i])
-            key_value_dict[key_value_string[i][0:index]] = key_value_string[i][index + 1 : string_len]
+#     if key_value_string:
+#         for i in range(len(key_value_string)):
+#             index = key_value_string[i].find("=")
+#             string_len = len(key_value_string[i])
+#             key_value_dict[key_value_string[i][0:index]] = key_value_string[i][index + 1 : string_len]
     
-    return key_value_dict
+#     return key_value_dict
 
 
-def get_bool_value(name):
-    bool_value = os.getenv(name)
-    if "true" == bool_value:
-        return True
-    else:
-        return False
-    
-    
+# def get_bool_value(name):
+#     bool_value = os.getenv(name)
+#     if "true" == bool_value:
+#         return True
+#     else:
+#         return False
+
 class Slave_envs_parser:
     # Get test case list
     def get_test_case_list(self):
@@ -51,19 +50,24 @@ class Slave_envs_parser:
             return True
         else:
             return False
-        
+
     # check if need to update FW
     def enable_update_fw(self):
-        return get_bool_value('FW_UPDATE')
+        bool_value = os.getenv('FW_UPDATE')
+        if "true" == bool_value:
+            return True
+        else:
+            return False
+        #return get_bool_value('FW_UPDATE')
 
     # Get FW version
     def get_FW_ver(self):
         return os.environ['FW_VERSION']
-        
+
     # Get FW image path
     def get_FW_image_path(self):
         return os.environ['FW_IMAGE_PATH']
-    
+
     # Get the test sciprt store path
     def get_test_script_store_path(self):
         self.test_script_store_path = os.environ['TESTCASE_PATH']

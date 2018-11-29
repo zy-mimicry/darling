@@ -170,13 +170,9 @@ class ACISQMIAppTest():
 class Slave_QMI_testplan_prepare(Slave_testplan_prepare):
     def __init__(self):
         Slave_testplan_prepare.__init__(self)
-        # self.adb_id = []
-        # self.qmi_configuration_file = ''
-        # self.auto_generate_script_directory = ''
 
     def create_pytest_format_script(self):
         test_function_string = qmi_auto_generate_case_str()
-        # format_script_head = qmi_auto_generate_format_script_head()
         format_script = self.envs.get_qmi_auto_generate_script_path() + '/' + self.pytest_format_file_name
         print(format_script)
         log_path = self.envs.get_qmi_log_directory()
@@ -186,8 +182,6 @@ class Slave_QMI_testplan_prepare(Slave_testplan_prepare):
                                                                TEST_APP=self.envs.get_qmi_testapp(),
                                                                CONFIG_FILE=self.envs.get_qmi_configuration_file())
             fd.write(case_function_string)
-
-            fd.close()
 
     def run_test(self):
         self.run_pytest(self.envs.get_qmi_auto_generate_script_path(),

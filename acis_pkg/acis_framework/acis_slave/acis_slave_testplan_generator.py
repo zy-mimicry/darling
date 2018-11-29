@@ -52,9 +52,9 @@ def get_devices_from_rules(_file):
             g = re.match(r'\s*ATTRS{serial}=="(.*)",\s*GOTO="(.*)\s*"', line)
             if g:
                 if g.group(2) == "acis_master":
-                    configs["master"] = {"serial" : g.group(1) }
+                    configs["master"] = {"serial" : g.group(1)}
                 elif g.group(2) == "acis_slave":
-                    configs["slave"]  = {"serial" : g.group(1) }
+                    configs["slave"]  = {"serial" : g.group(1)}
     return configs
 
 
@@ -114,6 +114,7 @@ def init_ports(_file):
 
 def get_dut_information(at):
 
+    print("hook <<< here")
     at.send_cmd("ATI\r")
     response1 = at.wait_resp(["*\r\nOK\r\n"], 4000)
 
@@ -138,7 +139,7 @@ def image_update(at, adb, image_file, image_version, platform):
     else:
 
         print("ADB > fastboot update FW doing...")
-        adb.send_cmd("shell reboot-bootloader && fastboot flash serial-dual-system {FW_File} && fastboot reboot".format(FW_File = image_file))
+        adb.send_cmd("reboot-bootloader & fastboot flash serial-dual-system {FW_File} & fastboot rebootf".format(FW_File = image_file))
 
     at.sleep(90000)
 
@@ -153,12 +154,12 @@ def image_update(at, adb, image_file, image_version, platform):
         raise Exception("image update Failed")
 
 
+
 class Slave_testplan_prepare:
     def __init__(self):
         self.envs = acis_slave_envs_parser.Slave_envs_parser()
         self.fw_image_file = ''
         self.pytest_format_file_name = self.envs.get_test_case_list().replace('.', '_') + ".py"
-        self.ports = {}
         self.rules_location = '/etc/udev/rules.d/11-acis.rules'
 
     def set_fw_image_file(self):
@@ -188,7 +189,6 @@ class Slave_testplan_prepare:
         # ports = init_ports(self.rules_location)
         save_string = {}
 
-        print("shawn ++++" + os.environ["NODE_NAME"])
         for each in self.ports:
             dut_serial_id = self.ports[each]['ADB'].serial_id
 
@@ -205,52 +205,62 @@ class Slave_testplan_prepare:
             dut_fsn = response.split("\n")[1].strip()
             at.close()
 
-            save_string[dut_serial_id] = ("[{TIME}]:{TPYE} Serial_ID:{SERIAL_ID}  Module_FSN:{FSN} Platform:{PLATFORM} Test_Case: {CASENAME} Test_Count:{COUNT}\n".
-                                          format(TIME=self.envs.get_acis_diff(),
-                                                 TPYE=str(each),
-                                                 SERIAL_ID=dut_serial_id,
-                                                 FSN=dut_fsn,
-                                                 PLATFORM=self.envs.get_platform(),
-                                                 CASENAME=self.envs.get_test_case_list(),
-                                                 COUNT=self.envs.get_test_count()))
+            save_string[dut_serial_id] = (
+                "[{TIME}]:{TPYE:<8s} Serial_ID:{SERIAL_ID:<10s}  Module_FSN:{FSN:<20s} Platform:{PLATFORM:<8s} Test_Case: {CASENAME:<60s} Test_Count:{COUNT}\n".format(
+                    TIME=self.envs.get_acis_diff(),
+                    TPYE=str(each),
+                    SERIAL_ID=dut_serial_id,
+                    FSN=dut_fsn,
+                    PLATFORM=self.envs.get_platform(),
+                    CASENAME=self.envs.get_test_case_list(),
+                    COUNT=self.envs.get_test_count()))
         # this string is dict like {"master": [{TIME}]:master Serial_ID:{SERIAL_ID}  Module_FSN:{FSN} Test_Case: {CASENAME} Test_Count:{COUNT}}
         return save_string
 
     def save_dut_test_history(self, test_history, report_path):
         node_build_history_path = "/home/jenkins/nfs_acis/node_build_history/" + os.environ["NODE_NAME"]
+        dut_test_history_file = node_build_history_path + "/dut_test_history.txt"
+        history_list = []
+
         if not os.path.exists(node_build_history_path):
             os.makedirs(node_build_history_path, mode=0o755)
-        dut_test_history_file = node_build_history_path + "/dut_test_history.txt"
+
+        if not os.path.exists(dut_test_history_file):
+            os.mknod(dut_test_history_file)
 
         test_log_directory = os.path.abspath(report_path)
         test_log_directory = os.path.dirname(test_log_directory)
 
-        test_history_fd = open(dut_test_history_file, "w")
-
-        test_log_fd = open(test_log_directory + "/" + self.envs.get_test_case_list() + ".log", "r")
-        test_log_fd_buffer = test_log_fd.read()
-        print(test_log_fd_buffer)
-
+        test_history_fd = open(dut_test_history_file, "r+")
+        test_log_fd = open(test_log_directory + "/" + self.envs.get_test_case_list().replace('.', '_') + ".log", "r")
+        buffer_test_log = test_log_fd.read()
+        print(buffer_test_log)
+        history_list.append(test_history_fd.readlines())
         for dut_serial_id, history in test_history.items():
-            dut_serial_id_buff = "'serial_id': '{}'".format(dut_serial_id)
-            print("shawn+++++++++++++++++++++" + dut_serial_id_buff)
-            if "'serial_id': '{}'".format(dut_serial_id) in test_log_fd_buffer:
+            print("shawn debug++++++++++++++" + dut_serial_id)
+            if "'serial_id': '{}'".format(dut_serial_id) in buffer_test_log:
                 print("************************************************shawn_debug **************************")
-                test_history_fd.write(history)
+                history_list.append(history)
+                print("shawn debug+++++++++++++++++++++++++++")
+                print(history_list)
+
+                test_history_fd.seek(0, 0)
+                for lines in history_list:
+                    test_history_fd.writelines(lines)
 
         test_history_fd.close()
         test_log_fd.close()
 
     def run_pytest(self, loop_test_conftest_path, report_path, test_script):
-        shutil.copy(self.envs.get_test_script_store_path() + '/' + "pytest.ini", self.envs.loop_test_path())
-        shutil.copy(self.envs.get_test_script_store_path() + "/conftest.py", loop_test_conftest_path)
+        # shutil.copy(self.envs.get_test_script_store_path() + '/' + "pytest.ini", self.envs.loop_test_path())
+        # shutil.copy(self.envs.get_test_script_store_path() + "/conftest.py", loop_test_conftest_path)
 
         os.chdir(self.envs.loop_test_path())
-        test_history = self.dut_test_history_prepare()
-        os.system('pytest {TEST_SCRIPT} --count={COUNT} --alluredir {REPORT_PATH}'.format(
+        # test_history = self.dut_test_history_prepare()
+        os.system('pytest -s {TEST_SCRIPT} --count={COUNT} --alluredir {REPORT_PATH}'.format(
                 TEST_SCRIPT=test_script,
                 COUNT=self.envs.get_test_count(),
                 REPORT_PATH=report_path))
 
-        self.save_dut_test_history(test_history, report_path)
+        # self.save_dut_test_history(test_history, report_path)
 

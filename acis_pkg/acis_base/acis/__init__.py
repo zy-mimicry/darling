@@ -18,7 +18,8 @@ class ACISMiscer():
 
     def __init__(self):
 
-        self.limit_name = 'acis_testcases' # Maybe get this var from environment better.
+        #self.limit_name = 'acis_testcases' # Maybe get this var from environment better.
+        self.limit_name = 'testcases' # Maybe get this var from environment better.
 
         try:
             self.prefix = os.environ["REPORT_PATH"] + '/' \
