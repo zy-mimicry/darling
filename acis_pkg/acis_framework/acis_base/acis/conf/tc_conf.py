@@ -15,7 +15,7 @@ Note: If you want to know what contains in this module, please check the 'acis_t
 import os
 
 if os.getenv('TESTCASE_CFG', None) == None:
-    if os.getenv('JOB_NAME',None) is not None:
+    if os.getenv('JOB_NAME',None) is None:
         # Now, we hope default.
         os.environ['TESTCASE_CFG'] = '/home/jenkins/nfs_acis/Integration_Test/acis_testcases/acis_testcases.cfg'
     else:
