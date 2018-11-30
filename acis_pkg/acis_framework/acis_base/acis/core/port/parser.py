@@ -31,6 +31,31 @@ class PortConfParser():
 
         self._pick_info(self.udev_conf_file)
 
+    def __narrow_config(self):
+        """
+        Drop self.configs items that without in devices.
+        """
+        try:
+            output = subprocess.check_output('adb devices',
+                                            shell = True).decode('utf-8').strip()
+        except subprocess.CalledProcessError as err:
+            raise err
+        else:
+            # devices = [ 'serial_id_1', 'serial_id_2', ...]
+            devices = []
+            for line in output.split('\n'):
+                g = re.match('\s*?(.*)\s*device$', line)
+                if g:
+                    devices.append(g.group(1).strip())
+
+            pop = []
+            for i in self.configs:
+                if self.configs[i]['serial'] not in devices:
+                    pop.append(i)
+            for item in pop:
+                peer("Narrowing - Drop item: {}".format(self.configs.pop(item)))
+            peer("Final <configs> : {}".format(self.configs))
+
     def _pick_info(self,_file):
         """
         Pick some information from '_file'
@@ -74,6 +99,9 @@ class PortConfParser():
                             self.configs["slave"]["AT"] = g.group(1) + '/' + g.group(3)
                         if g.group(4) == "00":
                             self.configs["slave"]["DM"] = g.group(1) + '/' + g.group(3)
+
+        peer("<Rules> configs: {}".format(self.configs))
+        self.__narrow_config()
 
     def get_conf(self, backend_name, type_name):
         """

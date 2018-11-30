@@ -127,8 +127,8 @@ class ACISQMIAppTest():
 
 
     @report.story("QMI APP TEST")
-    @report.mark.run(order=1)
-    def ACIS_{CASENAME}(self, m):
+    @pytest.mark.run(order=1)
+    def acis_mstage_entrance(self, m):
         \"\"\"
         TODO: QMI APP TEST.
         \"\"\"
@@ -139,31 +139,32 @@ class ACISQMIAppTest():
             try:
                 self.pre(m)                    # << Stage | pre
             except Exception as e:
+                m.log("<Pre-Stage-Exception> reason: {{}}".format(e))
                 m.flags.append('pre')
                 m.errors['pre'] = e
                 raise e
             self.body(m)                       # << Stage | body
         except Exception as e:
             if not m.flags :
+                m.log("<Body-Stage-Exception> reason: {{}}".format(e))
                 m.flags.append('body')
                 m.errors['body'] = e
-            raise e
 
-        finally:
-            try:
-                self.restore(m)                # << Stage | restore
-            except Exception as e:
-                m.log("<Restore> The restore process should not have an exception.\nBut now NOT,reason:\n{}".format(e))
-                m.flags.append('restore')
-                m.errors['restore'] = e
+        try:
+            self.restore(m)                    # << Stage | restore
+        except Exception as e:
+            m.log("<Restore-Stage-Exception> reason: {{}}".format(e))
+            m.flags.append('restore')
+            m.errors['restore'] = e
 
-            if m.flags:
-                m.log("\\n\\n  <ACIS Exception Stack Information>\\n")
-                for f in m.flags:
-                    m.log("--- {{}} stack info ---\\n{{}}\\n".format(f, m.errors[f]))
-                m.log("\\nTESTCASE:[{{}}] Result:[{{}}]\\n".format(m.test_ID, "FAIL"))
-            else:
-                m.log("\\nTESTCASE:[{{}}] Result:[{{}}]\\n".format(m.test_ID, "PASS"))
+        if m.flags:
+            m.log("\\n\\n  <ACIS Exception Stack Information>\\n")
+            for f in m.flags:
+                m.log("--- {{}} stack info ---\\n{{}}\\n".format(f, m.errors[f]))
+            m.log("\\nTESTCASE:[{{}}] Result:[{{}}]\\n".format(m.test_ID, "FAIL"))
+            raise Exception("\\n\\n <ACIS Test Exception, Please check stack information.>\\n")
+        else:
+            m.log("\\nTESTCASE:[{{}}] Result:[{{}}]\\n".format(m.test_ID, "PASS"))
 """
 
 class Slave_QMI_testplan_prepare(Slave_testplan_prepare):

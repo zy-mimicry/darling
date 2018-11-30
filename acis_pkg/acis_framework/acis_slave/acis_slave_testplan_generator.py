@@ -13,6 +13,7 @@ import re
 import shutil
 
 import subprocess
+from acis.utils.log import peer
 from acis import ACISMiscer
 miscer = ACISMiscer()
 
@@ -128,6 +129,7 @@ def get_dut_information(at):
 
 def image_update(at, adb, image_file, image_version, platform):
 
+    print("[update] Img update ...")
     dut_information = get_dut_information(at)
     if platform not in dut_information:
         print("Error, Platform Conflict")
@@ -139,7 +141,7 @@ def image_update(at, adb, image_file, image_version, platform):
     else:
 
         print("ADB > fastboot update FW doing...")
-        adb.send_cmd("reboot-bootloader & fastboot flash serial-dual-system {FW_File} & fastboot rebootf".format(FW_File = image_file))
+        adb.send_cmd("reboot-bootloader && fastboot flash sierra-dual-system {FW_File} && fastboot reboot".format(FW_File = image_file))
 
     at.sleep(90000)
 
@@ -148,6 +150,7 @@ def image_update(at, adb, image_file, image_version, platform):
 
     if image_version in dut_information:
         print("fw image update successed")
+        print("[update] Img update Done.")
         return True
     else:
         print("fw update failed for" + image_version)
@@ -178,6 +181,7 @@ class Slave_testplan_prepare:
 
     def fw_image_update(self):
         self.ports = init_ports(self.rules_location)
+        print("update fw ports:", self.ports)
         for each in self.ports:
             image_update(self.ports[each]['AT'],
                          self.ports[each]['ADB'],
