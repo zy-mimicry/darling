@@ -119,11 +119,15 @@ def deal_line_item(item, maps){
 }
 
 
-def MAPS_to_list(maps){
+def MAPS_to_list(text){
     /* A list separated by semicolons(;) */
     /* eg...  A;B;C >> ["A", "B", "C"]   */
 
-    return maps.trim().split(";")
+    if (text){
+        return text.trim().split(";")
+    }else{
+        return []
+    }
 }
 
 def make_curser_maps(list, curser, maps){
@@ -276,6 +280,7 @@ def make_testplan(maps, curser, testplan){
     def list = []
     def i
 
+
     for(i = 0; i < curser.size(); i++){
 
         if (env.username == null){
@@ -358,6 +363,8 @@ def get_cookie(){
     make_testplan(maps_merged,
                   maps_merged_curser,
                   testplan)
+    println "testplan: ${testplan}"
+    println "testplan cur: ${testplan_curser}"
 
     return [testplan, testplan_curser]
 }
