@@ -19,7 +19,11 @@ if os.getenv('TESTCASE_CFG', None) == None:
         # Now, we hope default.
         os.environ['TESTCASE_CFG'] = '/home/jenkins/nfs_acis/Integration_Test/acis_testcases/acis_testcases.cfg'
     else:
-        os.environ['TESTCASE_CFG'] = '/home/jenkins/nfs_acis/' + os.environ['JOB_NAME'] + '/acis_testcases/acis_testcases.cfg'
+        if os.getenv('USER_NAME') is None:
+            os.environ['TESTCASE_CFG'] = '/home/jenkins/nfs_acis/' + os.environ['JOB_NAME'] + '/acis_testcases/acis_testcases.cfg'
+        else:
+            os.environ['TESTCASE_CFG'] = '/home/jenkins/nfs_acis/' + os.environ['JOB_NAME'] + '/' + os.environ['USER_NAME'] +'/acis_testcases/acis_testcases.cfg'
+
 
 cfile = open(os.environ['TESTCASE_CFG'], 'r')
 strings = cfile.read().replace('\\', '/')

@@ -25,7 +25,8 @@ class Port:
         backend_name, type_name = self.name_split(aka_name)
 
         backend_name = backend_name.upper()
-        type_name    = type_name.lower()
+        if type_name != 'any':
+            type_name    = type_name.upper()
 
         conf = self.parser.get_conf(backend_name, type_name)
 

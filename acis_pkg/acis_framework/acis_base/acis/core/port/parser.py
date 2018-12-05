@@ -23,7 +23,7 @@ class PortConfParser():
 
         self.configs = {}
 
-        # any_conf = { "any" : 'master' or 'slave' }
+        # any_conf = { "any" : 'DUT1' or 'DUT2' }
         self.any_conf = {}
 
         # ACIS udev-configuration Location
@@ -62,15 +62,15 @@ class PortConfParser():
         'self.configs' content:
         eg.
         {
-        "master" : { "serial" : xxx,
-                     "link"   : xxx, << acis/master
-                     "AT"     : xxx, << acis/master/AT
-                     "DM"     : xxx},<< acis/master/DM
+        "DUT1" : { "serial" : xxx,
+                     "link"   : xxx, << acis/DUT1
+                     "AT"     : xxx, << acis/DUT1/AT
+                     "DM"     : xxx},<< acis/DUT1/DM
 
-        "slave" : { "serial"  : xxx,
-                     "link"   : xxx, << acis/slave
-                     "AT"     : xxx, << acis/slave/AT
-                     "DM"     : xxx},<< acis/slave/DM
+        "DUT2" : { "serial"  : xxx,
+                     "link"   : xxx, << acis/DUT2
+                     "AT"     : xxx, << acis/DUT2/AT
+                     "DM"     : xxx},<< acis/DUT2/DM
         }
 
         """
@@ -81,24 +81,24 @@ class PortConfParser():
             for line in f:
                 g = re.match(r'\s*ATTRS{serial}=="(.*)",\s*GOTO="(.*)\s*"', line)
                 if g:
-                    if g.group(2) == "acis_master":
-                        self.configs["master"] = {"serial" : g.group(1) }
-                    elif g.group(2) == "acis_slave":
-                        self.configs["slave"]  = {"serial" : g.group(1) }
+                    if g.group(2) == "acis_DUT1":
+                        self.configs["DUT1"] = {"serial" : g.group(1) }
+                    elif g.group(2) == "acis_DUT2":
+                        self.configs["DUT2"]  = {"serial" : g.group(1) }
                 g = re.match(r"\s*SUBSYSTEMS==\"usb\",\s*DRIVERS==\"GobiSerial\",\s*SYMLINK\+=\"(acis/(.*))/(.*)\",\s*ATTRS{bInterfaceNumber}==\"(.*)\"\s*", line)
                 if g:
-                    if g.group(2) == "master":
-                        self.configs["master"]["link"] = g.group(1)
+                    if g.group(2) == "DUT1":
+                        self.configs["DUT1"]["link"] = g.group(1)
                         if g.group(4) == "03":
-                            self.configs["master"]["AT"] = g.group(1) + '/' + g.group(3)
+                            self.configs["DUT1"]["AT"] = g.group(1) + '/' + g.group(3)
                         if g.group(4) == "00":
-                            self.configs["master"]["DM"] = g.group(1) + '/' + g.group(3)
-                    elif g.group(2) == "slave" :
-                        self.configs["slave"]["link"]  = g.group(1)
+                            self.configs["DUT1"]["DM"] = g.group(1) + '/' + g.group(3)
+                    elif g.group(2) == "DUT2" :
+                        self.configs["DUT2"]["link"]  = g.group(1)
                         if g.group(4) == "03":
-                            self.configs["slave"]["AT"] = g.group(1) + '/' + g.group(3)
+                            self.configs["DUT2"]["AT"] = g.group(1) + '/' + g.group(3)
                         if g.group(4) == "00":
-                            self.configs["slave"]["DM"] = g.group(1) + '/' + g.group(3)
+                            self.configs["DUT2"]["DM"] = g.group(1) + '/' + g.group(3)
 
         peer("<Rules> configs: {}".format(self.configs))
         self.__narrow_config()
@@ -108,16 +108,16 @@ class PortConfParser():
         Note: Register 'AT' first, then register 'ADB',
         BTW:  MUST register AT port every testcase, if not, ADB can NOT work.
 
-        return   'type_name' : >> 'master' or 'slave' or 'any'
+        return   'type_name' : >> 'DUT1' or 'DUT2' or 'any'
                  'mapto'     : >> only 'any' has this prop.
                  'backend'   : >> 'AT' or 'ADB'
-                 'dev_link'  : >> eg: AT > /dev/acis/master/AT
+                 'dev_link'  : >> eg: AT > /dev/acis/DUT1/AT
                  'serial_id' : >> adb serial id.
         """
 
-        if type_name == "master":
+        if type_name == "DUT1":
 
-            if "master" not in self.configs:
+            if "DUT1" not in self.configs:
                 raise NotFindTypeNameInRule("Can NOT find type name <{}> in udev-rules file.".format(type_name))
 
             if backend_name == "AT":
@@ -138,9 +138,9 @@ class PortConfParser():
                          'backend'   : backend_name,
                          'serial_id' : self.configs[type_name]["serial"]}
 
-        elif type_name == "slave":
+        elif type_name == "DUT2":
 
-            if "slave" not in self.configs:
+            if "DUT2" not in self.configs:
                 raise NotFindTypeNameInRule("Can NOT find type name <{}> in udev-rules file.".format(type_name))
 
             if backend_name == "AT":
@@ -164,16 +164,16 @@ class PortConfParser():
         elif type_name == "any":
 
             if not self.configs:
-                raise NotFindTypeNameInRule("Can NOT find any type names <slave or master> in udev-rules file.")
+                raise NotFindTypeNameInRule("Can NOT find any type names <DUT2 or DUT1> in udev-rules file.")
 
             if len(self.configs) == 2:
 
                 if backend_name == "AT":
-                    sel = choice(["master", "slave"])
+                    sel = choice(["DUT1", "DUT2"])
                     peer("First get type is {name}".format(name = sel))
                     if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[sel][backend_name]), shell=True):
                         peer("Port Busy! Try another...")
-                        for another in ["master", "slave"]:
+                        for another in ["DUT1", "DUT2"]:
                             if sel != another:
                                 if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[another][backend_name]), shell=True):
                                     raise ATportBusyErr("Double AT ports had been using.")
@@ -206,9 +206,9 @@ class PortConfParser():
                             'serial_id' : self.configs[self.any_conf[type_name]]["serial"]}
 
             elif len(self.configs) == 1:
-                if 'master' in self.configs:
+                if 'DUT1' in self.configs:
                     if backend_name == "AT":
-                        sel = 'master'
+                        sel = 'DUT1'
                         if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[sel][backend_name]), shell=True):
                             raise ATportBusyErr("Only one module register to udev-rules: <{name}>, but this port is using.".format(name = sel))
                         else:
@@ -230,10 +230,10 @@ class PortConfParser():
                                 'backend'   : backend_name,
                                 'serial_id' : self.configs[self.any_conf[type_name]]["serial"]}
 
-                elif 'slave' in self.configs:
+                elif 'DUT2' in self.configs:
 
                     if backend_name == "AT":
-                        sel = 'slave'
+                        sel = 'DUT2'
                         if not subprocess.call("lsof {where}".format(where = '/dev/' + self.configs[sel][backend_name]), shell=True):
                             raise ATportBusyErr("Only one module register to udev-rules: <{name}>, but this port is using.".format(name = sel))
                         else:

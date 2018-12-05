@@ -63,26 +63,26 @@ class ADB():
 
         self.conf = {}
 
-        if obj == "master":
-            self.conf["master"] = conf
-            self.master = _ADB(conf['serial_id']); return
-        elif obj == "slave":
-            self.conf["slave"] = conf
-            self.slave = _ADB(conf['serial_id']); return
+        if obj == "DUT1":
+            self.conf["DUT1"] = conf
+            self.DUT1 = _ADB(conf['serial_id'])
+        elif obj == "DUT2":
+            self.conf["DUT2"] = conf
+            self.DUT2 = _ADB(conf['serial_id'])
         elif obj == "any":
             self.conf["any"] = conf
-            self.any = _ADB(conf['serial_id']); return
+            self.any = _ADB(conf['serial_id'])
 
         self.info()
 
     def reinit(self, obj, conf):
 
-        if obj == "master":
-            self.conf["master"] = conf
-            self.master = _ADB(conf['serial_id'])
+        if obj == "DUT1":
+            self.conf["DUT1"] = conf
+            self.DUT1 = _ADB(conf['serial_id'])
         else:
-            self.conf["slave"] = conf
-            self.slave = _ADB(conf['serial_id'])
+            self.conf["DUT2"] = conf
+            self.DUT2 = _ADB(conf['serial_id'])
         return self
 
     def info(self):

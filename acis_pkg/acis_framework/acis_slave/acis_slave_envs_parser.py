@@ -63,11 +63,11 @@ class Slave_envs_parser:
     # Get FW version
     def get_FW_ver(self):
         return os.environ['FW_VERSION']
-
+        
     # Get FW image path
     def get_FW_image_path(self):
         return os.environ['FW_IMAGE_PATH']
-
+    
     # Get the test sciprt store path
     def get_test_script_store_path(self):
         self.test_script_store_path = os.environ['TESTCASE_PATH']

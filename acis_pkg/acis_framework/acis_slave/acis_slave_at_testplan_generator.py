@@ -32,6 +32,7 @@ def get_test_script_relate_path(test_scipt_store_path, test_script_full_path, te
     print('case relative path: ', case_relative_store_path)
     return case_relative_store_path
 
+
 class Slave_at_testplan_prepare(Slave_testplan_prepare):
     def __init__(self, ):
         Slave_testplan_prepare.__init__(self)
@@ -65,8 +66,7 @@ class Slave_at_testplan_prepare(Slave_testplan_prepare):
                              self.case_relative_store_path + "/" +
                              self.envs.get_test_case_list().replace('.', '_') + "_report")
 
-        self.run_pytest(self.envs.at_loop_test_conftest_path(),
-                        report_path,
+        self.run_pytest(report_path,
                         self.auto_generate_script_directory + "/" + self.envs.get_test_case_list() + ".py")
 
 

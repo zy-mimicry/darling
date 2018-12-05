@@ -794,37 +794,37 @@ class AT():
 
         self.conf = {}
 
-        self.master = self.slave = self.any = None
+        self.DUT1 = self.DUT2 = self.any = None
 
-        if obj == "master":
-            self.conf["master"] = conf
-            self.master = _AT(conf); return
-        elif obj == "slave":
-            self.conf["slave"] = conf
-            self.slave = _AT(conf); return
+        if obj == "DUT1":
+            self.conf["DUT1"] = conf
+            self.DUT1 = _AT(conf)
+        elif obj == "DUT2":
+            self.conf["DUT2"] = conf
+            self.DUT2 = _AT(conf)
         elif obj == "any":
             self.conf["any"] = conf
-            self.any = _AT(conf); return
+            self.any = _AT(conf)
 
         self.info()
 
     def reinit(self, obj, conf):
 
-        if obj == "master":
-            self.conf["master"] = conf
-            self.master = _AT(conf)
+        if obj == "DUT1":
+            self.conf["DUT1"] = conf
+            self.DUT1 = _AT(conf)
         else:
-            self.conf["slave"] = conf
-            self.slave = _AT(conf)
+            self.conf["DUT2"] = conf
+            self.DUT2 = _AT(conf)
         return self
 
     @allure.step
     def closeall(self):
 
-        if self.master:
-            self.master.close()
-        if self.slave:
-            self.slave.close()
+        if self.DUT1:
+            self.DUT1.close()
+        if self.DUT2:
+            self.DUT2.close()
         if self.any:
             self.any.close()
 

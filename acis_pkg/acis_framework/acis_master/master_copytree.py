@@ -9,6 +9,7 @@ def do_copy_with_init(src_dir, dst_dir):
     TODO: Reserved '__init__.py' in directory.
     """
 
+    _um = os.umask(0o0002)
     shutil.copytree(src_dir, dst_dir)
 
     for root, dirs, filelist in os.walk(dst_dir):
@@ -16,18 +17,21 @@ def do_copy_with_init(src_dir, dst_dir):
             if '__init__' not in f:
                 #print("delete file: ", os.path.join(root, f))
                 os.remove(os.path.join(root, f))
+    os.umask(_um)
 
 def do_copy_without_py(src_dir, dst_dir):
     """
     TODO: Copy directory tree, without any file.
     """
 
+    _um = os.umask(0o0002)
     shutil.copytree(src_dir, dst_dir)
 
     for root, dirs, filelist in os.walk(dst_dir):
         for f in filelist:
             #print("delete file: ", os.path.join(root, f))
             os.remove(os.path.join(root, f))
+    os.umask(_um)
 
 def deal_cmdline(argv):
     src  = ''

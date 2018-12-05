@@ -19,7 +19,7 @@ acis.utils.log.peer("Location:\n-file:{}\n-current path:{}\n-parent path: {}".
 
 miscer = acis.ACISMiscer()
 @report.fixture(scope="module")
-def misc():
+def minit():
     return miscer.misc_deal
 
 

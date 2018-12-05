@@ -278,7 +278,12 @@ def make_testplan(maps, curser, testplan){
 
     for(i = 0; i < curser.size(); i++){
 
-        maps[curser[i]]["labels"].add(env.PLATFORM) /* PLATFORM different 9x or 8x platform */
+        if (env.username == null){
+            maps[curser[i]]["labels"].add(env.PLATFORM) /* PLATFORM different 9x or 8x platform */
+        }else{
+            maps[curser[i]]["labels"] = [env.username.toUpperCase()] /* 'labels' should be username*/
+            list.add([$class : "StringParameterValue", "name": "USER_NAME", "value": env.username])
+        }
 
         /* MAPS and FILTER range */
         list.add([$class : "StringParameterValue", "name": "CASENAME", "value": curser[i]])

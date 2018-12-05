@@ -40,8 +40,8 @@ def get_devices_from_real():
 def get_devices_from_rules(_file):
     """
     configs: >>
-    "master" : { "serial" : serial_id},
-    "slave"  : { "serial" : serial_id},
+    "DUT1" : { "serial" : serial_id},
+    "DUT2"  : { "serial" : serial_id},
     """
 
     if not os.path.exists(_file):
@@ -52,18 +52,18 @@ def get_devices_from_rules(_file):
         for line in f:
             g = re.match(r'\s*ATTRS{serial}=="(.*)",\s*GOTO="(.*)\s*"', line)
             if g:
-                if g.group(2) == "acis_master":
-                    configs["master"] = {"serial" : g.group(1)}
-                elif g.group(2) == "acis_slave":
-                    configs["slave"]  = {"serial" : g.group(1)}
+                if g.group(2) == "acis_DUT1":
+                    configs["DUT1"] = {"serial" : g.group(1)}
+                elif g.group(2) == "acis_DUT2":
+                    configs["DUT2"]  = {"serial" : g.group(1)}
     return configs
 
 
 def match_devices(_file):
     """
     match : >>
-    "master" : serial_id,
-    "slave"  : serial_id,
+    "DUT1" : serial_id,
+    "DUT2"  : serial_id,
     """
 
     devices_rule = get_devices_from_rules(_file)
@@ -85,8 +85,8 @@ def match_devices(_file):
 def init_ports(_file):
     """
     return : dict >>
-    { "master" : {"AT" : miscer.at.master, "ADB" : miscer.adb.master},
-      "slave"  : {"AT" : miscer.at.slave,  "ADB" : miscer.adb.slave},}
+    { "DUT1" : {"AT" : miscer.at.DUT1, "ADB" : miscer.adb.DUT1},
+      "DUT2"  : {"AT" : miscer.at.DUT2,  "ADB" : miscer.adb.DUT2},}
     """
     global miscer
     matched = match_devices(_file)
@@ -94,23 +94,23 @@ def init_ports(_file):
     print("Hook matched devices: ", matched)
 
     if len(matched) == 2:
-         miscer.register_port(port_names = ["AT..master",
-                                            "AT..slave",
-                                            "ADB..master",
-                                            "ADB..slave"])
-         return { "master" : {"AT" : miscer.at.master, "ADB" : miscer.adb.master},
-                  "slave"  : {"AT" : miscer.at.slave,  "ADB" : miscer.adb.slave}, }
+         miscer.register_port(port_names = ["AT..DUT1",
+                                            "AT..DUT2",
+                                            "ADB..DUT1",
+                                            "ADB..DUT2"])
+         return { "DUT1" : {"AT" : miscer.at.DUT1, "ADB" : miscer.adb.DUT1},
+                  "DUT2"  : {"AT" : miscer.at.DUT2,  "ADB" : miscer.adb.DUT2}, }
 
     elif len(matched) == 1:
         for name in matched:
-            if name == "master":
-                miscer.register_port(port_names = ["AT..master",
-                                                   "ADB..master"])
-                return {"master" : {"AT" : miscer.at.master, "ADB" : miscer.adb.master}}
-            if name == "slave":
-                miscer.register_port(port_names = ["AT..slave",
-                                                   "ADB..slave"])
-                return {"slave" : {"AT" : miscer.at.slave, "ADB" : miscer.adb.slave}}
+            if name == "DUT1":
+                miscer.register_port(port_names = ["AT..DUT1",
+                                                   "ADB..DUT1"])
+                return {"DUT1" : {"AT" : miscer.at.DUT1, "ADB" : miscer.adb.DUT1}}
+            if name == "DUT2":
+                miscer.register_port(port_names = ["AT..DUT2",
+                                                   "ADB..DUT2"])
+                return {"DUT2" : {"AT" : miscer.at.DUT2, "ADB" : miscer.adb.DUT2}}
 
 
 def get_dut_information(at):
@@ -190,14 +190,14 @@ class Slave_testplan_prepare:
                          self.envs.get_platform())
 
     def dut_test_history_prepare(self):
-        # ports = init_ports(self.rules_location)
+        ports = init_ports(self.rules_location)
         save_string = {}
 
-        for each in self.ports:
-            dut_serial_id = self.ports[each]['ADB'].serial_id
+        for each in ports:
+            dut_serial_id = ports[each]['ADB'].serial_id
 
             # Get FSN from DUT
-            at = self.ports[each]['AT']
+            at = ports[each]['AT']
             at.send_cmd("AT!UNLOCK=\"A710\"\r\n")
             try:
                 at.waitn_match_resp(["*\r\nOK\r\n"], 4000)
@@ -218,7 +218,7 @@ class Slave_testplan_prepare:
                     PLATFORM=self.envs.get_platform(),
                     CASENAME=self.envs.get_test_case_list(),
                     COUNT=self.envs.get_test_count()))
-        # this string is dict like {"master": [{TIME}]:master Serial_ID:{SERIAL_ID}  Module_FSN:{FSN} Test_Case: {CASENAME} Test_Count:{COUNT}}
+        # this string is dict like {"DUT1": [{TIME}]:DUT1 Serial_ID:{SERIAL_ID}  Module_FSN:{FSN} Test_Case: {CASENAME} Test_Count:{COUNT}}
         return save_string
 
     def save_dut_test_history(self, test_history, report_path):
@@ -238,33 +238,28 @@ class Slave_testplan_prepare:
         test_history_fd = open(dut_test_history_file, "r+")
         test_log_fd = open(test_log_directory + "/" + self.envs.get_test_case_list().replace('.', '_') + ".log", "r")
         buffer_test_log = test_log_fd.read()
-        print(buffer_test_log)
-        history_list.append(test_history_fd.readlines())
-        for dut_serial_id, history in test_history.items():
-            print("shawn debug++++++++++++++" + dut_serial_id)
-            if "'serial_id': '{}'".format(dut_serial_id) in buffer_test_log:
-                print("************************************************shawn_debug **************************")
-                history_list.append(history)
-                print("shawn debug+++++++++++++++++++++++++++")
-                print(history_list)
 
-                test_history_fd.seek(0, 0)
-                for lines in history_list:
-                    test_history_fd.writelines(lines)
+        # if the lines >= 500, we should truncate it.
+        test_history_buffer = test_history_fd.readlines()
+        lines = len(test_history_buffer)
+        if lines >= 500:
+            test_history_fd.seek(0, 0)
+            test_history_fd.writelines(test_history_buffer[lines - 5:])
+
+        for dut_serial_id, history in test_history.items():
+            if "'serial_id': '{}'".format(dut_serial_id) in buffer_test_log:
+                test_history_fd.write(history)
 
         test_history_fd.close()
         test_log_fd.close()
 
-    def run_pytest(self, loop_test_conftest_path, report_path, test_script):
-        # shutil.copy(self.envs.get_test_script_store_path() + '/' + "pytest.ini", self.envs.loop_test_path())
-        # shutil.copy(self.envs.get_test_script_store_path() + "/conftest.py", loop_test_conftest_path)
-
+    def run_pytest(self, report_path, test_script):
         os.chdir(self.envs.loop_test_path())
-        # test_history = self.dut_test_history_prepare()
-        os.system('pytest -s {TEST_SCRIPT} --count={COUNT} --alluredir {REPORT_PATH}'.format(
+        test_history = self.dut_test_history_prepare()
+        os.system('pytest -s {TEST_SCRIPT} --count={COUNT} --alluredir {REPORT_PATH} --junitxml={JUNIT_REPORT}'.format(
                 TEST_SCRIPT=test_script,
                 COUNT=self.envs.get_test_count(),
-                REPORT_PATH=report_path))
-
-        # self.save_dut_test_history(test_history, report_path)
+                REPORT_PATH=report_path,
+                JUNIT_REPORT=self.envs.get_log_directory() + "/junit_report/" + self.envs.get_test_case_list().replace(".", "_") + ".xml"))
+        self.save_dut_test_history(test_history, report_path)
 

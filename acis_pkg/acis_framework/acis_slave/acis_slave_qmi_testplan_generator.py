@@ -25,8 +25,8 @@ import time
 import subprocess
 
 @report.fixture(scope="module")
-def m(request, misc):
-    mz =  misc(__file__,
+def m(request, minit):
+    mz =  minit(__file__,
                logger_name = 'ACIS.QMI.APP.TEST',
                mail_to     = 'rzheng@sierrawireless.com',
                port_names  = [
@@ -46,8 +46,7 @@ def m(request, misc):
 
 
 @report.epic("QMI")
-@report.feature("APP")
-class ACISQMIAppTest():
+class ACISQMITest():
     \"\"\"
     Something you want to descript for this test. (can't display)
     \"\"\"
@@ -86,6 +85,7 @@ class ACISQMIAppTest():
         while 1:
             try:
                 line = returninfo.readline()
+                m.log(line)
             except :
                 continue
             if len(line) <= 0:
@@ -126,9 +126,9 @@ class ACISQMIAppTest():
         m.log("Nothing....")
 
 
-    @report.story("QMI APP TEST")
+    @report.story("QMI")
     @pytest.mark.run(order=1)
-    def acis_mstage_entrance(self, m):
+    def {CASENAME_FUNC}(self, m):
         \"\"\"
         TODO: QMI APP TEST.
         \"\"\"
@@ -180,12 +180,12 @@ class Slave_QMI_testplan_prepare(Slave_testplan_prepare):
             case_function_string = test_function_string.format(CASENAME=self.envs.get_test_case_list(),
                                                                LOG_PATH=log_path,
                                                                TEST_APP=self.envs.get_qmi_testapp(),
-                                                               CONFIG_FILE=self.envs.get_qmi_configuration_file())
+                                                               CONFIG_FILE=self.envs.get_qmi_configuration_file(),
+                                                               CASENAME_FUNC=self.envs.get_test_case_list().replace(".", "_"))
             fd.write(case_function_string)
 
     def run_test(self):
-        self.run_pytest(self.envs.get_qmi_auto_generate_script_path(),
-                        self.envs.get_qmi_log_directory() + '/' + self.envs.get_test_case_list().replace('.', '_') + "_report",
+        self.run_pytest(self.envs.get_qmi_log_directory() + '/' + self.envs.get_test_case_list().replace('.', '_') + "_report",
                         self.envs.get_qmi_auto_generate_script_path() + "/" + self.pytest_format_file_name)
 
 
