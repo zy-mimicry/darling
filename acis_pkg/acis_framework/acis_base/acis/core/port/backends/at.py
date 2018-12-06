@@ -613,7 +613,7 @@ class _AT():
         return matched
 
     @allure.step
-    def wait_resp(self, waitpattern, timeout=60000, log_msg="logmsg", printmode="symbol"): 
+    def wait_resp(self, waitpattern, timeout=60000, log_msg="logmsg", printmode="symbol"):
         "goal of the method : this method waits for the data received from Com port"
         "INPUT : self.hCom : COM port object"
         "        waitpattern : the matching pattern for the received data"

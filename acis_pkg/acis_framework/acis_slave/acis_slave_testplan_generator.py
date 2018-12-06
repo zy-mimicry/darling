@@ -239,12 +239,6 @@ class Slave_testplan_prepare:
         test_log_fd = open(test_log_directory + "/" + self.envs.get_test_case_list().replace('.', '_') + ".log", "r")
         buffer_test_log = test_log_fd.read()
 
-        # if the lines >= 500, we should truncate it.
-        test_history_buffer = test_history_fd.readlines()
-        lines = len(test_history_buffer)
-        if lines >= 500:
-            test_history_fd.seek(0, 0)
-            test_history_fd.writelines(test_history_buffer[lines - 5:])
 
         for dut_serial_id, history in test_history.items():
             if "'serial_id': '{}'".format(dut_serial_id) in buffer_test_log:

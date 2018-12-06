@@ -57,6 +57,9 @@ class Slave_at_testplan_prepare(Slave_testplan_prepare):
                                                self.envs.get_test_script_directory_name() +
                                                self.case_relative_store_path)
 
+        if not os.path.basename(self.auto_generate_script_directory):
+            self.auto_generate_script_directory = self.auto_generate_script_directory[:-1]
+
         print(self.auto_generate_script_directory)
         shutil.copy(self.test_script_with_path, self.auto_generate_script_directory)
 
