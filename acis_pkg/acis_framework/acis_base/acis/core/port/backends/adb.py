@@ -7,6 +7,7 @@
 
 from acis.utils.log import peer
 import subprocess
+import threading,traceback
 from datetime import datetime
 from .at import _AT
 
@@ -19,6 +20,9 @@ class _ADB():
         self.serial_id = serial_id
 
         peer(self)
+
+    def __killSubProcess(self, proc):
+        proc.kill()
 
     def __repr__(self):
        return "<Class: {name} , serial id: {conf}>".format(name = _ADB.name,conf=self.serial_id)
@@ -34,6 +38,9 @@ class _ADB():
             peer(timeDisplay + " ADB " + self.serial_id + " ["+ cmd + "]")
 
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines = True)
+            t = threading.Timer(timeout, self.__killSubProcess, args = (p,))
+            t.start()
+
             output = p.communicate()[0]
 
             if command.strip() in ("shell init 6",
@@ -43,6 +50,21 @@ class _ADB():
                                    "reboot"):
                 peer("hook here reset.....")
                 _AT.objs[self.serial_id].close()
+
+            try:
+                if t is not None:
+                    if t.isAlive():
+                        peer("\nTerminate the monitoring process")
+                        t.cancel()
+                        peer("%s : Timer is cancelled" % datetime.now().strftime("%y/%m/%d %H:%M:%S"))
+                    else:
+                        peer("\nMonitoring process expired, script is killed")
+                else:
+                    peer("Timer expired ???")
+            except Exception as e:
+                peer(e)
+                traceback.print_exc()
+                peer("---->Problem when terminating mornitor process !!!")
 
             timeDisplay =  "(%0.2d:%0.2d:%0.2d:%0.3d) Rcv"%(dt.hour, dt.minute, dt.second, dt.microsecond/1000)
             diff_time = datetime.now() - start_time

@@ -18,7 +18,7 @@ class ACISMiscer():
 
     def __init__(self):
 
-        #self.limit_name = 'acis_testcases' # Maybe get this var from environment better.
+
         self.limit_name = 'testcases' # Maybe get this var from environment better.
 
         try:
@@ -43,10 +43,16 @@ class ACISMiscer():
         peer("Case Log Location: {}".format(log_path))
         return log_path
 
-    def misc_deal(self, log_file, logger_name, mail_to, port_names, conf_file = None):
+    def deal_cases_category(self, abs_file):
+        parent_dir  = os.path.dirname(abs_file)
+        self.parent_name = os.path.basename(parent_dir)
+        self.super_name  = os.path.basename(os.path.dirname(parent_dir))
+
+    def deal_misc(self, log_file, logger_name, port_names, abs_file, mail_to = "SWI@sierrawireless.com"):
         global hook_log
         hook_log = self.log = Log(self.deal_log_path(log_file), logger_name = logger_name)
         self.mMail = self.register_mail(mail_to)
+        self.deal_cases_category(abs_file)
         self.register_port(port_names)
         import acis.conf.tc_conf as tc
         self.conf = tc

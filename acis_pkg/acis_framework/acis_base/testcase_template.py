@@ -2,28 +2,24 @@
 # -*- coding: utf-8 -*-
 
 from acis.core.report import report
+import os
 
 """
-@ Information about this case or author, just like:
-
 @ Author:
-
-@ Test Cases TODO:
 @ Test Name:
 @ Brief:
 
 @ History
-Date                    Author                          Modification
+Date                    Fixer                           Modification
 2018-June-08            rzheng                          Create file
 ------------------------------------------------------------------------
 """
 
+template_file_parent_name = template_file_super_name = ""
+
 @report.fixture(scope="module")
 def m(request, minit):
     """
-    __file__    : logging module record log file.
-    logger_name : logger namespace of logging module.
-    mail_to     : where the mail to be send.
     port_names  : testcase registers ports [AT or ADB ...] from framework.
                 : ? DUT1   << map to '/etc/udev/rules.d/11-acis.rules' - 'DUT1'
                 : ? DUT2   << map to '/etc/udev/rules.d/11-acis.rules' - 'DUT2'
@@ -36,12 +32,16 @@ def m(request, minit):
                                     ]
     """
     mz =  minit(__file__,
-                logger_name = 'ACIS.SYSTEM.RESET.LINUX',
-                mail_to     = 'swi@sierrawireless.com',
+                logger_name = __name__,
+                abs_file = os.path.abspath(__file__),
                 port_names  = [
-                    'AT..any',
-                    'ADB..any',
+                    'AT..any',              #  << [Modify as needed]
+                    'ADB..any',             #  << [Modify as needed]
                 ])
+
+    global template_file_parent_name,template_file_super_name
+    template_file_parent_name = mz.parent_name
+    template_file_super_name  = mz.super_name
 
     mz.test_ID = __name__
     mz.errors = {}
@@ -51,41 +51,44 @@ def m(request, minit):
     request.addfinalizer(module_close_AT)
     return mz
 
-# Functions defined outside the class can still be used.
+# Functions defined outside the class can still be used. You can also place your function here.
+#####################################################################
 @report.step("[Stage] < out of class functions>")
 def out_of_class_function(m):
-    print("Out of class, get 'm' is :{}".format(m))
+    m.log("Out of class, get 'm' is :{}".format(m))
 
-# < ACIS report category >
-# divide categories according to the directory structure.
-# -- For example:
-# [directory]    >> testcases/System/ATcommand/ACIS_A_S_Test_Temp_Volt.py
-# report.epic    << report.epic("System")
-# report.feature << report.feature("ATcommand")
-# report.story   << report.story("ACIS_A_S_Test_Temp_Volt")
-# report.step    << This represents a series of steps performed.
+#####################################################################
 
-# < ACIS report links >
-# As long as the name URL is different, you can set multiple http links.
-# And you can specify the name you want.
-# -- For example:
-# report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: beauty<")
-# report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4442",name = ">JIRA: Awesome<")
-# report.link("https://issues.sierrawireless.com/browse/QTI9X28-4443", name = "=Gerrit: commit 01=")
 
-@report.epic("System")              # << should be modified to category
-@report.feature("ATcommand")        # << should be modified to feature
-@report.issue("https://issues.sierrawireless.com/browse/QTI9X28-4440",name = ">JIRA: ADC Body<")
-class ACISsystemReset(): # << should modify
+@report.epic(template_file_super_name)
+@report.feature(template_file_parent_name)
+@report.link("https://issues.sierrawireless.com/browse/QTI9X28-4443", name = "JIRA TICKET")
+class !AcisSystemReset!(): # << should be modified to test case name. <Written in hump format>
 
+    # Methods defined inside the class like this. You can place your method here.
+    # Please note that you should NOT name the function with 'test' or 'acis'.
+    # > Test_ or _test is wrong
+    # > Acis_ or _acis is wrong
+    # > ACIS_ or _ACIS is wrong
+    #####################################################################
+
+    def class_local_method(self,m):
+        m.log("01 Inside of class, get 'm' is : {}".format(m))
+
+    def class_local_method_02(self,m):
+        m.log("02 Inside of class, get 'm' is : {}".format(m))
+
+    #####################################################################
     @report.step("[Stage] <Pre-Condition>")
     def pre(self, m):
+        self.class_local_method(m)
         m.log("Stage [pre]")
         sim_ini = m.conf.SIM_INI
 
     @report.step("[Stage] <Real-Test-Body>")
     def body(self, m):
         m.log("Stage [body]")
+        self.class_local_method_02(m)
         m.at.any.send_cmd("AT\r")
         m.at.any.waitn_match_resp(["*\r\nOK\r\n"], 4000)
 
@@ -95,11 +98,9 @@ class ACISsystemReset(): # << should modify
         m.adb.any.send_cmd("shell \"poweroff\"")
         out_of_class_function(m)
 
-
-    @report.link("https://issues.sierrawireless.com/browse/QTI9X28-4443", name = "=Gerrit: commit 01=")
-    @report.story("test_case_name")           # << should be modified to test case name
+    @report.story(__name__)
     @report.mark.run(order=1)
-    def acis_mstage_entrance(self, m): # << should modify. MUST: testcase ID(file name)
+    def !TEST_CASE_NAME!(self, m): # << should modify. MUST: testcase ID(file name)
         """
         TODO:
         1. The test entrance.
