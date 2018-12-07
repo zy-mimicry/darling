@@ -1,0 +1,70 @@
+\hypertarget{namespacedoxygen__format__test}{\section{doxygen\-\_\-format\-\_\-test Namespace Reference}
+\label{namespacedoxygen__format__test}\index{doxygen\-\_\-format\-\_\-test@{doxygen\-\_\-format\-\_\-test}}
+}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{namespacedoxygen__format__test_a353de492e2aea248f9e0ae14a43520db}{myfunction}
+\begin{DoxyCompactList}\small\item\em Does nothing more than demonstrate syntax. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{namespacedoxygen__format__test_a353de492e2aea248f9e0ae14a43520db}{\index{doxygen\-\_\-format\-\_\-test@{doxygen\-\_\-format\-\_\-test}!myfunction@{myfunction}}
+\index{myfunction@{myfunction}!doxygen_format_test@{doxygen\-\_\-format\-\_\-test}}
+\subsubsection[{myfunction}]{\setlength{\rightskip}{0pt plus 5cm}def doxygen\-\_\-format\-\_\-test.\-myfunction (
+\begin{DoxyParamCaption}
+\item[{}]{arg1, }
+\item[{}]{arg2, }
+\item[{}]{kwarg = {\ttfamily 'whatever.'}}
+\end{DoxyParamCaption}
+)}}\label{namespacedoxygen__format__test_a353de492e2aea248f9e0ae14a43520db}
+
+
+Does nothing more than demonstrate syntax. 
+
+This is an example of how a Pythonic human-\/readable docstring can get parsed by doxypypy and marked up with Doxygen commands as a regular input filter to Doxygen.
+
+
+\begin{DoxyParams}{Parameters}
+{\em arg1} & A positional argument. \\
+\hline
+{\em arg2} & Another positional argument.\\
+\hline
+{\em kwarg} & A keyword argument.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A string holding the result.
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Zero\-Division\-Error} & \\
+\hline
+{\em Assertion\-Error} & \\
+\hline
+{\em Value\-Error.} & {\bfseries Examples} 
+\begin{DoxyCode}
+1 >>> \hyperlink{namespacedoxygen__format__test_a353de492e2aea248f9e0ae14a43520db}{myfunction}(2, 3)
+2 \textcolor{stringliteral}{'5 - 0, whatever.'}
+3 >>> \hyperlink{namespacedoxygen__format__test_a353de492e2aea248f9e0ae14a43520db}{myfunction}(5, 0, \textcolor{stringliteral}{'oops.'})
+4 Traceback (most recent call last):
+5     ...
+6 ZeroDivisionError: integer division \textcolor{keywordflow}{or} modulo by zero
+7 >>> \hyperlink{namespacedoxygen__format__test_a353de492e2aea248f9e0ae14a43520db}{myfunction}(4, 1, \textcolor{stringliteral}{'got it.'})
+8 \textcolor{stringliteral}{'5 - 4, got it.'}
+9 >>> \hyperlink{namespacedoxygen__format__test_a353de492e2aea248f9e0ae14a43520db}{myfunction}(23.5, 23, \textcolor{stringliteral}{'oh well.'})
+10 Traceback (most recent call last):
+11     ...
+12 AssertionError
+13 >>> \hyperlink{namespacedoxygen__format__test_a353de492e2aea248f9e0ae14a43520db}{myfunction}(5, 50, \textcolor{stringliteral}{'too big.'})
+14 Traceback (most recent call last):
+15     ...
+16 ValueError
+\end{DoxyCode}
+ \\
+\hline
+\end{DoxyExceptions}
+
+
+Definition at line 45 of file doxygen\-\_\-format\-\_\-test.\-py.
+

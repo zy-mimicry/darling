@@ -1,0 +1,7 @@
+<map id="acis.core.mail.mail_exceptions.MailException" name="acis.core.mail.mail_exceptions.MailException">
+<area shape="rect" id="node3" href="$classacis_1_1core_1_1mail_1_1mail__exceptions_1_1_bad_email_format_err.html" title="acis.core.mail.mail\l_exceptions.BadEmailFormatErr" alt="" coords="360,5,571,46"/>
+<area shape="rect" id="node4" href="$classacis_1_1core_1_1mail_1_1mail__exceptions_1_1_mail_match_type_err.html" title="acis.core.mail.mail\l_exceptions.MailMatchTypeErr" alt="" coords="364,70,567,111"/>
+<area shape="rect" id="node5" href="$classacis_1_1core_1_1mail_1_1mail__exceptions_1_1_mail_type_err.html" title="acis.core.mail.mail\l_exceptions.MailTypeErr" alt="" coords="382,135,549,177"/>
+<area shape="rect" id="node6" href="$classacis_1_1core_1_1mail_1_1mail__exceptions_1_1_unvaild_email_err.html" title="acis.core.mail.mail\l_exceptions.UnvaildEmailErr" alt="" coords="370,201,561,242"/>
+<area shape="rect" id="node7" href="$classacis_1_1core_1_1mail_1_1mail__exceptions_1_1_unvaild_port_of_mail_server.html" title="acis.core.mail.mail\l_exceptions.UnvaildPortOfMail\lServer" alt="" coords="364,265,567,321"/>
+</map>

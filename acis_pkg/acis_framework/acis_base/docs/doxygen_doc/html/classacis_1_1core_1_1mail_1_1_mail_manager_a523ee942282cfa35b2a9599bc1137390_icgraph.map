@@ -1,0 +1,7 @@
+<map id="acis.core.mail.MailManager.__group_match" name="acis.core.mail.MailManager.__group_match">
+<area shape="rect" id="node2" href="$classacis_1_1core_1_1mail_1_1_mail_manager.html#a822918b4572a6ae1cf31d061633c4994" title="&#39;mtype&#39; must be one of &#39;mail&#39;, &#39;group&#39;, &#39;server&#39;. " alt="" coords="241,70,426,111"/>
+<area shape="rect" id="node3" href="$classacis_1_1core_1_1mail_1_1_mail_manager.html#a0fc045bab012c17ce75c63064e7cef45" title="acis.core.mail.MailManager.register\l_named_mail" alt="" coords="475,5,703,46"/>
+<area shape="rect" id="node4" href="$classacis_1_1core_1_1mail_1_1_mail_manager.html#a8a047ea27a2deb088ae6c7fc45231f7b" title="acis.core.mail.MailManager.register\l_group" alt="" coords="475,70,703,111"/>
+<area shape="rect" id="node6" href="$classacis_1_1core_1_1mail_1_1_mail_manager.html#ad2db5393411768440f01be99caf1c107" title="&#39;server&#39; must be a instance of MailServer. " alt="" coords="475,135,703,177"/>
+<area shape="rect" id="node5" href="$classacis_1_1core_1_1mail_1_1_mail_manager.html#a528c0a8f1dbd7f9e4a68f0c3d6b98d7d" title="acis.core.mail.MailManager.\l_autoload" alt="" coords="753,103,938,145"/>
+</map>

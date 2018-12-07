@@ -1,0 +1,17 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML><HEAD></HEAD><BODY>
+<OBJECT type="text/site properties">
+<param name="FrameName" value="right">
+</OBJECT>
+<UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespacedoxygen__format__test.html"><param name="Name" value="doxygen_format_test"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="doxygen__format__test_8py.html"><param name="Name" value="doxygen_format_test.py"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespacedoxygen__format__test.html"><param name="Name" value="doxygen_format_test"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespacedoxygen__format__test.html#a353de492e2aea248f9e0ae14a43520db"><param name="Name" value="myfunction"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespacedoxygen__format__test.html#a353de492e2aea248f9e0ae14a43520db"><param name="Name" value="doxygen_format_test"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespacedoxygen__format__test.html#a353de492e2aea248f9e0ae14a43520db"><param name="Name" value="doxygen_format_test.py"></OBJECT>
+  </UL>
+</UL>
+</BODY>
+</HTML>

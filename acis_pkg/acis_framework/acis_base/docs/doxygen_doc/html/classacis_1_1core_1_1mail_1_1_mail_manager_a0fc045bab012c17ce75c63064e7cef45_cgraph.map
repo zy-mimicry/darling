@@ -1,0 +1,6 @@
+<map id="acis.core.mail.MailManager.register_named_mail" name="acis.core.mail.MailManager.register_named_mail">
+<area shape="rect" id="node2" href="$classacis_1_1core_1_1mail_1_1_mail_manager.html#a822918b4572a6ae1cf31d061633c4994" title="&#39;mtype&#39; must be one of &#39;mail&#39;, &#39;group&#39;, &#39;server&#39;. " alt="" coords="283,70,469,111"/>
+<area shape="rect" id="node3" href="$classacis_1_1core_1_1mail_1_1_mail_manager.html#ab3c647a1cbcd10a0a17701012e749db3" title="Finally, must create a MailList instance to map Mail. " alt="" coords="518,5,703,46"/>
+<area shape="rect" id="node4" href="$classacis_1_1core_1_1mail_1_1_mail_manager.html#a523ee942282cfa35b2a9599bc1137390" title="match group to mail instance. " alt="" coords="518,70,703,111"/>
+<area shape="rect" id="node5" href="$classacis_1_1core_1_1mail_1_1_mail_manager.html#ae803f60921967914b87df4fc83c5f58a" title="match server to mail instance. " alt="" coords="518,135,703,177"/>
+</map>
