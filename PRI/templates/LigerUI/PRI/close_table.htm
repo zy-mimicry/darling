@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Checkin request Info</title>     
+	<meta http-equiv="X-UA-Compatible" content="IE=8"/>
+    <link href="../LigerUI/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+    <link href="../LigerUI/lib/ligerUI/skins/Gray2014/css/all.css" rel="stylesheet" />
+    <script src="../LigerUI/lib/jquery/jquery-1.9.0.min.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/ligerui.all.js"></script>
+    <script src="../LigerUI/lib/jquery-validation/jquery.validate.min.js"></script>
+    <script src="../LigerUI/lib/jquery-validation/jquery.metadata.js"></script>
+    <script src="../LigerUI/lib/jquery-validation/messages_cn.js"></script>
+    <script type="text/javascript">
+        $(function ()
+        {
+           // $("#form1").ligerForm({
+            //    validate: true
+            //});
+        });
+
+ 
+    </script>
+    <style type="text/css">
+            body
+            {
+                padding-left:10px;
+                font-size:13px;
+            }
+            h1
+            {
+                font-size:20px;
+                font-family:Verdana;
+            }
+            h4
+            {
+                font-size:16px;
+                margin-top:25px;
+                margin-bottom:10px;
+            }
+
+            .description
+            {
+                padding-bottom:30px;
+                font-family:Verdana;
+            }
+            .description h3
+            {
+                color:#CC0000;
+                font-size:16px;
+                margin:0 30px 10px 0px;
+                padding:45px 0 8px;
+                border-bottom:solid 1px #888;
+            }
+        td {
+            padding: 5px;
+        }
+        input {
+            word-wrap:normal;
+            width:300px
+        }
+        select {
+            word-wrap:normal;
+            width:304px
+        }
+        textarea {
+            word-wrap:normal;
+            width:713px
+        }
+
+    </style>
+
+</head>
+
+<body style="padding:10px">
+ 
+     <h1>Checkin request Info</h1><font color=red>{{err|safe}}</font>
+       
+
+ <script type="text/javascript">
+   
+     function ligerDialog_close()
+     {
+        parent.$.ligerDialog.close(); //关闭弹出窗; //关闭弹出窗
+        parent.$(".l-dialog,.l-window-mask").css("display","none"); //只隐藏遮罩层
+     }
+     if ({{issucc}}) ligerDialog_close();
+     function valid()
+     {
+         var form = new liger.get("form1");
+         alert(form.valid());
+     }
+     function getData()
+     {
+         var form = new liger.get("form1");
+         var data = form.getData();
+         alert(JSON.stringify(data));
+     }
+     function setData()
+     {
+         var obj = {
+             username: "abc",
+             pwd: "1234",
+             area : "广东",
+             birthDay: "2020-11-12",
+             age : 45,
+             married: true,
+             depart : "2",
+             country1: "en",
+             country1_mul: "en;cn",
+             country2: "en",
+             country3: "en",
+             country4: "en",
+             country4_mul: "en;cn",
+         };
+         var form = new liger.get("form1");
+         form.setData(obj);
+     }
+      
+
+     function submitForm()
+     {
+         var data = {};
+         $("input,select,textarea").each(function ()
+         {
+             var name = $(this).attr("name");
+             if (name && name.indexOf('ligerui') == -1)
+             {
+                 data[name] = this.value;
+             }
+         });
+         alert(JSON.stringify(data));
+         
+     }
+     //set select box default value
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,392 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+	<meta http-equiv="X-UA-Compatible" content="IE=8"/>
+    <link href="../LigerUI/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+    </style>
+    <script src="../LigerUI/lib/jquery/jquery-1.9.0.min.js" type="text/javascript"></script>  
+    <script src="../LigerUI/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerCheckBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerResizable.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerComboBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerDateEditor.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+    <script type="text/javascript">
+            var selectbox={};
+        $(function (){
+            var mythis = '';
+            var isdirty = false;
+            var dialog = frameElement.dialog;
+            var dialogData = dialog.get('data');//get data param
+            var Columnobj='';
+            var FuzzyColumns=[];
+            if (dialogData.checkbox) {
+                check_list = dialogData.checkbox;
+                column_no=check_list.length;
+                for(var id in check_list){if (check_list[id].name=='Column') {Columnobj=check_list[id];break;}}
+            }
+            if (dialogData.inputbox) {
+                check_list = dialogData.inputbox;
+                column_no=check_list.length;
+                for(var id in check_list){if (check_list[id].name=='Fuzzy Enquiry' ||check_list[id].ctrl=='selFuzzyEnquiry') {FuzzyColumns=check_list[id].column.split(';');break;}}
+            }
+
+        
+            if (Columnobj)
+            tblhtml=f_init_inputex(dialogData,Columnobj,FuzzyColumns);
+            else
+            tblhtml=f_init_input(dialogData);
+            
+            
+        });
+        function f_select_all(obj) //select all
+        {   if (obj.id!='ALL') {return;}
+            $("#table input:checkbox[name='"+obj.name+"']").each(function () {
+                //if (this.checked == false)
+                {
+                    $(this).prop('checked', obj.checked); //for google browser
+                }
+            })
+        }
+        function f_select1(value,id)
+        {
+            value=value.split(';')[0];
+            if (value!='ALL'&& value!='None') return;
+                id=liger.get(id);
+            nmes=id.data;
+            newvalue='';
+            for (i=0,leni=nmes.length;i<leni;i++) {
+                if (value=='ALL') {
+                    if (nmes[i].id=='ALL') {continue; }
+                    if (nmes[i].id=='None') {continue;}
+                    newvalue=newvalue+(newvalue==''?'':';')+nmes[i].id;
+                }
+                if (value=='None') {newvalue='';}
+            }
+            id._changeValue(newvalue,newvalue);
+            id.updateStyle();
+        }
+        function f_is_in(value,values) {
+			value=value.toUpperCase();
+            for(var i in values){
+				if (value==values[i].toUpperCase()) return true;
+			}
+			return false;
+		}
+        
+        function f_init_inputex(dialogData,Columnobj,FuzzyColumns) 
+        {
+            tblhtml='';
+            datectrl_ids='';
+            filter_fmls_html='';
+            column_no=1;
+            ctrl_index=0;
+            ctrl_used=[];
+        if (dialogData.checkbox) {
+            check_list = dialogData.checkbox;
+            column_no=check_list.length;
+            if (Columnobj.ctrl) {
+                ctrl=Columnobj.ctrl;
+                myobj=$(window.parent.document).find("input[id='"+ctrl+"']");
+                Columnobjvalue=myobj.val();
+                //if (value=='' && check_list[id].value) {value=check_list[id].value;}
+            } else {
+                ctrl='';
+                Columnobjvalue=Columnobj.value;
+            }
+            Columnobjvalues=myreplace_1(Columnobjvalue).replace(/\]\[/g,';').replace(/\]/g,'').replace(/\[/g,'').replace(/TMO/g,'T-Mobile').split(';');
+            columntexts=('ALL;'+myreplace_1(Columnobj.text)).split(';');
+                trtemp='<tr height="18"><td>Show Column</td><td>Filter</td></tr>';
+                temphtml='<tr bgcolor="#CDCDCD" height="22"><td><b>Show Column</b></td><td><b>Filter (The columns contains * support Fuzzy Enquiry)</b></td></tr>';
+            ctrl_no=columntexts.length;
+            for(var it in columntexts){
+                ctrl_id=parseInt( it,10 );
+                trhtml=trtemp;
+                columnchecked='';
+                for(var iv in Columnobjvalues){
+                    ivstr=Columnobjvalues[iv].toUpperCase();
+                    itstr=columntexts[it].toUpperCase();
+                    if (ivstr==itstr) {columnchecked=' checked ';break}
+                }
+                tdFilterhtml='';
+                tdShowhtml='<label><input title="'+Columnobj.ctrl+'" type=checkbox name="'+Columnobj.name+'" id="'+columntexts[it]+'" '+columnchecked+' onclick="f_select_all(this)" >'+(columntexts[it]=='Key'?'Ticket Type(ID)':columntexts[it])+(f_is_in(columntexts[it],FuzzyColumns)?'*':'')+'</label>';
+                //tdLogichtml='<label><input title="'+Columnobj.ctrl+'" type=radio name="'+Columnobj.name+'" id="'+columntexts[it]+'_and" '+columnchecked+' onclick="alert(this)" >and</label>';
+                //tdLogichtml=tdLogichtml+' <input title="'+Columnobj.ctrl+'" type=radio name="'+Columnobj.name+'" id="'+columntexts[it]+'_or" '+columnchecked+' onclick="alert(this)" >'+''+'or</label>';
+                trhtml=trhtml.replace('Show Column',tdShowhtml);
+                //trhtml=trhtml.replace('Show',tdShowhtml);
+                //trhtml=trhtml.replace('Logic',tdLogichtml);
+              check_list = dialogData.checkbox;
+              for(var id in check_list) {
+                ismatch=false;
+                if (check_list[id].name=='Column') continue;
+                if (f_is_in(ctrl_id.toString(),ctrl_used)) continue;
+                if (check_list[id].column.toUpperCase()==columntexts[it].toUpperCase()) ismatch=true;
+                if (!ismatch) continue;
+                //alert(columntexts[it]+' vs '+check_list[id].column+'=='+ismatch);
+                //tmphtml=' '+check_list[id].name+' ';
+                ctrl=check_list[id].ctrl?check_list[id].ctrl:'';
+                if (check_list[id].ctrl) {
+                    ctrl=check_list[id].ctrl;
+                    myobj=$(window.parent.document).find("input[id='"+ctrl+"']");
+                    value=myobj.val();
+                    //if (value=='' && check_list[id].value) {value=check_list[id].value;}
+                } else {
+                    ctrl='';
+                    value=check_list[id].value;
+                }
+                value=myreplace_1(value).replace(/\]\[/g,';').replace(/\]/g,'').replace(/\[/g,'').replace(/TMO/g,'T-Mobile');
+                text='ALL;None;'+myreplace_1(check_list[id].text);
+                alltext=[];
+                values=value.split(';');
+                texts=text.split(';');
+                for(var it in texts){
+                    checked='';
+                    for(var iv in values){
+                        ivstr=values[iv].toUpperCase();
+                        itstr=texts[it].toUpperCase();
+                        if (ivstr==itstr) {checked=' checked ';break}
+                        if (ivstr=='AR758X' && itstr.indexOf('AR758')>-1) {checked=' checked ';break}
+                        if (ivstr=='AR759X' && itstr.indexOf('AR759')>-1) {checked=' checked ';break}
+                    }
+                    //tdFilterhtml=tdFilterhtml+' <label><input title="'+ctrl+'" type=checkbox name="'+check_list[id].name+'" id="'+texts[it]+'" '+checked+' onclick="f_select_all(this)" >'+(texts[it]?texts[it]:'NULL')+'</label>';
+                    alltext.push({text:texts[it],id:texts[it]});
+                }
+                ctrl_index=ctrl_id;
+                ctrl_used.push(ctrl_id.toString());
+                selectbox['ctrl_'+ctrl_index.toString()]=[alltext,value,size,'ctrl_'+ctrl_index.toString()];
+                tdFilterhtml='<input ondblclick="f_set_default(\''+check_list[id].value+'\')" style="width:'+size+'px" title="'+ctrl+'" type=text  id="ctrl_'+ctrl_index.toString()+'" name="'+check_list[id].name+'" value="'+value+'">';
+              }
+            if (dialogData.inputbox) {
+              check_list = dialogData.inputbox;
+              for(var id in check_list){
+                ismatch=false;
+                if (check_list[id].name=='Column') continue;
+                if (f_is_in(ctrl_id.toString(),ctrl_used)) continue;
+                if (check_list[id].column.toUpperCase()==columntexts[it].toUpperCase()) ismatch=true;
+                if (columntexts[it].toUpperCase()=='ALL' && check_list[id].column.indexOf(';')>-1) ismatch=true;
+                tmphtml=' '+check_list[id].name+' ';
+                ctrl=check_list[id].ctrl?check_list[id].ctrl:'';
+                size=check_list[id].size?check_list[id].size:'';
+                if (check_list[id].ctrl) {
+                    ctrl=check_list[id].ctrl;
+                    myobj=$(window.parent.document).find("input[id='"+ctrl+"']");
+                    value=myobj.val();
+                    //if (value=='' && check_list[id].value) {value=check_list[id].value;}
+                } else {
+                    ctrl='';
+                    value=check_list[id].text;
+                }
+                if (!filter_fmls_html && check_list[id].column=='filter_fmls') {
+                    ctrl_index=ctrl_no;
+                    inputhtml='<input ondblclick="f_set_default(\''+check_list[id].value+'\')" style="width:'+size+'px" title="'+ctrl+'" type=text  id="ctrl_'+ctrl_index.toString()+'" name="'+check_list[id].name+'" value="'+value+'">';
+                    filter_fmls_html='<tr><td>'+check_list[id].name+'</td><td>'+inputhtml+'</td></tr>';
+                }
+                if (!ismatch) continue;
+                ctrl_index=ctrl_id;
+                ctrl_used.push(ctrl_id.toString());
+                if (check_list[id].text=='date') {
+                    datectrl_ids=datectrl_ids+(datectrl_ids?';ctrl_':'ctrl_')+ctrl_index.toString();
+                }
+                inputhtml='<input ondblclick="f_set_default(\''+check_list[id].value+'\')" clickno=0 style="width:'+size+'px" title="'+ctrl+'" type=text  id="ctrl_'+ctrl_index.toString()+'" name="'+check_list[id].name+'" value="'+value+'">';
+                if (check_list[id].text=='date2') {
+                    datectrl_ids=datectrl_ids+(datectrl_ids?';ctrl_':'ctrl_')+ctrl_index.toString();
+                    values=(value+';').split(';');
+                    inputhtml='<input style="width:'+size+'px" title="'+ctrl+'" type=text  id="ctrl_'+ctrl_index.toString()+'" name="'+check_list[id].name+'" value="'+values[0]+'">';
+                    inputhtml1='<td> '+inputhtml+' </td>';
+                    ctrl_index=ctrl_id+ctrl_no;
+                    datectrl_ids=datectrl_ids+(datectrl_ids?';ctrl_':'ctrl_')+ctrl_index.toString();
+                    inputhtml2='<input style="width:'+size+'px" title="'+ctrl+'" type=text  id="ctrl_'+ctrl_index.toString()+'" name="'+check_list[id].name+'" value="'+values[1]+'">';
+                    inputhtml2='<td> '+inputhtml2+' </td>';
+                    inputhtml='<table><tr>'+inputhtml1+inputhtml2+'</tr></table>'
+                }
+                tdFilterhtml=tdFilterhtml+inputhtml;
+              }  
+            }
+                trhtml=trhtml.replace('Filter',tdFilterhtml);
+                temphtml=temphtml+trhtml;
+              
+                
+            }
+          }
+          if (filter_fmls_html) {
+            temphtml=temphtml+filter_fmls_html;
+          }
+
+            tblhtml='<table>'+temphtml+'</table>';
+            if (1) {
+                $("#table").html(tblhtml);
+                texts=datectrl_ids.split(';');
+                for(var it in texts){
+                    $("#"+texts[it]+"").ligerDateEditor({onChangeDate:function() {$("#"+texts[it]+"").focus();}, });
+                }
+                for(var it in selectbox){
+                    eval('f_select1func=function (newvalue) {f_select1(newvalue,"'+it+'")}');
+                    $("#"+it+"").ligerComboBox({ width:selectbox[it][2],isShowCheckBox: true, isMultiSelect: true,data: selectbox[it][0], value : selectbox[it][1], onChangeValue: f_select1func }); 
+                }
+            }
+        $(document).ready(function(){ $("#table input:eq(1)").focus();});
+          return tblhtml;
+        }
+        function f_init_input(dialogData) 
+        {
+            tblhtml='';
+            datectrl_ids='';
+            column_no=1;
+            ctrl_index=0;
+          if (dialogData.checkbox) {
+            check_list = dialogData.checkbox;
+            column_no=check_list.length;
+
+            for(var id in check_list){
+                tmphtml=' '+check_list[id].name+' ';
+                ctrl=check_list[id].ctrl?check_list[id].ctrl:'';
+                if (check_list[id].ctrl) {
+                    ctrl=check_list[id].ctrl;
+                    myobj=$(window.parent.document).find("input[id='"+ctrl+"']");
+                    value=myobj.val();
+                    //if (value=='' && check_list[id].value) {value=check_list[id].value;}
+                } else {
+                    ctrl='';
+                    value=check_list[id].value;
+                }
+                values=myreplace_1(value).replace(/\]\[/g,';').replace(/\]/g,'').replace(/\[/g,'').replace(/TMO/g,'T-Mobile').split(';');
+                texts=('ALL;'+myreplace_1(check_list[id].text)).split(';');
+                for(var it in texts){
+                    checked='';
+                    for(var iv in values){
+                        ivstr=values[iv].toUpperCase();
+                        itstr=texts[it].toUpperCase();
+                        if (ivstr==itstr) {checked=' checked ';break}
+                        if (ivstr=='AR758X' && itstr.indexOf('AR758')>-1) {checked=' checked ';break}
+                        if (ivstr=='AR759X' && itstr.indexOf('AR759')>-1) {checked=' checked ';break}
+                    }
+                    ctrl_index+=1;
+                    tmphtml=tmphtml+'<br/><label><input title="'+ctrl+'" type=checkbox name="'+check_list[id].name+'" id="'+texts[it]+'" '+checked+' onclick="f_select_all(this)" >'+(texts[it]?texts[it]:'NULL')+'</label>';
+                }
+                tblhtml=tblhtml+'<td valign="top">'+tmphtml+'</td>';
+            }
+            tblhtml='<tr>'+tblhtml+'</tr>';
+          }
+          if (dialogData.inputbox) {
+            check_list = dialogData.inputbox;
+            for(var id in check_list){
+                tmphtml=' '+check_list[id].name+' ';
+                ctrl=check_list[id].ctrl?check_list[id].ctrl:'';
+                size=check_list[id].size?check_list[id].size:'';
+                if (check_list[id].ctrl) {
+                    ctrl=check_list[id].ctrl;
+                    myobj=$(window.parent.document).find("input[id='"+ctrl+"']");
+                    value=myobj.val();
+                    //if (value=='' && check_list[id].value) {value=check_list[id].value;}
+                } else {
+                    ctrl='';
+                    value=check_list[id].text;
+                }
+                ctrl_index+=1;
+                if (check_list[id].text=='date') {
+                    datectrl_ids=datectrl_ids+(datectrl_ids?';ctrl_':'ctrl_')+ctrl_index.toString();
+                }
+                inputhtml='<input style="width:'+size+'px" title="'+ctrl+'" type=text  id="ctrl_'+ctrl_index.toString()+'" name="'+check_list[id].name+'" value="'+value+'">';
+                if (check_list[id].text=='date2') {
+                    datectrl_ids=datectrl_ids+(datectrl_ids?';ctrl_':'ctrl_')+ctrl_index.toString();
+                    values=(value+';').split(';');
+                    inputhtml='<input style="width:'+size+'px" title="'+ctrl+'" type=text  id="ctrl_'+ctrl_index.toString()+'" name="'+check_list[id].name+'" value="'+values[0]+'">';
+                    inputhtml1='<td> '+inputhtml+' </td>';
+                    ctrl_index+=1;
+                    datectrl_ids=datectrl_ids+(datectrl_ids?';ctrl_':'ctrl_')+ctrl_index.toString();
+                    inputhtml2='<input style="width:'+size+'px" title="'+ctrl+'" type=text  id="ctrl_'+ctrl_index.toString()+'" name="'+check_list[id].name+'" value="'+values[1]+'">';
+                    inputhtml2='<td> '+inputhtml2+' </td>';
+                    inputhtml='<table "><tr>'+inputhtml1+inputhtml2+'</tr></table>'
+                }
+                tmphtml='<tr><td ><label ondblclick="$(\'#ctrl_'+ctrl_index.toString()+'\').val(this.title)" title="'+check_list[id].value+'">'+check_list[id].name+':</label></td><td colspan="'+(column_no-1).toString()+'">'+inputhtml+''+''+'</td></tr>';
+                tblhtml=tblhtml+tmphtml;
+              }  
+          }
+            if (1) {
+                $("#table").html(tblhtml);
+                texts=datectrl_ids.split(';');
+                for(var it in texts){
+                    $("#"+texts[it]+"").ligerDateEditor({onChangeDate:function() {$("#"+texts[it]+"").focus();}, });
+                }
+            }
+        $(document).ready(function(){ $("#table input:eq(0)").focus();});
+          return tblhtml;
+        }
+        function f_set_default(val) 
+		{
+
+			if (event.target.value!=val && confirm("Do you want to reset to the default Value?")) {
+				event.target.value=val;
+				id=liger.get(event.target.id);
+				if (id) {
+					id._changeValue(val,val);
+					id.updateStyle();
+				}
+			}
+		}
+        function f_empty_input()
+        {
+            $("#table input:checkbox").each(function () {
+                myobj=$(window.parent.document).find("input[id='"+this.title+"']");
+                myobj.val('');
+            });
+            $("#table input:text").each(function () {
+                myobj=$(window.parent.document).find("input[id='"+this.title+"']");
+                myobj.val('');
+            })
+        }
+        
+        function f_ok()
+        { 
+            var str = "";
+            f_empty_input();
+            $("#table input:checkbox").each(function () {
+                if (this.checked == true)
+                {
+                    if (this.id != 'ALL')
+                    {   
+                        myobj=$(window.parent.document).find("input[id='"+this.title+"']");
+                        str=myobj.val();
+                        str = str+(str?';':'') + myreplace_2(this.id);
+                        myobj.val(str);
+                    }
+                }
+            });
+            $("#table input:text").each(function () {
+                        myobj=$(window.parent.document).find("input[id='"+this.title+"']");
+                        str=myobj.val();
+                        str = str+(str?';':'') + (selectbox[this.id]?myreplace_2(this.value):this.value);
+                        myobj.val(str);
+            });
+            isdirty=true;
+            ligerDialog_close();
+        }
+        function myreplace_1(str) {return str.replace(/_/g,'\.').replace(/ /g,'_').replace(/\"/g,'@');} 
+        function myreplace_2(str) {return str.replace(/_/g,' ').replace(/\./g,'_').replace(/@/g,'\"');} 
+        //function myreplace_1(str) {return str.replace(/ /g,'.').replace(/\"/g,'@');} 
+        //function myreplace_2(str) {return str.replace(/\./g,' ').replace(/@/g,'\"');} 
+        function set_dialog(dlg) {mythis=dlg;} 
+        function mykeypress() 
+        {
+        //alert(event.which);
+        if(event.which==13) {f_ok();}
+        if(event.which==27) ligerDialog_close();
+        }
+         function ligerDialog_close()
+         {  mythis.close();
+            //parent.$.ligerDialog.close(); 
+            //parent.$(".l-dialog,.l-window-mask").css("display","none");
+         }
+    </script>
+</head>
+<body style="padding:5px">
+<table id="table" width="100%" height="100%" onkeyup="mykeypress()">
+ </table>
+ 
+</div>
+</body>
+</html>

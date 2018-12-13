@@ -1,0 +1,33 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Login</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=8"/>
+</head>
+<body>
+        <div class="adminBord">
+            <form method="post" enctype="multipart/form-data" action="/login/" >
+                {% csrf_token %}
+         <table>
+            <tr><td></td><td></td></tr>
+            {{comments_start|safe}}
+            <tr>
+                <td><label>User Name:</label></td>
+                <td><input id="username" name="username" type="text" value="{{username}}"/></td>
+            </tr>
+            <tr>
+                <td><label>Password:</label></td>
+                <td><input id="password" name="password" type="password" value="" /></td>
+            </tr>
+            <tr><td></td><td></td></tr>
+            <tr>
+                <td></td><td colspan=1><input type="submit" value="login" style="font-size: 16px;width:120px;" id="loging"></td>
+            </tr>
+            {{comments_end|safe}}
+            <tr><td colspan=2  align=center>{{err|safe}}</td></tr>
+         </table>
+                
+            </form>
+        </div>
+</body>
+</html>

@@ -6,7 +6,7 @@
 """
 
 from acis.utils.log import peer
-import subprocess
+import subprocess,os,signal
 import threading,traceback
 from datetime import datetime
 from .at import _AT
@@ -22,7 +22,7 @@ class _ADB():
         peer(self)
 
     def __killSubProcess(self, proc):
-        proc.kill()
+        proc.terminate()
 
     def __repr__(self):
        return "<Class: {name} , serial id: {conf}>".format(name = _ADB.name,conf=self.serial_id)
@@ -37,7 +37,9 @@ class _ADB():
             cmd = 'adb -s %s %s' % (self.serial_id, command)
             peer(timeDisplay + " ADB " + self.serial_id + " ["+ cmd + "]")
 
-            p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines = True)
+            #p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines = True)
+            # > 'exec ' + cmd can FIX the process kill issue
+            p = subprocess.Popen("exec " + cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines = True)
             t = threading.Timer(timeout, self.__killSubProcess, args = (p,))
             t.start()
 
@@ -48,19 +50,19 @@ class _ADB():
                                    "shell \"poweroff\"",
                                    "reboot-bootloader",
                                    "reboot"):
-                peer("hook here reset.....")
+                peer("framework hook <Module reboot> commands [{}]".format(command.strip()))
                 _AT.objs[self.serial_id].close()
 
             try:
                 if t is not None:
                     if t.isAlive():
-                        peer("\nTerminate the monitoring process")
+                        peer("Terminate the monitoring process")
                         t.cancel()
                         peer("%s : Timer is cancelled" % datetime.now().strftime("%y/%m/%d %H:%M:%S"))
                     else:
-                        peer("\nMonitoring process expired, script is killed")
+                        peer("Monitoring process expired, actively kill the thread.")
                 else:
-                    peer("Timer expired ???")
+                    peer("Timer NOT set.")
             except Exception as e:
                 peer(e)
                 traceback.print_exc()

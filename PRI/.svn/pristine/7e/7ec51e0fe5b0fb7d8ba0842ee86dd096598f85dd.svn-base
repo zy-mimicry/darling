@@ -1,0 +1,248 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+	<meta http-equiv="X-UA-Compatible" content="IE=8"/>
+    <link href="../LigerUI/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+    <script src="../LigerUI/lib/jquery/jquery-1.9.0.min.js" type="text/javascript"></script>  
+    <script src="../LigerUI/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerCheckBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerResizable.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerComboBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerDateEditor.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerRadio.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $(function (){
+            var mythis = '';
+            var isdirty = false;
+            var dialog = frameElement.dialog;
+            var dialogData = dialog.get('data');//get data param
+
+            $("input[id='FuzzyQuery']").val(dialogData.FuzzyQuery)
+            $("input[id='txtStartDate']").val(dialogData.StartCreatedDate);
+            $("input[id='txtEndDate']").val(dialogData.EndCreatedDate);
+            
+            $("input[name='Status'][value='"+dialogData.StatusOp+"']").attr("checked",true);
+            $("input[name='CreateDate'][value='"+dialogData.CreatedDateOp+"']").attr("checked",true);
+            
+            factory_list = dialogData.FactoryName.split(';')
+            for(var id in factory_list){
+               $("input[name='factory_chbox'][value='"+factory_list[id]+"']").attr("checked", true);
+            }
+            
+            column_list = dialogData.ColumnName.split(';')
+            for(var id in column_list){
+                if (column_list[id] != 'undefined')
+                {
+                    $("input[name='column_chbox'][value='"+column_list[id]+"']").attr("checked", true);
+                }
+            }
+            
+            check_list = dialogData.StatusName.split(';')
+            for(var id in check_list){
+                $("input[name='chbox'][value='"+check_list[id]+"']").attr("checked", true);
+            }
+        });
+        status_num=0;
+        column_num=0;
+        factory_num=0;
+        function select_all(chbox_name)
+        {
+            var s=document.getElementsByName(chbox_name);
+            if(chbox_name == 'chbox') {k=status_num;}
+            else if(chbox_name == 'column_chbox') {k=column_num;}
+            else if(chbox_name == 'factory_chbox') {k=factory_num;}
+            
+            if(k%2==0)
+            { 
+                for(var i=0;i< s.length;i++) 
+                { 
+                    s[i].checked=true; 
+                } 
+                k++; 
+            }
+            else { 
+                for(var j=0;j< s.length;j++) 
+                { 
+                    s[j].checked=false; 
+                } 
+                k++; 
+            }
+            
+            if(chbox_name == 'chbox') {status_num=k;}
+            else if(chbox_name == 'column_chbox') {column_num=k;}
+            else if(chbox_name == 'factory_chbox') {factory_num=k;}
+        };
+        function f_ok()
+        { 
+            var str = "";
+            var str_column = "";
+            var str_factory = "";
+            
+            $("#table input[name=chbox]").each(function () {
+                if (this.checked == true)
+                {
+                    if ($(this).val() != 'ALL') {str += $(this).val() + ";";}
+                }
+            });
+            str = str.substring(0,str.length-1);
+            
+            $("#table input[name=column_chbox]").each(function () {
+                if (this.checked == true)
+                {
+                    if ($(this).val() != 'ALL'){str_column += $(this).val() + ";";}
+                }
+            });
+            str_column = str_column.substring(0,str_column.length-1);
+
+            $("#table input[name=factory_chbox]").each(function () {
+                if (this.checked == true)
+                {
+                    if ($(this).val() != 'ALL') {str_factory += $(this).val() + ";";}
+                }
+            });
+            str_factory = str_factory.substring(0,str_factory.length-1);
+
+            $(window.parent.document).find("input[id='txtStatus']").val(str);
+            $(window.parent.document).find("input[id='txtColumnName']").val(str_column); 
+            $(window.parent.document).find("input[id='txtStartCreateDate']").val($("#txtStartDate").val());
+            $(window.parent.document).find("input[id='txtEndCreateDate']").val($("#txtEndDate").val());
+            $(window.parent.document).find("input[id='txtFuzzyQuery']").val($("#FuzzyQuery").val());
+            $(window.parent.document).find("input[id='txtFactory']").val(str_factory);
+            
+            $(window.parent.document).find("input[id='txtStatusOp']").val($("input[name='Status']:checked").val()); 
+            $(window.parent.document).find("input[id='txtCreatedDateOp']").val($("input[name='CreateDate']:checked").val());
+            
+            isdirty=true;
+            ligerDialog_close();
+        }
+        function set_dialog(dlg) {mythis=dlg;} 
+        function mykeypress() 
+        {
+            if(event.which==13) {f_ok();}
+            if(event.which==27) ligerDialog_close();
+        }
+         function ligerDialog_close()
+         {  
+            mythis.close();
+         }
+        $(document).ready(function(){ $("#table input:last").focus();});
+    </script>
+</head>
+<body style="padding:10px">
+<table id="table" width="100%" height="100%" onkeyup="mykeypress()">
+    <tr>
+        <td><label>FuzzyQuery:</label>
+    </tr>
+    <tr>
+        <td><input type="text" id="FuzzyQuery" value="" /></td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>    
+    <tr>
+        <td><label>CreatedDate :</label>
+            <label><input name="CreateDate" type="radio" value="and" checked="checked" />and </label>
+            <label><input name="CreateDate" type="radio" value="or" />or </label> </td>
+    </tr>
+    <tr>
+        <td><input id="txtStartDate" name="StartCreatedDate" type="text" /></td>
+        <td><input id="txtEndDate" name="EndCreatedDate" type="text" /></td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+    <tr>
+        <td><label>Status :</label>
+            <label><input name="Status" type="radio" value="and" checked="checked" />and </label>
+            <label><input name="Status" type="radio" value="or" />or </label> </td>
+        <td><label>Column :</label></td>
+        <td><label>Factory :</label></td>
+    </tr>
+    <tr>
+        <td><label><input type='checkbox' value="ALL" onclick="select_all('chbox')"/>ALL</label></td>
+        <td><label><input type='checkbox' value="ALL" onclick="select_all('column_chbox')"/>ALL</label></td>
+        <td><label><input type='checkbox' value="ALL" onclick="select_all('factory_chbox')"/>ALL<label></td>        
+    </tr>
+    <tr>
+        <td><label><input type='checkbox' name='chbox' value="Validated" />Validated</label></td>
+        <td><label><input type='checkbox' name='column_chbox' value="id" />ID</label></td>
+        <td><label><input type='checkbox' name='factory_chbox' value="True" />True<label></td>        
+    </tr>
+    <tr>
+        <td><label><input type='checkbox' name='chbox' value="Integrated" />Integrated</label></td>
+        <td><label><input type='checkbox' name='column_chbox' value="Key" />Key</label></td>
+        <td><label><input type='checkbox' name='factory_chbox' value="False" />False<label></td>    
+    </tr>
+    <tr>
+        <td><label><input type='checkbox' name='chbox' value="Closed" />Closed</label></td>
+        <td><label><input type='checkbox' name='column_chbox' value="IsFactory" />Factory</label></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td><label><input type='checkbox' name='chbox' value="Reviewed" />Reviewed</label></td>
+        <td><label><input type='checkbox' name='column_chbox' value="SkuNumber" />SKU Number</label></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td><label><input type='checkbox' name='chbox' value="Generated" />Generated</label></td>
+        <td><label><input type='checkbox' name='column_chbox' value="PartNumber" />Part Number</label></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td><label><input type='checkbox' name='chbox' value="In Progress" />In Progress</label></td>
+        <td><label><input type='checkbox' name='column_chbox' value="Status" />Status</label></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td><label><input type='checkbox' name='chbox' value="Open" />Open</label></td>
+        <td><label><input type='checkbox' name='column_chbox' value="CreatedDate" />Created</label></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td><label><input type='checkbox' name='chbox' value="Tested" />Tested</label></td>
+        <td><label><input type='checkbox' name='column_chbox' value="DueDate" />Due Date</label></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td><label><input type='checkbox' name='column_chbox' value="Components" />Components</label></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td><label><input type='checkbox' name='column_chbox' value="Assignee" />Assignee</label></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td><label><input type='checkbox' name='column_chbox' value="Reporter" />Reporter</label></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td><label><input type='checkbox' name='column_chbox' value="ProjID" />SKU Tracker</label></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td><label><input type='checkbox' name='column_chbox' value="AgileID" />Agile</label></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td><label><input type='checkbox' name='column_chbox' value="Customers" />Customers</label></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td><label><input type='checkbox' name='column_chbox' value="WorkPackage" />Work Package</label></td>
+        <td>&nbsp;</td>
+    </tr>
+</table>
+
+<script type="text/javascript">
+$("#txtStartDate").ligerDateEditor();
+$("#txtEndDate").ligerDateEditor();
+</script>
+</body>
+</html>
