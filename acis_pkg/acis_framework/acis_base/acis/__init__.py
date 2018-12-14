@@ -36,12 +36,15 @@ class ACISMiscer():
 
     def deal_log_path(self, case_file):
 
-        path = case_file.split('/')
-        path = path[path.index(self.limit_name)+1:]
-        path[-1] = path[-1].replace('.py', '.log')
-        self.which_log = log_path = self.prefix + '/' + self.limit_name + '/' + '/'.join(path)
-        peer("Case Log Location: {}".format(log_path))
-        return log_path
+        dname,fname = os.path.split(case_file)
+        dname = dname.split(self.limit_name + '/')[1]
+        mprefix = self.prefix + '/' + self.limit_name + '/' + dname + '/'
+        self.which_log = mprefix + fname.replace('.py', '.log')
+        self.case_output = mprefix + fname.replace('.py', '')
+        if not os.path.exists(self.case_output):
+            os.makedirs(self.case_output, mode=0o755)
+        peer("Case Log Location: {}".format(self.which_log))
+        return self.which_log
 
     def deal_cases_category(self, abs_file):
         parent_dir  = os.path.dirname(abs_file)
