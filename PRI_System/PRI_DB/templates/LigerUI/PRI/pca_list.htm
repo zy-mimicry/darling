@@ -1,0 +1,780 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>PRI_System: OEMPRI Manager</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=8"/>
+    <link href="../LigerUI/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+    <script src="../LigerUI/lib/jquery/jquery-1.9.0.min.js" type="text/javascript"></script>
+    <link href="../LigerUI/lib/ligerUI/skins/ligerui-icons.css" rel="stylesheet" type="text/css" />
+    <script src="../LigerUI/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerGrid.js" type="text/javascript"></script> 
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerResizable.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerTextBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerCheckBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerComboBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerGrid.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerDateEditor.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerSpinner.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerListBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerButton.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/core/inject.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerToolBar.js" type="text/javascript"></script>
+<style type="text/css"> 
+ a {text-decoration:none;}
+ </style>
+
+    <!--script src="../CustomersData.js" type="text/javascript"></script-->
+    <script type="text/javascript">
+        var g;
+		var    f_open_data;
+        var    columns_data;
+        var    columns_all;
+        var    columns_ids;
+        var    Status_all={};
+        var    Status_val={};
+        var    selfilter_fmls='';
+		var	my_view={};
+        $(function () {
+            g = $("#maingrid4").ligerGrid({
+                columns: [
+                { display: 'ID', name: 'id', align: 'left', width: 40, hide:true,//frozen: true, 
+                    render: function (record, rowindex, value, column) {
+                        myurl='/pri_db/?op=query&tb=pca_list&id=' + value ;
+                        return "<a href=# onclick='$.ligerDialog.open({ title:\"PRI_System\",width: 900,height: 690,url: \""+myurl+"\" });return false;'>"+value+"</a>";
+                    }, 
+                },
+                { display: 'Product', name: 'Product',  align: 'left', width: 60, },
+                { display: 'Customer', name: 'Customer',  align: 'left', width: 100, },
+                { display: 'SKU', name: 'SKU',  align: 'left', width: 60, },
+                { display: 'PCA#', name: 'PcaNumber',  align: 'left', width: 60, },
+                { display: 'PCA', name: 'PcaDesc',  align: 'left', width: 200, hide:true, },
+                { display: 'PID', name: 'ProductId',  align: 'left', width: 40, },
+                { display: 'FSN', name: 'FSN',  align: 'left', width: 120, },
+                { display: 'VM', name: 'VM',  align: 'left', width: 150, },
+                { display: 'Result', name: 'Result',  align: 'left', width: 80, },
+                { display: 'TestOn', name: 'TestOn',  align: 'left', width: 80, hide:true, },
+                { display: 'TestPrg', name: 'TestPrg',  align: 'left', width: 80, hide:true, },
+                { display: 'EnvStatus', name: 'EnvStatus',  align: 'center', width: 80,
+                    render: function (record, rowindex, value, column) {
+                        myurl='/pri_db/?op=query&tb=pca_list&id=' + record.id ;
+                        html= "<a href=# onclick='$.ligerDialog.open({ title:\"PRI_System\",width: 900,height: 690,url: \""+myurl+"\" });return false;'>"+value+"</a>";
+                        if ('busy'==value) {
+                            return "<div style='background-color:yellow;'>"+html+"</div>";
+                        } else {
+                            return html;
+                        }
+                        
+                    }, 
+                },
+                { display: 'MntStatus', name: 'MntStatus',  align: 'center', width: 80, },
+                { display: 'Result', name: 'Result',  align: 'center', width: 80, },
+                { display: 'Description', name: 'Description',  align: 'left', width: 300, hide:true,},
+                { display: 'Updated', name: 'UpdateDate',  align: 'left', width: 140,
+                    render: function (record, rowindex, value, column) {
+                        errtime=getdate(1,60*60*1000);
+                        if (errtime>value) {
+                            return "<div style='background-color:red;'>"+value+"</div>";
+                        } else {
+                            return "<div>"+value+"</div>";
+                        }
+                    }, 
+                },
+                ],
+                rowAttrRender: function (rowdata,rowid) {
+                    if (rowdata.MntStatus=='error') {
+                        return "style='background:#CDCDCD;'";
+                    }
+                    return "";
+                },
+                onAfterShowData :function (rowdata,rowid) {
+                    if (intclock==0) {load();}
+                    $('[class="l-grid-row-cell-inner"]').each(function () {$(this).css('min-height',"20px");});
+                    $('[class="l-grid-header-table"]').each(function () {$(this).css('background-color',"#CCEBFD");$(this).css('font-weight',"bold");});
+                },
+                alternatingRow: false,
+                rowHeight: 20,
+                headerRowHeight: 20,
+                pageSizeOptions: [10,20, 22, 25,26,30, 33,38,40,50,100,200,500],
+                pageSize:30,
+                enabledSort : true,
+                sortName:'VM',
+                sortOrder:'desc',
+                enabledEdit: true,
+                clickToEdit : false,
+                url:'/pri_db/?op=list&tb=pca_list&fmt=json',
+                dataType: 'server',
+                dataAction: 'server',
+                usePager: true,
+                async: true,
+                scroll: true,
+                checkbox:true,
+                isChecked: f_isChecked,
+                enabledEdit: true, //Click the line without checking 
+                width: '100%',height:'100%',
+            });
+            $("#pageloading").hide();
+            columns_data=[];
+            columns_all='';
+            columns_ids='';
+            Status_all.oempri='{{oempri_statuslist|safe}}'.replace('None;','');//'Closed;New;Analysis;CCB;Assigned;In Review;Checked In;Integrated';
+            Status_all.fwtools='{{fwtools_statuslist|safe}}'.replace('None;','');//'Closed;New;Analysis;CCB;Assigned;In Review;Checked In;Integrated';
+            Status_val.oempri=Status_all.oempri.replace('Closed;','').replace('done;','');//'New;Analysis;CCB;Assigned;In Review;Checked In;Integrated';
+            Status_val.fwtools=Status_all.fwtools.replace('Closed;','').replace('done;','').replace('Integrated;','');//'New;Analysis;CCB;Assigned;In Review;Checked In;Integrated';
+            $(g.columns).each(function (i, column) {if (column.name) {columns_data.push({text:column.name,id:column.name});columns_all=columns_all+(columns_all?';':'')+column.name;if (column.hide!=true) {columns_ids=columns_ids+(columns_ids?';':'')+column.name;}} });
+			//f_tip2(columns_all);
+			//id;Key;Summary;IsFactory;SkuNumber;PartNumber;Status;Assignee;Reporter;Week;PlanDueDate;Customers;Components;Assignee;Reporter;CreatedDate;DueDate;ProjID;AgileID;WorkPackage;ReleasePath;Open;InProcess;Generated;Tested;Reviewed;Integrated;Validated;AllFilesAdded;SpkgValidated;LogValidated;Closed
+			my_view.week_view='Key;Summary;IsFactory;Status;Assignee;Reporter;Week;PlanDueDate;CreatedDate;DueDate;Components';
+			my_view.flow_view='Key;Status;Assignee;Reporter;Customers;CreatedDate;DueDate;ProjID;AgileID;Open;InProcess;Generated;Tested;Reviewed;Integrated;Validated;AllFilesAdded;SpkgValidated;LogValidated;Closed';
+			my_view.factory_view='Key;IsFactory;SkuNumber;Status;Assignee;Reporter;Customers;Components;CreatedDate;ProjID;AgileID;WorkPackage;ReleasePath;AllFilesAdded;SpkgValidated;LogValidated;Closed';
+			my_view.fwtools_view='Key;Summary;Status;Assignee;Reporter;Week;PlanDueDate;CreatedDate;Components';
+			my_view.full_view='Key;Summary;IsFactory;Status;Assignee;Reporter;Week;PlanDueDate;Customers;CreatedDate;DueDate;ProjID;AgileID;AllFilesAdded;SpkgValidated;LogValidated';
+			//my_view.full_view=columns_ids;
+			//columns_ids;
+            //viewname=getQueryString('view','full_view');
+            //f_toggle(my_view[viewname],columns_all);
+            f_open_data_init(columns_ids,columns_all,Status_all.oempri,Status_val.oempri);
+            f_open_init(f_open_data);
+            //f_open_view(viewname);
+            
+            });
+			function f_open_data_init(view_cols,all_cols,Status_list,Status_value) {
+			  f_open_data={
+                winwidth:570,
+                winheight:530,
+                checkbox:[
+                    {name:'EnvStatus',text:'free;busy;null',value:'free;busy;null',ctrl:'selEnvStatus',column:'EnvStatus',method:'__in'},
+                    {name:'MntStatus',text:'normal;error;handup;null',value:'normal;error;handup;null',ctrl:'selMntStatus',column:'MntStatus',method:'__in'},
+                    {name:'Column',text:all_cols?all_cols:columns_all,value:view_cols?view_cols:columns_ids,ctrl:'selcolumn'},
+                ],
+                inputbox:[
+                    {name:'Filter formular',text:'',value:'(EnvStatus and MntStatus)',ctrl:'selfilter_fmls',column:'filter_fmls',size:260},
+                    {name:'Fuzzy Enquiry',text:'',value:'',ctrl:'selFuzzyEnquiry',column:'SKU;FSN;VM;Product',method:'__iregex',size:260},
+                ],
+              };
+			  //return f_open_data;
+			};
+            
+            
+        function f_isChecked(rowdata)
+        {
+            select_id_list = []
+            
+            if (select_ids != '')
+            {
+                select_id_list = select_ids.split(',')
+                for (var id in select_id_list)
+                {
+                    if(select_id_list[id] == rowdata.id)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+        function f_save_checkin()
+        {
+            var txt = ""
+            var rows = g.getCheckedRows();
+            $(rows).each(function ()
+            {
+                txt += this.id + ",";
+            });
+            return txt
+        };
+        function f_summary()
+        {
+            var txt = ""
+            var rows = g.getCheckedRows();
+            if (rows.length) {
+            } else {
+                $.ligerDialog.warn('No Ticket selected!','Tips');
+                return;
+            }
+            
+            var nextweek_status='Open;In Progress';
+            var nextweeksmy={'users':'','userdata':{},'summary':'next week summary: ','Total':0,'AR758':0,'AR759':0,'mol_AR755_AR865':0,'mol_SL_HL_MC':0};
+            var finishsmy={'users':'','userdata':{},'summary':'this week summary: ','Total':0,'AR758':0,'AR759':0,'mol_AR755_AR865':0,'mol_SL_HL_MC':0};
+            $(rows).each(function ()
+            {
+                txt += this.id + ",";
+                if (this.Summary.indexOf('[Configuration]')>-1) {
+                } else {
+                    if (nextweek_status.indexOf(this.Status)>-1) { //next week
+                        nextweeksmy['Total']++;expr=1;
+                        if (this.Components.indexOf('AR758')>-1) {nextweeksmy['AR758']++;}
+                        else if (this.Components.indexOf('AR759')>-1) {nextweeksmy['AR759']++;}
+                        else if (this.Components.indexOf('AR755')>-1) {nextweeksmy['mol_AR755_AR865']++;}
+                        else if (this.Components.indexOf('AR865')>-1) {nextweeksmy['mol_AR755_AR865']++;}
+                        else if (this.Components.indexOf('SL')>-1) {nextweeksmy['mol_SL_HL_MC']++;}
+                        else if (this.Components.indexOf('HL')>-1) {nextweeksmy['mol_SL_HL_MC']++;}
+                        else if (this.Components.indexOf('MC')>-1) {nextweeksmy['mol_SL_HL_MC']++;}
+                        else {nextweeksmy['Total']--;expr=0;}
+                        if (expr==1) {
+                            if (!nextweeksmy['userdata'][this.Reporter]) {
+                                nextweeksmy['userdata'][this.Reporter]=1;
+                                nextweeksmy['users']+=(nextweeksmy['users']==''?'':',')+this.Reporter;
+                            } else {
+                                nextweeksmy['userdata'][this.Reporter]+=1;
+                            }
+                        }
+                    } else {// finish
+                        finishsmy['Total']++;
+                        if (this.Components.indexOf('AR758')>-1) {finishsmy['AR758']++;}
+                        else if (this.Components.indexOf('AR759')>-1) {finishsmy['AR759']++;}
+                        else if (this.Components.indexOf('AR755')>-1) {finishsmy['mol_AR755_AR865']++;}
+                        else if (this.Components.indexOf('AR865')>-1) {finishsmy['mol_AR755_AR865']++;}
+                        else if (this.Components.indexOf('SL')>-1) {finishsmy['mol_SL_HL_MC']++;}
+                        else if (this.Components.indexOf('HL')>-1) {finishsmy['mol_SL_HL_MC']++;}
+                        else if (this.Components.indexOf('MC')>-1) {finishsmy['mol_SL_HL_MC']++;}
+                        else {finishsmy['Total']--;}
+                    }
+                }
+            });
+            finishsmy['summary']+='<table>';
+            finishsmy['summary']+='<tr><td>AR755_AR865: </td><td align=center> ' + finishsmy['mol_AR755_AR865']+'</td></tr>';
+            finishsmy['summary']+='<tr><td>   SL_HL_MC: </td><td align=center> ' + finishsmy['mol_SL_HL_MC']+'</td></tr>';
+            finishsmy['summary']+='<tr><td>      AR758: </td><td align=center> ' + finishsmy['AR758']+'</td></tr>';
+            finishsmy['summary']+='<tr><td>      AR759: </td><td align=center> ' + finishsmy['AR759']+'</td></tr>';
+            finishsmy['summary']+='<tr><td>      Total: </td><td align=center> ' + finishsmy['Total']+'</td></tr>';
+            finishsmy['summary']+='</table>';
+
+            nextweeksmy['summary']+='<table>';
+            nextweeksmy['summary']+='<tr><td>AR755_AR865: </td><td align=center> ' + nextweeksmy['mol_AR755_AR865']+'</td></tr>';
+            nextweeksmy['summary']+='<tr><td>   SL_HL_MC: </td><td align=center> ' + nextweeksmy['mol_SL_HL_MC']+'</td></tr>';
+            nextweeksmy['summary']+='<tr><td>      AR758: </td><td align=center> ' + nextweeksmy['AR758']+'</td></tr>';
+            nextweeksmy['summary']+='<tr><td>      AR759: </td><td align=center> ' + nextweeksmy['AR759']+'</td></tr>';
+            nextweeksmy['summary']+='<tr><td>      Total: </td><td align=center> ' + nextweeksmy['Total']+'</td></tr>';
+            nextweeksmy['summary']+='</table><br/>';
+            
+            nextweeksmy['summary']+='reporter summary:<br/><table>';
+            users = nextweeksmy['users'].split(',');
+            for (var i = 0, l = users.length; i < l; i++) {
+                nextweeksmy['summary']+='<tr><td>'+users[i]+': </td><td align=center> ' + nextweeksmy['userdata'][users[i]]+'</td></tr>';
+            }
+            nextweeksmy['summary']+='</table><br/>';
+            
+            summary=finishsmy['summary']+'<br/>'+nextweeksmy['summary'];
+            $.ligerDialog.open({title:'PRI_System',width:500,height:500,content:summary,buttons:[{ text: 'CLOSE', onclick: function (item, dialog) {dialog.close();}},]});
+
+            return txt;
+        };
+        function f_select()
+        {
+            var rows = g.rows;
+            var select_reverse_ids = "";
+            var select_list = [];
+            var temp_select_list = [];
+            var temp_unselect_list = [];
+            
+            select_reverse_ids = f_save_checkin();
+            if(select_reverse_ids != '')
+            {
+                select_list = select_reverse_ids.split(',');
+                for (var i = 0, l = rows.length; i < l; i++)
+                {
+                    exist_flag = 0;
+                    var rowid = rows[i]['__id'];
+                    obj = "tr[id^=maingrid4\\|2\\|"+rowid+"]";
+                    var idstr=$(obj).attr("id");
+                    var chkidstr=idstr.replace("|2|","\\|1\\|");
+                    //console.log($("#"+chkidstr+">td")[0].parentElement)
+                    var rowobj = g.getRowObj(rowid);
+                        
+                    for(var id in select_list)
+                    {
+                        if (select_list[id] != rows[i].id) {exist_flag = 1;}
+                        else {exist_flag=0;break;}
+                    }
+                    if (exist_flag==1) 
+                    {
+                        temp_select_list.push(rows[i]);
+                        $("#"+chkidstr).addClass("l-selected");
+                        if (rowobj) $(rowobj).addClass("l-selected");
+                    }
+                    else
+                    {
+                        $("#"+chkidstr).removeClass("l-selected");
+                        if (rowobj) $(rowobj).removeClass("l-selected");
+                    }
+                }
+            }
+            else
+            {
+                for (var i = 0, l = rows.length; i < l; i++)
+                {   
+                    temp_select_list.push(rows[i]);
+                    obj = "tr[id^=maingrid4\\|2\\|"+rows[i].__id+"]";
+                    var idstr=$(obj).attr("id");
+                    var chkidstr=idstr.replace("|2|","\\|1\\|");
+                    $("#"+chkidstr).addClass("l-selected");
+                    var rowid = rows[i]['__id'];
+                    var rowobj = g.getRowObj(rowid);
+                    $(rowobj).addClass("l-selected");
+                }
+            }
+            g.selected.length = 0;
+            for (var i=0;i<temp_select_list.length;i++)
+            {
+                g.selected[g.selected.length] = temp_select_list[i];
+                g.selected.length++;
+            }
+        };
+        function f_open_init(dialogData)
+        {
+            check_list = dialogData.checkbox;
+            htmltext=''
+            for(var id in check_list){
+                if (check_list[id].ctrl) {
+                    ctrl=check_list[id].ctrl;
+                    if ($('#'+ctrl+'').length>0) {
+                        $('#'+ctrl+'').val(check_list[id].value);
+                    } else {
+                        htmltext=htmltext+'\n<input type="hidden" id="'+ctrl+'" value="'+check_list[id].value+'">'
+                    }
+                }
+            }
+            check_list = dialogData.inputbox;
+            for(var id in check_list){
+                if (check_list[id].ctrl) {
+                    ctrl=check_list[id].ctrl;
+                    if ($('#'+ctrl+'').length>0) {
+                        $('#'+ctrl+'').val(check_list[id].value);
+                    } else {
+                        htmltext=htmltext+'\n<input type="hidden" id="'+ctrl+'" value="'+check_list[id].value+'">'
+                    }
+                }
+            }
+            if (htmltext) $('#sel_hidden_fields').html(htmltext);
+        }
+        function f_open_option(dialogData)
+        {   
+            params={};
+            filter_keys='';
+            check_list = dialogData.checkbox;
+            for(var id in check_list){
+                if (check_list[id].ctrl && check_list[id].column) {
+                    ctrl=check_list[id].ctrl;
+                    value=$('#'+ctrl+'').val();
+                    column=check_list[id].column;
+                    method=check_list[id].method;
+                    if ('__iregex'==method) {
+                        filter_keys=filter_keys+(filter_keys?',':'')+column+method;
+                        params[column]=value.replace(/;/g,'|');
+                    } else if (method) {
+                        filter_keys=filter_keys+(filter_keys?',':'')+column+method;
+                        params[column]=value;
+                    } else {
+                        params[column]=value;
+                    }
+                }
+            }
+            Fuzzy_Enquiry_cols='';
+            check_list = dialogData.inputbox;
+            for(var id in check_list){
+                if (check_list[id].ctrl && check_list[id].column) {
+                    ctrl=check_list[id].ctrl;
+                    value=$('#'+ctrl+'').val();
+                    values=value.split(':');
+                    column=check_list[id].column;
+                    columns=column.split(';');
+                    if (columns.length>1) {Fuzzy_Enquiry_cols=Fuzzy_Enquiry_cols+(Fuzzy_Enquiry_cols?' and ':'')+'('+column.replace(/;/g,' or ')+')'}
+                    method=check_list[id].method;
+                    for(var c in columns){
+                        column=columns[c];
+                        if (values.length>1) {
+                            if (values[0].toUpperCase()!=column.toUpperCase()) continue;
+                            value=values[1];
+                        }
+						if ('__iregex'==method) {
+							filter_keys=filter_keys+(filter_keys?',':'')+column+method;
+							params[column]=value.replace(/;/g,'|');
+                        } else if (method) {
+                            filter_keys=filter_keys+(filter_keys?',':'')+column+method;
+                            params[column]=value;
+                        } else {
+                            params[column]=value;
+                        }
+                    }
+
+                }
+            }
+            if (params.filter_fmls && Fuzzy_Enquiry_cols) {params['filter_fmls']=params['filter_fmls']+' and ' +Fuzzy_Enquiry_cols;}
+            else if (!params.filter_fmls && Fuzzy_Enquiry_cols) {params['filter_fmls']=Fuzzy_Enquiry_cols;}
+            params['filter_keys']=filter_keys;
+            return params;
+        }
+        
+        function f_open(dialogData)
+        {
+			dialogData=dialogData?dialogData:f_open_data;
+            $.ligerDialog.open({
+                height:dialogData.winheight,//380,
+                width: dialogData.winwidth,//400,
+                title : 'Please Select the filter',
+                url: '/test_select/test_select_data.htm', 
+                showMax: false,
+                showToggle: true,
+                showMin: false,
+                isResize: true,
+                slide: false,
+                onClose :function (item, dialog) { if (this.frame.isdirty) {f_toggleex();}},
+                onLoaded :function (item, dialog) { this.frame.set_dialog(this);},
+                buttons:[
+                    { text:'OK',
+                        onclick:function (item, dialog) { 
+                            dialog.frame.f_ok();
+                            //f_toggleex();
+                            //dialog.close();
+                        }}, 
+                    { text: 'CLOSE', onclick: function (item, dialog) {dialog.close();}},
+                    ],
+                data:dialogData,
+            });
+        };      
+        function f_add_checkin()
+        {
+            var txt=f_save_checkin();
+            if (txt!='') {
+                $.ligerDialog.confirm('Do you want to add to check in request?','Tips', function (yes) {
+                    if (yes) $.ligerDialog.open({ title:'PRI_System check in request',width: 900,height: 350,url: '/pri_db/?op=req-chk&tb=checkin_list&id='+txt }); 
+                });
+            } else {
+                $.ligerDialog.warn('No Ticket selected!','Tips');
+            }
+        }
+        function f_rmv_checkin()
+        {
+            var txt=f_save_checkin();
+            if (txt!='') {
+                $.ligerDialog.confirm('Do you want to remove to check in request?','Tips', function (yes) {
+                    if (yes) $.ligerDialog.open({ title:'PRI_System check in request',width: 900,height: 350,url: '/pri_db/?op=req-rmv&tb=checkin_list&id='+txt }); 
+                });
+            } else {
+                $.ligerDialog.warn('No Ticket selected!','Tips');
+            }
+        }
+        function f_select1(value,id)
+        {
+            value=value.split(';')[0];
+            if (value!='All'&& value!='None') return;
+            nmes=id.data;
+            newvalue=''
+            for (i=0,leni=nmes.length;i<leni;i++) {
+                if (value=='All') {
+                    if (nmes[i].id=='All') {continue; }
+                    if (nmes[i].id=='None') {continue;}
+                    newvalue=newvalue+(newvalue==''?'':';')+nmes[i].id;
+                }
+                if (value=='None') {newvalue='';}
+            }
+            id._changeValue(newvalue,newvalue);
+            id.updateStyle();
+        }
+        function f_op_menu(obj) 
+        {
+            if (obj.value=='editfield') {f_editfield();}
+            else if (obj.value=='selectreverse') {f_select();}
+            else if (obj.value=='summary') {f_summary();}
+            else if (obj.value=='syncfromJira') {f_syncfromJira();}
+            else if (obj.value=='syncfromweek') {f_syncfromJira('week');}
+            else if (obj.value=='syncfromflow') {f_syncfromJira('flow');}
+            else if (obj.value=='syncfromfactory') {f_syncfromJira('factory');}
+            else if (obj.value=='syncfromjira-createfacttask') {f_syncfromJira('createfacttask');}
+            else if (obj.value=='syncfromjira-approve-AllFilesAdded') {f_syncfromJira('approve-AllFilesAdded');}
+            else if (obj.value=='syncfromjira-approve-SpkgValidated') {f_syncfromJira('approve-SpkgValidated');}
+            else if (obj.value=='syncfromjira-approve-LogValidated') {f_syncfromJira('approve-LogValidated');}
+            
+            else if (obj.value=='week_view') {f_open_view('week_view');}
+            else if (obj.value=='flow_view') {f_open_view('flow_view');}
+            else if (obj.value=='factory_view') {f_open_view('factory_view');}
+            else if (obj.value=='full_view') {f_open_view('full_view');}
+            else if (obj.value=='fwtools_view') {f_open_view('fwtools_view');}
+            else {alert('Not Support Now!');}
+            obj.value='';
+        }
+        function f_open_view(view) {
+			if (view=='fwtools_view') {
+				keytext='FWTOOLS';
+				status_list=Status_all.fwtools;
+				status_value=Status_val.fwtools;
+			} else {
+				keytext='OEMPRI';
+				status_list=Status_all.oempri;
+				status_value=Status_val.oempri;
+			}
+			if (view=='factory_view') {facttext='True';}
+			else {facttext='True;False;NULL';}
+			$('#selkey').val(keytext);
+			$('#selFactory').val(facttext);
+			$('#selstatus').val(status_value);
+            if (selfilter_fmls=='') selfilter_fmls=$('#selfilter_fmls').val();
+            if (view=='week_view') {
+                $('#selfilter_fmls').val('(Key and CreatedDate and IsFactory and (Week or Status))');
+                $('#selstatus').val('Open;In Progress');
+                $('#selCreatedDate').val('2018-01-01;');
+                $('#selWeek').val(monday()+';');
+            } else {
+                $('#selfilter_fmls').val(selfilter_fmls);
+                $('#selCreatedDate').val('');
+                $('#selWeek').val('');
+            }
+			f_toggle(my_view[view],columns_all);
+			f_open_data_init(view,columns_all,status_list,status_value);
+			//f_open();
+			search('first');
+		}
+        function f_toggleex() {f_toggle($("#selcolumn").val(),columns_all);search('first');}
+        function f_toggle(columns_sel,columns_all)
+        {
+			$("#selcolumn").val(columns_sel);
+            nmes=columns_all.split(';');
+            sels=columns_sel.split(';');
+            
+            //if (sels.indexOf('id') == -1) {g.toggleCol(0, false);}
+            //else {g.toggleCol(0, true);}
+            
+            for (i=0,leni=nmes.length;i<leni;i++) {
+                isshow=false;
+                for (j=0,lenj=sels.length;j<lenj;j++) {
+                    if (nmes[i]==sels[j]) {isshow=true;break;}
+                }
+                g.toggleCol(nmes[i], isshow);
+            }
+        }
+        function f_editfield(columnname,txt,value,type)
+        {
+			columnname=columnname?columnname:'Status';
+			value=value?('&fieldvalue='+value):'';
+			type=type?('&fieldtype='+type):'';
+            if (!txt) {
+				var rows = g.getCheckedRows();
+				txt = "";
+				$(rows).each(function ()
+				{
+					txt += this.id + ",";
+				});
+			}
+            if (txt!='') {
+                    $.ligerDialog.open({ title:'PRI_System EditField',width: 900,height: 350,url: '/pri_db/?op=editfield1&tb=pca_list&fieldname='+columnname+'&id='+txt+value+type }); 
+            } else {
+                $.ligerDialog.warn('No Ticket selected!');
+            }
+        };
+        function f_syncfromJira(ctype,txt)
+        {
+            txt=txt?txt:f_save_checkin();
+            ext=ctype?'-'+ctype:'';
+            if (txt!='') {
+                    $.ligerDialog.open({ title:'PRI_System Sync From Jira',width: 900,height: 350,url: '/pri_db/?op=syncfromJira'+ext+'&tb=pca_list&id='+txt,
+                    onClose :function (item, dialog) { search();},
+                buttons:[
+                    //{ text:'OK',onclick:function (item, dialog) { dialog.close();}}, 
+                    { text: 'CLOSE', onclick: function (item, dialog) {dialog.close();}},
+                    ],
+                    }); 
+            } else {
+                $.ligerDialog.warn('No Ticket selected!','Tips');
+            }
+        };
+        function add_color(data, column_name)
+        {
+            str = 'Stone Li,Lares Yang,Bing Huang,Mary Shan,Nicky Zheng'
+            if (column_name == 'Assignee')
+            {
+               if (str.indexOf(data) != -1)
+                {
+                    var html = "<div width='100%' style='background-color:#F9F900;color:red'>" + data + "</div>";
+                }
+                else
+                {
+                    var html = "<div  width='100%'>" + data + "</div>";
+                } 
+            }
+            else
+            {
+                if (data.indexOf('*') != -1 && data.split('*')[0] != '')
+                {
+                    if (str.indexOf(data.split('*')[0]) != -1)
+                    {
+                        var html = "<div style='background-color:#F9F900'>" + data + "</div>";
+                    }
+                    else
+                    {
+                        var html = "<div style='background-color:#FFD1A4'>" + data + "</div>";
+                    }
+                }    
+                else
+                {
+                    var html = "<div >"+ data +"</div>";
+                }
+            }
+            return html
+        }
+        function myalertjson(src) {
+            altxt=''
+            for( var i in src) { altxt=altxt+'\n'+i+':'+src[i]};
+            alert(altxt);
+        }
+        function myextend(des, src, override){
+          if(src instanceof Array){
+            for(var i = 0, len = src.length; i < len; i++)
+               extend(des, src[i], override);
+          }
+          for( var i in src){
+            if(override || !(i in des)){
+              des[i] = src[i];
+            }
+          }
+          return des;
+        }
+        var select_ids='';
+        function search(ctype, op) {
+            if (getQueryStringex(window.location.search.substr(1),'stoptimer=(\\d+)',1)=='1') {return;}
+            select_ids = f_save_checkin();
+            var params = {　
+                            sortorder:g.options.sortOrder,
+                            sortname:g.options.sortName,
+                            page: g.options.page,
+                            pagesize:g.options.pageSize
+            };
+            f_open_params=f_open_option(f_open_data);
+                        //myalertjson(f_open_params);
+            params=myextend(f_open_params,params);
+            
+            g.setOptions({parms : params});
+            g.loadServerData(params);
+            if (ctype)
+                g.changePage(ctype);
+                
+        }
+        var intclock=0;
+        function load() {
+            search('first');
+            intclock=self.setInterval("search()",10000);
+        }
+        function goodbye() {
+            self.clearInterval(intclock);
+        }
+        var tip;
+        var num = 0;
+        function f_tip2(msg) {
+                tip = $.ligerDialog.alert(msg,'PRI_System');
+        }
+        function f_tip3(value,id,operate,msg) {
+                if (value.indexOf('**')==-1 && value.indexOf('*')>-1) {
+                    $.ligerDialog.confirm('Do you want to '+operate+' for below subtask('+id+')?<br/>\n'+msg,'PRI_System', function (yes) {
+                    if (yes) f_syncfromJira(operate,id);
+                    });
+                } else {
+                    tip = $.ligerDialog.alert(msg,'PRI_System');
+                }
+        }
+
+    function monday() {
+        var date=new Date();
+
+        var nowTime = date.getTime() ;
+        var day = date.getDay() || 7;//周一是每周的第一天
+        //var day = date.getDay() //周日是每周的第一天
+        var oneDayTime = 24*60*60*1000 ;
+
+        var Monday = nowTime - (day-1)*oneDayTime ;
+        var mondayTime=new Date(Monday);
+
+        var year=mondayTime.getFullYear();
+        var monMath=mondayTime.getMonth()+1;
+        var month=(monMath<10) ? "0"+""+monMath+"" : monMath;
+        var data=(mondayTime.getDate()<10) ? "0"+""+mondayTime.getDate()+"" : mondayTime.getDate();
+        var mondayDate=""+year+"-"+month+"-"+data+""
+        return mondayDate;
+    }
+    function getdate(diff,unit) {
+        var date=new Date();
+
+        var nowTime = date.getTime() ;
+        var day = date.getDay() || 7;//周一是每周的第一天
+        //var day = date.getDay() //周日是每周的第一天
+        var oneDayTime = 24*60*60*1000 ;
+        if (unit) {oneDayTime=unit;}
+
+        var Monday = nowTime - diff*oneDayTime ;
+        var mondayTime=new Date(Monday);
+
+        var year=mondayTime.getFullYear();
+        var monMath=mondayTime.getMonth()+1;
+        var month=(monMath<10) ? "0"+""+monMath+"" : monMath;
+        var data=(mondayTime.getDate()<10) ? "0"+""+mondayTime.getDate()+"" : mondayTime.getDate();
+        var mondayDate=""+year+"-"+month+"-"+data+""
+        return mondayDate;
+    }
+    //alert(monday());
+    function getQueryString(name,def) { 
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
+        var r = window.location.search.substr(1).match(reg); 
+        if (r != null) return unescape(r[2]); 
+        return def; 
+    }     
+    function getQueryStringex(str,key,i) { 
+        if (!i) i=1;
+        var reg = new RegExp(key, "i"); 
+        var r = str.match(reg); 
+        if (r != null) return unescape(r[i]); 
+        return null; 
+    }     
+    </script>
+</head>
+<body style="padding:6px; overflow:hidden;" onunload="goodbye()">
+<form>
+    <table>
+    <tr>
+    <td> &nbsp;
+        <select id="op_menu" name="op_menu" onchange="f_op_menu(this);return false;" >
+            <option value="" >Please select your operation:</option>
+            <option value="selectreverse" >select Reverse</option>
+            <option value="week_view" >week_view</option>
+            <option value="flow_view" >flow_view</option>
+            <option value="factory_view" >factory_view</option>
+            <option value="full_view" >full_view</option>
+            <option value="fwtools_view" >fwtools_view</option>
+            <option value="syncfromJira" >Sync from Jira-status</option>
+            <option value="syncfromflow" >Sync from Jira-flow</option>
+            <option value="syncfromfactory" >Sync from Jira-factory</option>
+            <option value="syncfromweek" >Sync Week Data</option>
+			<option value="editfield" >Batch Edit</option>
+			<option value="summary" >Show Summary</option>
+            <option value="syncfromjira-createfacttask" >Create-factory-task</option>
+            <option value="syncfromjira-approve-AllFilesAdded" >approve-AllFilesAdded</option>
+            <option value="syncfromjira-approve-SpkgValidated" >approve-SpkgValidated</option>
+            <option value="syncfromjira-approve-LogValidated" >approve-LogValidated</option>
+        </select>
+    </td>
+    <td><div id='sel_hidden_fields'></div></td>
+<!--
+        <td><input id="txtColumnName" type="hidden" /></td>
+        <td><input id="txtJiraId" type="hidden" /></td>
+        <td><input id="txtJiraIdOp" type="hidden" value="and"/></td>
+        <td><input id="txtStatus" type="hidden" /></td>
+        <td><input id="txtStatusOp" type="hidden" value="and"/></td>
+        <td><input id="txtStartCreateDate" type="hidden" /></td>
+        <td><input id="txtEndCreateDate" type="hidden" /></td>
+        <td><input id="txtCreatedDateOp" type="hidden" value="and" /></td>
+-->
+    <td> &nbsp;<input id="filter_id" type="submit" onclick="f_open();return false" value="filter" /> </td>
+    
+    <td>&nbsp; &nbsp;</td> <td><input type="hidden" id="selcolumn" style="color:#ffffff;" /> </td>
+    </tr>
+    </table>
+</form>
+    
+    <div id="maingrid4" style="margin:0; padding:0"></div>
+ 
+
+
+  <div style="display:none;">
+  <!-- g data total ttt -->
+</div>
+ 
+</body>
+</html>
