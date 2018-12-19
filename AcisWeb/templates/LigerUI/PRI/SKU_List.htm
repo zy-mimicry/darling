@@ -1,0 +1,517 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>PRI_System: SKU Manager</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=8"/>
+    <link href="../LigerUI/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+    <script src="../LigerUI/lib/jquery/jquery-1.9.0.min.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerGrid.js" type="text/javascript"></script> 
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerResizable.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerTextBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerCheckBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerComboBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerGrid.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerDateEditor.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerSpinner.js" type="text/javascript"></script>
+<style type="text/css"> 
+ a {text-decoration:none;}
+ </style>
+
+    <!--script src="../CustomersData.js" type="text/javascript"></script-->
+    <script type="text/javascript">
+        var g;
+        //var CustomersData = {Rows:[{"ID":"0","CustomPrjName":"1","SWIPrjName":"2","ParentSKU":"3","SKU":"4","PackagePN":"5","Product":"6","Customer":"7","CarrierPN":"8","Category":"9","Description":"10","CreateDate":"11","UpdateDate":"12"},{"ID":"0","CustomPrjName":"1","SWIPrjName":"2","ParentSKU":"3","SKU":"4","PackagePN":"5","Product":"6","Customer":"7","CarrierPN":"8","Category":"9","Description":"10","CreateDate":"11","UpdateDate":"12"},{"ID":"0","CustomPrjName":"1","SWIPrjName":"2","ParentSKU":"3","SKU":"4","PackagePN":"5","Product":"6","Customer":"7","CarrierPN":"8","Category":"9","Description":"10","CreateDate":"11","UpdateDate":"12"}],Total:3} ;
+        //var CustomersData = {Rows:[{"id":"1","CustomPrjName":"None","SWIPrjName":"","ParentSKU":"None","SKU":"","PackagePN":"None","Product":"","Customer":"","CarrierPN":"None","Category":"None","Description":"None","CreateDate":"2018-08-06 12:21:40.763000+00:00","UpdateDate":"2018-08-06 12:21:40.763000+00:00"}],Total:1 };
+        var CustomersData = {Rows:[
+{"id":"1","CustomPrjName":"None","SWIPrjName":"","SKU":"","PackagePN":"None","Product":"","Customer":"","CarrierPN":"None","Category":"None","ParentSKU":"None","Description":"None","CreateDate":"2018-08-06 12:21:40.763000+00:00","UpdateDate":"2018-08-06 12:21:40.763000+00:00"},
+{"id":"2","CustomPrjName":"OCU3-L","SWIPrjName":"Cougar","SKU":"1103367","PackagePN":"9906982","Product":"AR7582-1","Customer":"VW","CarrierPN":"9907611_ATT/ 9907676_VZW/ 9907613_T-Mobile","Category":"Commercial","ParentSKU":"101103367","Description":"None","CreateDate":"2018-08-07 03:04:58.748000+00:00","UpdateDate":"2018-08-07 03:04:58.748000+00:00"}
+],Total:33 };
+        /*var CustomersData = rlt|safe;*/
+        var CategoryData = [{ Category: 'Commercial', text: 'Commercial' }, { Category: 'Lab', text: 'Lab'}];
+        $.ligerDefaults.Grid.formatters['hplink'] = function (num, column) {
+            num='<a class="l-link" href="'+num+'" target="_blank">'+num+'</a> ';
+            return num;
+         };
+        $(function () {
+            g = $("#maingrid4").ligerGrid({
+                columns: [
+                { display: 'ID', name: 'id', align: 'left', width: 40, hide:true,//frozen: true, 
+                    render: function (record, rowindex, value, column) {
+                        myurl='/pri_db/?op=query&tb=sku_list&id=' + value ;
+                        return "<a href=# onclick='$.ligerDialog.open({ title:\"PRI_System\",width: 900,height: 580,url: \""+myurl+"\" });return false;'>"+value+"</a>";
+                    }, 
+                },
+                { display: 'Custom PrjName', name: 'CustomPrjName', width: 80, },
+                { display: 'SWI PrjName', name: 'SWIPrjName',width: 80, },
+                { display: 'Parent SKU', name: 'ParentSKU', width: 80, align: 'left', editor: { type: 'text'},
+                    render: function (record, rowindex, value, column) {
+                        myurl='/pri_db/?op=list&tb=jira_list&ext=_full&view=full_view&query=' + value ;
+                        if (value=='N/A'||value=='') return value;
+                        return "<a title='show the parent_SKU release history' target='__blank' href='"+myurl+"'>"+value+"</a>";
+                    }, 
+                },
+                { display: 'SKU', name: 'SKU', width: 62, align: 'left',
+                    render: function (record, rowindex, value, column) {
+                        myurl='/pri_db/?op=list&tb=jira_list&ext=_full&view=full_view&query=' + value ;
+                        if (value=='N/A'||value=='') return value;
+                        return "<a title='show the SKU release history' target='__blank' href='"+myurl+"'>"+value+"</a>";
+                    }, 
+				 },
+                { display: 'Part No', name: 'PackagePN', width: 62, align: 'left',
+                    render: function (record, rowindex, value, column) {
+                        myurl='/pri_db/?op=query&tb=sku_list&id=' + record.id ;
+                        return "<a title='show the SKU status' href=# onclick='$.ligerDialog.open({ title:\"PRI_System\",width: 900,height: 580,url: \""+myurl+"\" });return false;'>"+value+"</a>";
+                    }, 
+                },
+                { display: 'Product', name: 'Product', width: 65, align: 'left' },
+                { display: 'Customer', name: 'Customer', width: 80, align: 'left' },
+                { display: 'Carrier PN', name: 'CarrierPN', width: 300, align: 'left', editor: { type: 'text'} },
+                { display: 'Category', name: 'Category', width: 80, align: 'left',editor: { type: 'select', data: CategoryData, valueField: 'Category' } },
+                { display: 'Status', name: 'Status', width: 50, align: 'left',hide:true  },
+                { display: 'Period', name: 'Period', width: 50, align: 'left',hide:true  },
+                { display: 'PM', name: 'PM', width: 80, align: 'left', },
+                { display: 'SPM', name: 'SPM', width: 80, align: 'left',hide:true },
+                { display: 'SKU_team', name: 'SKU_team', width: 80, align: 'left',hide:true  },
+                { display: 'Description', name: 'Description', width: 160, align: 'left', editor: { type: 'text'} },
+                //{ display: 'CreateDate', name: 'CreateDate', width: 130, align: 'left', editor: { type: 'date'} },
+                { display: 'UpdateDate', name: 'UpdateDate', width: 130, align: 'left', editor: { type: 'date'} },
+                ],  
+                rowAttrRender: function (rowdata,rowid) {
+                    if (rowdata.Category.toLowerCase().indexOf('commercial')>-1)   return "style='background:#80FF80;'";
+                    return "";
+                },
+                //onDblClickRow: function (data, rowindex, rowobj) {
+                //    myurl='/pri_db/?op=query&tb=sku_list&id=' + data.id ;
+                //    $.ligerDialog.open({ title:"PRI_System",width: 900,height: 450,url: myurl});
+                //},
+                onAfterShowData :function (rowdata,rowid) {
+                    if (intclock==0) {load();}
+                    $('[class="l-grid-row-cell-inner"]').each(function () {$(this).css('min-height',"20px");});
+                    $('[class="l-grid-header-table"]').each(function () {$(this).css('background-color',"#CCEBFD");$(this).css('font-weight',"bold");});
+                },
+                checkbox : true,
+                alternatingRow: false,
+                rowHeight: 20,
+                headerRowHeight: 20,
+                pageSizeOptions: [10,20, 22, 25,26,30, 33,38,40,50,100,200,500],
+                pageSize:40,
+                enabledSort : true,
+                sortName:'ParentSKU,SKU',
+                sortOrder:'desc,asc',
+                enabledEdit: true,
+                clickToEdit : false,
+                url: '/pri_db/?op=list&tb=sku_list&fmt=json',
+                dataType: 'server',
+                dataAction: 'server',
+                usePager: true,
+                //method: 'GET',
+                async: true,
+                //root:'Rows',
+                scroll: true,
+                //delayLoad: true,
+                //frozen:true,
+                //alternatingRow: false,
+                //scrollToPage: true,
+                //scrollToAppend: true,
+                //data: CustomersData,  
+                //tree: { columnName: 'id' },
+                isChecked: f_isChecked,
+                width: '100%',height:'100%' 
+            });
+            //g.loadData();
+            //search();
+
+            $("#pageloading").hide();
+            columns_data=[];
+            columns_all='';
+            columns_ids='';
+            Status_all='Closed;New;Analysis;CCB;Assigned;In Review;Checked In;Integrated';
+            $(g.columns).each(function (i, column) {if (column.name) {columns_data.push({text:column.name,id:column.name});columns_all=columns_all+(columns_all?';':'')+column.name;if (column.hide!=true) {columns_ids=columns_ids+(columns_ids?';':'')+column.name;}} });
+            f_open_data={
+                winwidth:540,
+                winheight:420,
+                checkbox:[
+                    {name:'Product',text:'AR758;AR759;AR858;AR755;AR855;AR555;AR865;MC;SL;HL;GTM;Q2',value:'AR758;AR759;AR858;AR755;AR855;AR555;AR865;MC;SL;HL;GTM;Q2',ctrl:'selProduct',column:'Product',method:'__iregex'},
+                    {name:'Category',text:'Commercial;Lab;Test',value:'Commercial;Lab',ctrl:'selCategory',column:'Category',method:'__iregex'},
+                    {name:'Column',text:columns_all,value:columns_ids,ctrl:'selcolumn'},
+                    ],
+                    inputbox:[
+                    {name:'Filter formular',text:'',value:'(Product and Category)',ctrl:'selfilter_fmls',column:'filter_fmls',size:260},
+                    //{name:'SKU',text:'',ctrl:'txtSKU'},
+                    //{name:'Customer',text:'',ctrl:'txtCustomer'},
+                    {name:'Fuzzy Enquiry',text:'',value:'',ctrl:'selFuzzyEnquiry',column:'ParentSKU;SKU;Customer;CarrierPN;SWIPrjName',method:'__iregex',size:260},
+                    ],
+            };
+            f_open_init(f_open_data);
+            viewname=getQueryString('view','all');
+            if (viewname=='9x28') {
+                $('#selProduct').val('AR758;AR858');
+                search('first');
+            } else if (viewname=='9x40') {
+                $('#selProduct').val('AR759');
+                search('first');
+            } else if (viewname=='mol') {
+                $('#selProduct').val('AR755;AR855;AR555;AR865;MC;SL;HL;GTM;Q2');
+                search('first');
+            }
+            
+            });
+            
+            
+        function f_isChecked(rowdata)
+        {
+            select_id_list = []
+            
+            if (select_ids != '')
+            {
+                select_id_list = select_ids.split(',')
+                for (var id in select_id_list)
+                {
+                    if(select_id_list[id] == rowdata.id)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+        function f_save_checkin()
+        {
+            var txt = ""
+            var rows = g.getCheckedRows();
+            $(rows).each(function ()
+            {
+                txt += this.id + ",";
+            });
+            return txt
+        };
+        function f_select()
+        {
+            var rows = g.rows;
+            var select_reverse_ids = "";
+            var select_list = [];
+            var temp_select_list = [];
+            var temp_unselect_list = [];
+            
+            select_reverse_ids = f_save_checkin();
+            if(select_reverse_ids != '')
+            {
+                select_list = select_reverse_ids.split(',');
+                for (var i = 0, l = rows.length; i < l; i++)
+                {
+                    exist_flag = 0;
+                    var rowid = rows[i]['__id'];
+                    obj = "tr[id^=maingrid4\\|2\\|"+rowid+"]";
+                    var idstr=$(obj).attr("id");
+                    var chkidstr=idstr.replace("|2|","\\|1\\|");
+                    //console.log($("#"+chkidstr+">td")[0].parentElement)
+                    var rowobj = g.getRowObj(rowid);
+                        
+                    for(var id in select_list)
+                    {
+                        if (select_list[id] != rows[i].id) {exist_flag = 1;}
+                        else {exist_flag=0;break;}
+                    }
+                    if (exist_flag==1) 
+                    {
+                        temp_select_list.push(rows[i]);
+                        $("#"+chkidstr).addClass("l-selected");
+                        if (rowobj) $(rowobj).addClass("l-selected");
+                    }
+                    else
+                    {
+                        $("#"+chkidstr).removeClass("l-selected");
+                        if (rowobj) $(rowobj).removeClass("l-selected");
+                    }
+                }
+            }
+            else
+            {
+                for (var i = 0, l = rows.length; i < l; i++)
+                {   
+                    temp_select_list.push(rows[i]);
+                    obj = "tr[id^=maingrid4\\|2\\|"+rows[i].__id+"]";
+                    var idstr=$(obj).attr("id");
+                    var chkidstr=idstr.replace("|2|","\\|1\\|");
+                    $("#"+chkidstr).addClass("l-selected");
+                    var rowid = rows[i]['__id'];
+                    var rowobj = g.getRowObj(rowid);
+                    $(rowobj).addClass("l-selected");
+                }
+            }
+            g.selected.length = 0;
+            for (var i=0;i<temp_select_list.length;i++)
+            {
+                g.selected[g.selected.length] = temp_select_list[i];
+                g.selected.length++;
+            }
+        };
+        function f_open_init(dialogData)
+        {
+            check_list = dialogData.checkbox;
+            htmltext=''
+            for(var id in check_list){
+                if (check_list[id].ctrl) {
+                    ctrl=check_list[id].ctrl;
+                    if ($('#'+ctrl+'').length>0) {
+                        $('#'+ctrl+'').val(check_list[id].value);
+                    } else {
+                        htmltext=htmltext+'\n<input type="hidden" id="'+ctrl+'" value="'+check_list[id].value+'">'
+                    }
+                }
+            }
+            check_list = dialogData.inputbox;
+            for(var id in check_list){
+                if (check_list[id].ctrl) {
+                    ctrl=check_list[id].ctrl;
+                    if ($('#'+ctrl+'').length>0) {
+                        $('#'+ctrl+'').val(check_list[id].value);
+                    } else {
+                        htmltext=htmltext+'\n<input type="hidden" id="'+ctrl+'" value="'+check_list[id].value+'">'
+                    }
+                }
+            }
+            if (htmltext) $('#sel_hidden_fields').html(htmltext);
+        }
+        function f_open_option(dialogData)
+        {   
+            params={};
+            filter_keys='';
+            check_list = dialogData.checkbox;
+            for(var id in check_list){
+                if (check_list[id].ctrl && check_list[id].column) {
+                    ctrl=check_list[id].ctrl;
+                    column=check_list[id].column;
+                    method=check_list[id].method;
+                    if ('__iregex'==method) {
+                        filter_keys=filter_keys+(filter_keys?',':'')+column+method;
+                        params[column]=$('#'+ctrl+'').val().replace(/;/g,'|');
+                    } else if (method) {
+                        filter_keys=filter_keys+(filter_keys?',':'')+column+method;
+                        params[column]=$('#'+ctrl+'').val();
+                    } else {
+                        params[column]=$('#'+ctrl+'').val();
+                    }
+                }
+            }
+            Fuzzy_Enquiry_cols='';
+            check_list = dialogData.inputbox;
+            for(var id in check_list){
+                if (check_list[id].ctrl && check_list[id].column) {
+                    ctrl=check_list[id].ctrl;
+                    column=check_list[id].column;
+                    columns=column.split(';');
+                    if (columns.length>1) {Fuzzy_Enquiry_cols=Fuzzy_Enquiry_cols+(Fuzzy_Enquiry_cols?' and ':'')+'('+column.replace(/;/g,' or ')+')'}
+                    method=check_list[id].method;
+                    for(var c in columns){
+                        column=columns[c];
+						if ('__iregex'==method) {
+							filter_keys=filter_keys+(filter_keys?',':'')+column+method;
+							params[column]=$('#'+ctrl+'').val().replace(/;/g,'|');
+                        } else if (method) {
+                            filter_keys=filter_keys+(filter_keys?',':'')+column+method;
+                            params[column]=$('#'+ctrl+'').val();
+                        } else {
+                            params[column]=$('#'+ctrl+'').val();
+                        }
+                    }
+
+                }
+            }
+            if (params.filter_fmls && Fuzzy_Enquiry_cols) {params['filter_fmls']=params['filter_fmls']+' and ' +Fuzzy_Enquiry_cols;}
+            else if (!params.filter_fmls && Fuzzy_Enquiry_cols) {params['filter_fmls']=Fuzzy_Enquiry_cols;}
+            params['filter_keys']=filter_keys;
+            return params;
+        }
+        
+        function f_open()
+        {
+            $.ligerDialog.open({
+                height:f_open_data.winheight,//380,
+                width: f_open_data.winwidth,//400,
+                title : 'Please Select the filter',
+                url: '/test_select/test_select_data.htm', 
+                showMax: false,
+                showToggle: true,
+                showMin: false,
+                isResize: true,
+                slide: false,
+                onClose :function (item, dialog) { if (this.frame.isdirty) {f_toggleex();}},
+                onLoaded :function (item, dialog) { this.frame.set_dialog(this);},
+                buttons:[
+                    { text:'OK',
+                        onclick:function (item, dialog) { 
+                            dialog.frame.f_ok();
+                            //f_toggleex();
+                            //dialog.close();
+                        }}, 
+                    { text: 'CLOSE', onclick: function (item, dialog) {dialog.close();}},
+                    ],
+                data:f_open_data,
+            });
+        }        
+        function f_editfield()
+        {
+            var txt=f_save_checkin();
+            if (txt!='') {
+                    $.ligerDialog.open({ title:'PRI_System EditField',width: 900,height: 350,url: '/pri_db/?op=editfield&tb=sku_list&fieldname=Status&id='+txt }); 
+            } else {
+                $.ligerDialog.warn('No Ticket selected!','Tips');
+            }
+        }
+        function f_syncfromJira()
+        {
+            var txt=f_save_checkin();
+            if (txt!='') {
+                    $.ligerDialog.open({ title:'PRI_System Sync From Jira',width: 900,height: 350,url: '/pri_db/?op=syncfromJira&tb=qti_list&id='+txt }); 
+            } else {
+                $.ligerDialog.warn('No Ticket selected!','Tips');
+            }
+        }
+        function f_select1(value,id)
+        {
+            value=value.split(';')[0];
+            if (value!='All'&& value!='None') return;
+            nmes=id.data;
+            newvalue=''
+            for (i=0,leni=nmes.length;i<leni;i++) {
+                if (value=='All') {
+                    if (nmes[i].id=='All') {continue; }
+                    if (nmes[i].id=='None') {continue;}
+                    newvalue=newvalue+(newvalue==''?'':';')+nmes[i].id;
+                }
+                if (value=='None') {newvalue='';}
+            }
+            id._changeValue(newvalue,newvalue);
+            id.updateStyle();
+        }
+        function f_op_menu(obj) 
+        {
+            if (obj.value=='add') {f_add_checkin();}
+            else if (obj.value=='editfield') {f_editfield();}
+            else if (obj.value=='syncfromJira') {f_syncfromJira();}
+            else if (obj.value=='search') {search();}
+            else if (obj.value=='selectreverse') {f_select();}
+            else {alert('Not Support Now!');}
+            obj.value='';
+        }
+        function f_toggleex() {f_toggle($("#selcolumn").val(),columns_all);search('first');}
+        function f_toggle(columns_sel,columns_all)
+        {
+			$("#selcolumn").val(columns_sel);
+            nmes=columns_all.split(';');
+            sels=columns_sel.split(';');
+            
+            //if (sels.indexOf('id') == -1) {g.toggleCol(0, false);}
+            //else {g.toggleCol(0, true);}
+            
+            for (i=0,leni=nmes.length;i<leni;i++) {
+                isshow=false;
+                for (j=0,lenj=sels.length;j<lenj;j++) {
+                    if (nmes[i]==sels[j]) {isshow=true;break;}
+                }
+                g.toggleCol(nmes[i], isshow);
+            }
+        }
+        function myalertjson(src) {
+            altxt=''
+            for( var i in src) { altxt=altxt+'\n'+i+':'+src[i]};
+            alert(altxt);
+        }
+        function myextend(des, src, override){
+          if(src instanceof Array){
+            for(var i = 0, len = src.length; i < len; i++)
+               extend(des, src[i], override);
+          }
+          for( var i in src){
+            if(override || !(i in des)){
+              des[i] = src[i];
+            }
+          }
+          return des;
+        }
+        var select_ids='';
+        function search(ctype, op) {
+            select_ids = f_save_checkin();
+            var params = {　
+                            sortorder:g.options.sortOrder,
+                            sortname:g.options.sortName,
+                            page: g.options.page,
+                            pagesize:g.options.pageSize
+            };
+            f_open_params=f_open_option(f_open_data);
+                        //myalertjson(f_open_params);
+            params=myextend(f_open_params,params);
+            
+            g.setOptions({parms : params});
+            g.loadServerData(params);
+            if (ctype)
+                g.changePage(ctype);
+        }
+        var intclock=0;
+        function load() {
+            search('first');
+            intclock=self.setInterval("search()",10000);
+        }
+        function goodbye() {
+            self.clearInterval(intclock);
+        }
+        var tip;
+        var num = 0;
+        function f_tip2(msg) {
+                tip = $.ligerDialog.alert(msg,'PRI_System');
+        }
+    function getQueryString(name,def) { 
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
+        var r = window.location.search.substr(1).match(reg); 
+        if (r != null) return unescape(r[2]); 
+        return def; 
+    }     
+    function getQueryStringex(str,key,i) { 
+        if (!i) i=1;
+        var reg = new RegExp(key, "i"); 
+        var r = str.match(reg); 
+        if (r != null) return unescape(r[i]); 
+        return null; 
+    }     
+    </script>
+</head>
+<body style="padding:6px; overflow:hidden;" onunload="goodbye()">
+<form>
+   <table>
+   <tr>
+    <td> &nbsp;
+                  <select id="op_menu" name="op_menu" onchange="f_op_menu(this);return false;" >
+                    <option value="" >Please select your operation:</option>
+                    <option value="selectreverse" >select Reverse</option>
+                    <option value="search" >01 search</option>
+                    <option value="editfield" >04 Batch Edit</option>
+                </select>
+
+    </td>
+    <!--td>&nbsp;Project: &nbsp;</td> <td><input type="text" id="selProject" style="color:#ffffff;" /> </td-->
+    <td><div id='sel_hidden_fields'></div></td>
+    <td><input type="hidden" id="selProduct" style="color:#ffffff;" /> </td>
+    <td><input type="hidden" id="selCategory" style="color:#ffffff;" /> </td>
+	<td><input type="hidden" id="txtCustomer" value="" /></td>
+	<td><input type="hidden" id="txtSKU" value="" /></td>
+    <td> &nbsp;<input id="filter_id" type="submit" onclick="f_open();return false" value="filter" /> </td>
+    
+    <td>&nbsp; &nbsp;</td> <td><input type="hidden" id="selcolumn" style="color:#ffffff;" /> </td>
+    </tr>
+    </table>
+</form>  
+    
+    <div id="maingrid4" style="margin:0; padding:0"></div>
+ 
+
+
+  <div style="display:none;">
+  <!-- g data total ttt -->
+</div>
+ 
+</body>
+</html>
