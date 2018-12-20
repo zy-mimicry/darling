@@ -95,43 +95,33 @@ fw_version = ['SWI9X28A_00.19.02.13','SWI9X28A_00.19.01.13','SWI9X28A_00.19.02.1
 
 test_date = ['2011-2-22', '2015-12-1', '2014-11-9']
 
-rex_cookiews = dict(
-    erd_id = "",
-    category = "",
-    title = models.CharField(max_length=100),
-    description = models.TextField(null=True),
-    product_priority = models.CharField(max_length=20),
-    author = models.CharField(max_length=20),
-    version = models.CharField(max_length=10),
-    HLD = models.TextField(),
-    status = models.CharField(max_length=10),
-    l1_jira = models.CharField(max_length=20),
-    l2_jira = models.CharField(max_length=20),
-    bug_jiras = models.TextField(),
-    platform = models.CharField(max_length=20),
-    workload = models.CharField(max_length=30),
-    case_name = models.CharField(max_length=50)
-    age = models.DateTimeField()
-    test_result = models.CharField(max_length=10)
-    test_log = models.TextField()
-    report_path = models.TextField()
-    fw_version = models.CharField(max_length=50)
-    date = models.DateTimeField()
-    )
-
 def random_gen_cookies():
+    """
+    out_cookies = [{
+                    'ERD_ID'  : "",
+                    'excel'   : {},
+                    'jira'    : {},
+                    'jenkins' : {},
+                    'UIform'  : {}},
+                    ...]
+    """
+
     import random
     out_cookies = []
 
     for e in erd_ids:
-        out_cookies.append({
-            'erd_ids' : e,
+        out = {}
+        out['ERD_ID'] = e
+        out['excel'] = {
+            'erd_id' : e,
             'category' : random.choice(category),
             'title' : random.choice(title),
             'description' : random.choice(description),
             'product_priority' : random.choice(product_priority),
             'author' : random.choice(author),
             'version' : random.choice(version),
+        }
+        out['jira'] = {
             'HLD' : random.choice(HLD),
             'status' : random.choice(status),
             'l1_jira' : random.choice(l1_jira),
@@ -141,11 +131,17 @@ def random_gen_cookies():
             'workload' : random.choice(workload),
             'case_name' : random.choice(case_name),
             'case_age' : random.choice(case_age),
+            'report_path' : random.choice(report_path),
+        }
+        out['jenkins'] = {
+            'fw_version' : random.choice(fw_version),
             'test_result' : random.choice(test_result),
             'test_log' : random.choice(test_log),
-            'report_path' : random.choice(report_path),
-            'fw_version' : random.choice(fw_version),
             'date' : random.choice(test_date),
-        })
+        }
+        out['UIform'] = {
+            'UItest' : "I Love This Game.",
+        }
+        out_cookies.append(out)
 
     return out_cookies
