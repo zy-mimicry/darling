@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>ACIS Home Page</title>
+	  <meta http-equiv="X-UA-Compatible" content="IE=8"/>
+    <link href="../../LigerUI/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css">
+    <link href="../../LigerUI/lib/ligerUI/skins/Gray/css/all.css" rel="stylesheet" type="text/css">
+    <link href="../../LigerUI/lib/ligerUI/skins/ligerui-icons.css" rel="stylesheet" type="text/css">
+    <link href="../../LigerUI/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+    <link href="../../LigerUI/lib/ligerUI/skins/Gray2014/css/all.css" rel="stylesheet" />
+
+    <script src="../../LigerUI/lib/jquery/jquery-1.9.0.min.js" type="text/javascript"></script>
+
+    <script src="../../LigerUI/lib/jquery-validation/jquery.validate.min.js"></script>
+    <script src="../../LigerUI/lib/jquery-validation/jquery.metadata.js"></script>
+    <script src="../../LigerUI/lib/jquery-validation/messages_cn.js"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerToolBar.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerGrid.js" type="text/javascript"></script> 
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerFilter.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerDrag.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerResizable.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerPanel.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerPortal.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerListBox.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerCheckBox.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerComboBox.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/ligerui.all.js"></script>
+
+    <script src="../../LigerUI/demos/filter/ligerGrid.showFilter.js" type="text/javascript"></script>
+    <script src="../../LigerUI/demos/grid/CustomersData.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+     $.ligerDefaults.Filter.operators['string'] =
+         $.ligerDefaults.Filter.operators['text'] =
+             ["like" , "equal", "notequal", "startwith", "endwith" ];
+
+     var myvar = {Rows:[{"CustomerID":"ALFKI",
+                         "CompanyName":"Alfreds Futterkiste",
+                         "ContactName":"Maria Anders",
+                         "ContactTitle":"Sales Representative",
+                         "Address":"Obere Str. 57",
+                         "City":"Berlin",
+                         "Region":null,
+                         "PostalCode":"12209",
+                         "Country":"Germany",
+                         "Phone":"030-0074321",
+                         "Fax":"030-0076545"}]};
+
+     var cookies = {{ cookies|safe }};
+     var liger_cookies_l = [];
+     for (var i = 0 ; i < 5; i++){
+         liger_cookies_l.push(cookies[0]);
+     }
+     var liger_cookies = {Rows:liger_cookies_l};
+
+     $(function ()
+     {
+         window['g'] =
+             $("#maingrid4").ligerGrid({
+                 columns: [
+                     { display: 'ERD_ID', name: 'ERD_ID', align: 'center', minWidth: 60,
+                         render: function (rowData,value)
+                         {
+                             myurl='https://issues.sierrawireless.com/browse/' + 'QTI9X28-5555' ;
+                             myurl2='www.baidu.com';
+                             l1 = "<a href='"+myurl+"' target=__blank>["+rowData.ERD_ID +"],</a>";
+                             l2 = l1 + "<a href='"+myurl2+"' target=__blank>["+rowData.Version+"]</a>";
+                             return l2
+                         },
+                     },
+                     { display: 'Description', name: 'Description', minWidth: 120, align: 'center' },
+                     { display: 'HLD', name: 'HLD', minWidth: 120, align: 'center' },
+                     { display: 'Version', name: 'Version', heightAlign: 'center' },
+                     { display: 'Age', name: 'Age', minWidth: 60, align: 'center' },
+                     { display: 'Status', name: 'Status', minWidth: 170, align: 'center' },
+                     { display: 'LastModifier', name: 'LastModifier', minWidth: 170, align: 'center' },
+                     { display: 'History', name: 'History', minWidth: 170, align: 'center' },
+                     { display: 'L1-Ticket',
+                       //name: 'L1_Ticket', minWidth: 300, align: 'center',
+                       columns:
+                       [
+                           {display: 'hello', name: 'hello', minWidth: 350, align: 'center'},
+                           {display: 'fuck' , name: 'fuck' , minWidth: 350, align: 'center'},
+                       ],
+                     },
+                     { display: 'L2-Ticket', name: 'L2_Ticket', minWidth: 170, align: 'center',
+                       render: function (rowData,value)
+                       {
+                           myurl='https://issues.sierrawireless.com/browse/' + 'QTI9X28-5555' ;
+                           return "<a href='"+myurl+"' target=__blank>"+rowData.L2_Ticket+"</a>";
+                       },
+                     },
+                     { display: 'JIRA-BUG-Ticket', name: 'JIRA_BUG_Ticket', minWidth: 170, align: 'center' },
+                     { display: 'JIRA-BUG-Ticket', name: 'JIRA_BUG_Ticket', minWidth: 170, align: 'center' },
+                     { display: 'TestCases', name: 'TestCases', minWidth: 170, align: 'center' },
+                     { display: 'TestReports', name: 'TestReports', minWidth: 170, align: 'center' },
+                     { display: 'Platform', name: 'Platform', minWidth: 170, align: 'center' },
+                 ],
+                 //data: $.extend(true,{},CustomersData),
+                 //data: $.extend(true,{}, myvar),
+                 data: $.extend(true,{}, liger_cookies),
+                 pageSize: 30,
+                 checkbox: true,
+                 width: '100%',
+                 height: '100%',
+             });
+         $("#pageloading").hide();
+     });
+
+     function itemclick()
+     {
+         g.options.data = $.extend(true,{}, CustomersData);
+         g.showFilter();
+     }
+
+    </script>
+
+</head>
+<body style="padding:10px">
+    <div class="l-loading" style="display: block" id="pageloading"> </div>
+    <div id="maingrid4" style="margin: 0; padding: 0"> </div>
+    <div style="display: none;"> </div>
+</body>
+</html>

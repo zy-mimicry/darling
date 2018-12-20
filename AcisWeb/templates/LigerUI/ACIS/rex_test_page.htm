@@ -1,0 +1,160 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>ACIS Home Page</title>
+	  <meta http-equiv="X-UA-Compatible" content="IE=8"/>
+    <link href="../../LigerUI/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css">
+    <link href="../../LigerUI/lib/ligerUI/skins/Gray/css/all.css" rel="stylesheet" type="text/css">
+    <link href="../../LigerUI/lib/ligerUI/skins/ligerui-icons.css" rel="stylesheet" type="text/css">
+    <link href="../../LigerUI/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+    <link href="../../LigerUI/lib/ligerUI/skins/Gray2014/css/all.css" rel="stylesheet" />
+
+    <script src="../../LigerUI/lib/jquery/jquery-1.9.0.min.js" type="text/javascript"></script>
+
+    <script src="../../LigerUI/lib/jquery-validation/jquery.validate.min.js"></script>
+    <script src="../../LigerUI/lib/jquery-validation/jquery.metadata.js"></script>
+    <script src="../../LigerUI/lib/jquery-validation/messages_cn.js"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerToolBar.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerGrid.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerFilter.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerDrag.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerResizable.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerPanel.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerPortal.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerListBox.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerCheckBox.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/plugins/ligerComboBox.js" type="text/javascript"></script>
+    <script src="../../LigerUI/lib/ligerUI/js/ligerui.all.js"></script>
+
+    <script src="../../LigerUI/demos/filter/ligerGrid.showFilter.js" type="text/javascript"></script>
+    <script src="../../LigerUI/demos/grid/CustomersData.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+     $.ligerDefaults.Filter.operators['string'] =
+         $.ligerDefaults.Filter.operators['text'] =
+             ["like" , "equal", "notequal", "startwith", "endwith" ];
+
+     var myvar = {Rows:[{"CustomerID":"ALFKI",
+                         "CompanyName":"Alfreds Futterkiste",
+                         "ContactName":"Maria Anders",
+                         "ContactTitle":"Sales Representative",
+                         "Address":"Obere Str. 57",
+                         "City":"Berlin",
+                         "Region":null,
+                         "PostalCode":"12209",
+                         "Country":"Germany",
+                         "Phone":"030-0074321",
+                         "Fax":"030-0076545"}]};
+
+     var cookies = {{ cookies|safe }};
+     var liger_cookies_l = [];
+     for (var i = 0 ; i < 5; i++){
+         liger_cookies_l.push(cookies[0]);
+     }
+     var liger_cookies = {Rows:liger_cookies_l};
+
+     $(function ()
+     {
+         jira_head = 'https://issues.sierrawireless.com/browse/';
+         window['g'] =
+             $("#maingrid4").ligerGrid({
+                 columns: [
+                     { display: 'ERD_ID', name: 'ERD_ID', align: 'center', minWidth: 60 },
+                     { display: 'ERD-Tickets',
+                       columns:
+                       [
+                           { display: 'L1-Ticket', name: 'L1_Ticket', minWidth: 140, align: 'center',
+                             render: function (rowData,value)
+                             {
+                                 link_me = "<a href='"+ jira_head + rowData.L1_Ticket +"' target=__blank>["+ rowData.L1_Ticket +"]</a>";
+                                 return link_me;
+                             },
+                           },
+                           { display: 'L2-Ticket', name: 'L2_Ticket', minWidth: 140, align: 'center',
+                             render: function (rowData,value)
+                             {
+                                 link_me = "<a href='"+ jira_head + rowData.L2_Ticket +"' target=__blank>["+ rowData.L1_Ticket +"]</a>";
+                                 return link_me;
+                             },
+                           },
+                       ],
+                     },
+                     { display: 'JIRA-BUG-Tickets', name: 'JIRA_BUG_Tickets', minWidth: 300, align: 'left',
+                       render: function (rowData,value)
+                       {
+                           list_self = [];
+                           out = "";
+                           for (obj in rowData.JIRA_BUG_Tickets){
+                               list_self.push("<a href='" + jira_head + rowData.JIRA_BUG_Tickets[obj] + "' target=__blank>[" + rowData.JIRA_BUG_Tickets[obj] + "]</a>");
+                           }
+                           for (i = 0 ; i < list_self.length; i++){
+                               out += list_self[i]
+                           }
+                           return out;
+                       },
+                     },
+                     { display: 'TestCases', name: 'TestCases', minWidth: 170, align: 'left' ,
+                       render: function (rowData,value)
+                       {
+                           out = "";
+                           for (obj in rowData.TestCases){
+                               out += '[' + rowData.TestCases[obj] + '] ';
+                           }
+                           return out;
+                       },
+                     },
+                     { display: 'TestReports', name: 'TestReports', minWidth: 500, align: 'left',
+                       render: function (rowData,value)
+                       {
+                           list_self = [];
+                           out = "";
+                           /* Report Link MUST be modified later. */
+                           for (obj in rowData.TestReports){
+                               list_self.push("<a href='" + jira_head + rowData.TestReports[obj] + "' target=__blank>[" + rowData.TestReports[obj] + "] </a>");
+                           }
+                           for (i = 0 ; i < list_self.length; i++){
+                               out += list_self[i]
+                           }
+                           return out;
+                       },
+                     },
+                     { display: 'Description', name: 'Description', minWidth: 120, align: 'center' },
+                     { display: 'Version', name: 'Version', minWidth: 60 ,heightAlign: 'center' },
+                     { display: 'HLD', name: 'HLD', minWidth: 150, align: 'center' },
+                     { display: 'Age', name: 'Age', minWidth: 40, align: 'center' },
+                     { display: 'Action', name: 'Action', minWidth: 100, align: 'center' },
+                     { display: 'Status', name: 'Status', minWidth: 100, align: 'center' },
+                     { display: 'LastModifier', name: 'LastModifier', minWidth: 120, align: 'center' },
+                     { display: 'History', name: 'History', minWidth: 100, align: 'center' },
+                     { display: 'Platform', name: 'Platform', minWidth: 70, align: 'center' },
+                 ],
+                 //data: $.extend(true,{},CustomersData),
+                 //data: $.extend(true,{}, myvar),
+                 data: $.extend(true,{}, liger_cookies),
+                 pageSize: 30,
+                 checkbox: true,
+                 width: '100%',
+                 height: '100%',
+             });
+         $("#pageloading").hide();
+     });
+
+     function itemclick()
+     {
+         g.options.data = $.extend(true,{}, CustomersData);
+         g.showFilter();
+     }
+
+    </script>
+
+</head>
+<body style="padding:10px">
+    <div class="l-loading" style="display: block" id="pageloading"> </div>
+    <div id="maingrid4" style="margin: 0; padding: 0"> </div>
+    <div style="display: none;"> </div>
+</body>
+</html>

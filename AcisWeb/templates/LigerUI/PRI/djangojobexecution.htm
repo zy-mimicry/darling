@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>PRI_System: OEMPRI Manager</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=8"/>
+    <link href="../LigerUI/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+    <script src="../LigerUI/lib/jquery/jquery-1.9.0.min.js" type="text/javascript"></script>
+    <link href="../LigerUI/lib/ligerUI/skins/ligerui-icons.css" rel="stylesheet" type="text/css" />
+    <script src="../LigerUI/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerGrid.js" type="text/javascript"></script> 
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerResizable.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerTextBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerCheckBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerComboBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerGrid.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerDateEditor.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerSpinner.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerListBox.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerButton.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/core/inject.js" type="text/javascript"></script>
+    <script src="../LigerUI/lib/ligerUI/js/plugins/ligerToolBar.js" type="text/javascript"></script>
+
+    <!--script src="../CustomersData.js" type="text/javascript"></script-->
+    <script type="text/javascript">
+        var g;
+        $(function () {
+            g = $("#maingrid4").ligerGrid({
+                columns: [
+                { display: 'ID', name: 'id', align: 'left', width: 40, align: 'left'},
+                { display: 'Status', name: 'status', width: 100, align: 'left'},
+                { display: 'run_time', name: 'run_time', width: 130, align: 'left'},
+                { display: 'started', name: 'started', width: 130, align: 'left',
+                    render: function (record, rowindex, value, column) {
+                        if (value != '') return timestampToTime(value);
+                        else return value
+                    }
+                },
+                { display: 'finished', name: 'finished', width: 130, align: 'left',
+                    render: function (record, rowindex, value, column) {
+                        if (value != '') return timestampToTime(value);
+                        else return value
+                    }
+                },
+                { display: 'exception', name: 'exception', width: 80, align: 'left'},
+                { display: 'traceback', name: 'traceback', width: 80, align: 'left'},
+                ],
+                onAfterShowData :function (rowdata,rowid) {
+                    if (intclock==0) {load();}
+                },
+                alternatingRow: false,
+                rowHeight: 20,
+                headerRowHeight: 20,
+                pageSizeOptions: [10,20, 22, 25,26,30, 33,38,40,50,100,200,500],
+                pageSize:30,
+                enabledSort : true,
+                sortName:'job_id',
+                sortOrder:'desc',
+                url:'/run_job/?op=django_job_exec_list&tb=djangojobexecution&fmt=json',
+                dataType: 'server',
+                dataAction: 'server',
+                usePager: true,
+                async: true,
+                scroll: true,
+                rownumbers:false,
+                enabledEdit: true, //Click the line without checking 
+                width: '100%',height:'100%',
+            });
+            $("#pageloading").hide();
+        });
+        function timestampToTime(timestamp) {
+            var date = new Date(timestamp * 1000);
+            var Y = date.getFullYear() + '-';
+            var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+            var D = date.getDate() + ' ';
+            var h = date.getHours() + ':';
+            var m = date.getMinutes() + ':';
+            var s = date.getSeconds();
+            return Y+M+D+h+m+s;
+        };
+        var intclock = 0;
+        function load() {
+            intclock=self.setInterval(10000);
+        }
+        function goodbye() {
+            self.clearInterval(intclock);
+        }
+        var tip;
+        var num = 0;
+        function f_tip2(msg) {
+                tip = $.ligerDialog.alert(msg,'PRI_System');
+        }
+    </script>
+</head>
+<body style="padding:6px; overflow:hidden;" onunload="goodbye()">
+    <div class="l-loading" style="display: block" id="pageloading">
+    </div> 
+    <div id="maingrid4" style="margin:0; padding:0"></div>
+    <div style="display:none;">
+    <!-- g data total ttt -->
+    </div>  
+</body>
+</html>
