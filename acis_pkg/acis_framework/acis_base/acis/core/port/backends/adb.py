@@ -27,7 +27,7 @@ class _ADB():
     def __repr__(self):
        return "<Class: {name} , serial id: {conf}>".format(name = _ADB.name,conf=self.serial_id)
 
-    def send_cmd(self, command, timeout=10):
+    def send_cmd(self, command, timeout=30):
 
         try:
             start_time = datetime.now()
