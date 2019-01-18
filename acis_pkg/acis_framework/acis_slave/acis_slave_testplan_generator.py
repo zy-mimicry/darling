@@ -250,6 +250,7 @@ class Slave_testplan_prepare:
     def run_pytest(self, report_path, test_script):
         os.chdir(self.envs.loop_test_path())
         test_history = self.dut_test_history_prepare()
+        print(test_script)
         os.system('pytest -s {TEST_SCRIPT} --count={COUNT} --alluredir {REPORT_PATH} --junitxml={JUNIT_REPORT}'.format(
                 TEST_SCRIPT=test_script,
                 COUNT=self.envs.get_test_count(),

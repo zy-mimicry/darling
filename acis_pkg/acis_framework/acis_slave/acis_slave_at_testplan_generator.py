@@ -14,16 +14,12 @@ import shutil
 
 def get_test_script_with_full_path(test_case_name, test_script_path):
     test_script = test_case_name + ".py"
-    test_script_with_full_path = ''
     for root, dirs, files in os.walk(test_script_path, topdown=True):
         for name in files:
             full_path = os.path.join(root, name)
             if test_script in full_path:
                 return full_path
-    raise Exception("@@@@@@@ Error can't find the test case[%s]!" % test_case_name)
-    #             test_script_with_full_path = full_path
-    # return test_script_with_full_path
-
+    raise Exception("@ Error can't find the test case[%s]!" % test_case_name)
 
 def get_test_script_relate_path(test_scipt_store_path, test_script_full_path, test_case_name):
     case_relative_store_path_list = test_script_full_path.split(test_scipt_store_path)

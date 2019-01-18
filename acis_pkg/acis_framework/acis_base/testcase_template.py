@@ -15,7 +15,6 @@ Date                    Fixer                           Modification
 ------------------------------------------------------------------------
 """
 
-template_file_parent_name = template_file_super_name = ""
 
 @report.fixture(scope="module")
 def m(request, minit):
@@ -33,15 +32,10 @@ def m(request, minit):
     """
     mz =  minit(__file__,
                 logger_name = __name__,
-                abs_file = os.path.abspath(__file__),
                 port_names  = [
                     'AT..any',              #  << [Modify as needed]
                     'ADB..any',             #  << [Modify as needed]
                 ])
-
-    global template_file_parent_name,template_file_super_name
-    template_file_parent_name = mz.parent_name
-    template_file_super_name  = mz.super_name
 
     mz.test_ID = __name__
     mz.errors = {}
@@ -60,9 +54,8 @@ def out_of_class_function(m):
 #####################################################################
 
 
-@report.epic(template_file_super_name)
-@report.feature(template_file_parent_name)
-@report.link("https://issues.sierrawireless.com/browse/QTI9X28-4443", name = "JIRA TICKET")
+@report.epic(os.path.basename(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+@report.feature(os.path.basename(os.path.dirname(os.path.abspath(__file__))))
 class !AcisSystemReset!(): # << should be modified to test case name. <Written in hump format>
 
     # Methods defined inside the class like this. You can place your method here.
@@ -84,6 +77,33 @@ class !AcisSystemReset!(): # << should be modified to test case name. <Written i
         self.class_local_method(m)
         m.log("Stage [pre]")
         sim_ini = m.conf.SIM_INI
+        m.at.any.send_cmd("ATE0\r\n")
+        m.at.any.waitn_match_resp(["*\r\nOK\r\n"], 4000)
+
+        m.at.any.send_cmd("AT+CMEE=1\r\n")
+        m.at.any.waitn_match_resp(["*\r\nOK\r\n"], 4000)
+
+        m.at.any.send_cmd("ATI3\r\n")
+        m.at.any.waitn_match_resp(["*\r\nOK\r\n"], 4000)
+
+        m.at.any.send_cmd("ATI8\r\n")
+        m.at.any.waitn_match_resp(["*\r\nOK\r\n"], 4000)
+
+        m.at.any.send_cmd("AT!PACKAGE?\r\n")
+        m.at.any.waitn_match_resp(["*\r\nOK\r\n"], 4000)
+
+        m.at.any.send_cmd("AT!SKU?\r\n")
+        m.at.any.waitn_match_resp(["*\r\nOK\r\n"], 4000)
+
+        m.at.any.send_cmd("AT!UNLOCK=\"A710\"\r\n")
+        m.at.any.waitn_match_resp(["*\r\nOK\r\n"], 4000)
+
+        m.at.any.send_cmd("AT!EROPTION=0,1\r\n")
+        m.at.any.waitn_match_resp(["*\r\nOK\r\n"], 4000)
+
+        m.at.any.send_cmd("AT!RESET\r\n")
+        m.at.any.waitn_match_resp(["*\r\nOK\r\n"], 4000)
+        m.at.any.sleep(40000)
 
     @report.step("[Stage] <Real-Test-Body>")
     def body(self, m):
